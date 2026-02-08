@@ -101,16 +101,6 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setEmail("admin@onlinetools.com");
-                                setPassword("admin123");
-                            }}
-                            className="w-full py-2 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs hover:text-white hover:bg-white/10 transition-colors mt-2"
-                        >
-                            Fill Admin Credentials (admin@onlinetools.com)
-                        </button>
 
                         <button
                             type="submit"
