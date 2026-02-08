@@ -12,13 +12,25 @@ export default function VideoPage() {
     const router = useRouter();
     const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
     const [targetSlot, setTargetSlot] = useState<'start' | 'end' | null>(null);
+    const [isPageLoading, setIsPageLoading] = useState(true);
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
         if (!user) {
             router.push('/login');
+        } else {
+            setIsPageLoading(false);
         }
     }, [router]);
+
+    // Show loading while checking auth
+    if (isPageLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     // State
     const [startImage, setStartImage] = useState<File | null>(null);

@@ -7,13 +7,26 @@ import { Mic, Play, Square, Download, Wand2, Volume2, AlertCircle } from "lucide
 
 export default function VoicePage() {
     const router = useRouter();
+    const [isPageLoading, setIsPageLoading] = useState(true);
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
         if (!user) {
             router.push('/login');
+        } else {
+            setIsPageLoading(false);
         }
     }, [router]);
+
+    // Show loading while checking auth
+    if (isPageLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
     const [text, setText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
