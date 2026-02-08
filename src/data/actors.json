@@ -1,0 +1,46 @@
+[
+  {
+    "id": "anas",
+    "name": "Anas",
+    "role": "Tech Enthusiast",
+    "bio": "Expert in modern technology and gadget reviews.",
+    "age": 28,
+    "accent": "Casawi",
+    "mannerisms": "Adjusting glasses, rapid hand gestures",
+    "masterFrame": "/actors/anas.png",
+    "systemPrompt": "Anas, a 28-year-old Moroccan tech enthusiast, short dark hair, slight stubble, casual hoodie. Realistic home office background, computer screens, natural skin textures."
+  },
+  {
+    "id": "laila",
+    "name": "Laila",
+    "role": "Lifestyle Blogger",
+    "bio": "Shares daily life, décor, and traditional Moroccan lifestyle tips.",
+    "age": 25,
+    "accent": "Rbati",
+    "mannerisms": "Tucking hair behind ear, warm smile",
+    "masterFrame": "/actors/laila.png",
+    "systemPrompt": "Laila, a 25-year-old Moroccan woman, long wavy dark hair, brown eyes, modest stylish dress. Riad interior background, zellige tiles, natural skin textures."
+  },
+  {
+    "id": "youssef",
+    "name": "Youssef",
+    "role": "Traditional Chef",
+    "bio": "Master of Moroccan cuisine and traditional bread making.",
+    "age": 42,
+    "accent": "Fassi",
+    "mannerisms": "Touching chin while thinking, precise hand movements",
+    "masterFrame": "/actors/youssef.png",
+    "systemPrompt": "Youssef, a 42-year-old Moroccan chef, salt-and-pepper short hair, chef jacket. Traditional kitchen background, tagines, spices, natural textures."
+  },
+  {
+    "id": "fatima",
+    "name": "Fatima",
+    "role": "Fashion Designer",
+    "bio": "Reviving traditional caftans with a modern creative twist.",
+    "age": 31,
+    "accent": "Marrakshi",
+    "mannerisms": "Squinting at detail, playing with beads",
+    "masterFrame": "/actors/fatima.png",
+    "systemPrompt": "Fatima, a 31-year-old Moroccan woman, hair in a bun, creative glasses, stylish caftan top. Design studio background, fabrics, sewing machine."
+  }
+]

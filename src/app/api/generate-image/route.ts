@@ -1,0 +1,95 @@
+import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getGeminiApiKey } from "@/lib/config";
+
+export async function POST(req: NextRequest) {
+    try {
+        const { prompt, image } = await req.json();
+
+        if (!prompt) {
+            return NextResponse.json(
+                { error: "Prompt is required" },
+                { status: 400 }
+            );
+        }
+
+        const apiKey = getGeminiApiKey();
+        if (!apiKey) {
+            return NextResponse.json({ error: "Server missing API Key. Configure in Admin Panel." }, { status: 500 });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+
+        // Use 'gemini-2.0-flash-exp' as it has strong multimodal capabilities for "Image to Image" (editing)
+        // 'nano-banana-pro-preview' might be text-only or specific. 
+        // For consistency, Flash 2.0 is excellent at following visual instructions.
+        const modelName = "gemini-2.0-flash-exp";
+        const model = genAI.getGenerativeModel({ model: modelName });
+
+        console.log(`Generating with ${modelName}. Prompt: "${prompt.substring(0, 50)}..." | Image present: ${!!image}`);
+
+        const parts: any[] = [];
+
+        // 1. Add System/User text instruction
+        // If image is present, we wrap the prompt to ensure consistency.
+        const finalPrompt = image
+            ? `Output an IMAGE. Look at the input image carefully. Generate a new photorealistic image of the SAME EXACT PERSON (same face, same identity). Preserve their facial features strictly. \n\nUser instruction: ${prompt}`
+            : `Output an IMAGE. ${prompt}`;
+
+        parts.push({ text: finalPrompt });
+
+        // 2. Add Image if present
+        if (image) {
+            // Expecting data:image/png;base64,.... split it
+            const base64Data = image.split(",")[1] || image;
+            const mimeType = image.split(";")[0].split(":")[1] || "image/png"; // simple extraction
+
+            parts.push({
+                inlineData: {
+                    data: base64Data,
+                    mimeType: mimeType
+                }
+            });
+        }
+
+        try {
+            const result = await model.generateContent({
+                contents: [{ role: "user", parts: parts }],
+            });
+
+            const response = await result.response;
+            console.log("Imagen Response Candidates:", JSON.stringify(response.candidates, null, 2));
+
+            // Check for executable code or function call (unlikely for Imagen)
+            // Check for inline data (base64)
+            if (response.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
+                const imgData = response.candidates[0].content.parts[0].inlineData;
+                const base64Image = `data:${imgData.mimeType};base64,${imgData.data}`;
+                return NextResponse.json({ success: true, raw: { url: base64Image } });
+            }
+
+            // If it's a URL in text
+            const text = response.text();
+            if (text && text.startsWith("http")) {
+                return NextResponse.json({ success: true, raw: { url: text } });
+            }
+
+            return NextResponse.json({
+                success: false,
+                error: "Model returned text: " + text.substring(0, 100),
+                raw: response
+            });
+
+        } catch (genError: any) {
+            console.error("Nanbanana Generation Error:", genError);
+            return NextResponse.json({ error: genError.message || "Generation failed" }, { status: 500 });
+        }
+
+    } catch (error) {
+        console.error("Error processing request:", error);
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        );
+    }
+}
