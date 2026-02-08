@@ -7,7 +7,16 @@ import { Mic, Play, Square, Download, Wand2, Volume2, AlertCircle } from "lucide
 
 export default function VoicePage() {
     const router = useRouter();
+
+    // All hooks must be declared BEFORE any conditional return
     const [isPageLoading, setIsPageLoading] = useState(true);
+    const [text, setText] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Standard-A");
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
@@ -18,25 +27,6 @@ export default function VoicePage() {
         }
     }, [router]);
 
-    // Show loading while checking auth
-    if (isPageLoading) {
-        return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
-    }
-
-    const [text, setText] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
-
-    // Voice Options (We will map these to the API params)
-    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Standard-A"); // Default Arabic
-
     const voices = [
         { id: "ar-XA-Standard-A", name: "Arabic (Female)", lang: "ar-XA" },
         { id: "ar-XA-Standard-B", name: "Arabic (Male)", lang: "ar-XA" },
@@ -45,6 +35,15 @@ export default function VoicePage() {
         { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR" },
         { id: "fr-FR-Neural2-B", name: "French (Male)", lang: "fr-FR" },
     ];
+
+    // Show loading while checking auth (AFTER all hooks)
+    if (isPageLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     const containerVariants = {
         hidden: { opacity: 0 },

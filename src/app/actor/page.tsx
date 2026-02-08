@@ -9,6 +9,8 @@ import ActorLibrary from "@/components/ActorLibrary";
 
 export default function ActorStudioPage() {
     const router = useRouter();
+
+    // All hooks must be declared BEFORE any conditional return
     const [isPageLoading, setIsPageLoading] = useState(true);
 
     useEffect(() => {
@@ -20,7 +22,7 @@ export default function ActorStudioPage() {
         }
     }, [router]);
 
-    // Show loading while checking auth
+    // Show loading while checking auth (AFTER all hooks)
     if (isPageLoading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">

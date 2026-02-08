@@ -10,9 +10,19 @@ import FrameGenerator from "@/components/FrameGenerator";
 
 export default function VideoPage() {
     const router = useRouter();
+
+    // All hooks must be declared BEFORE any conditional return
     const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
     const [targetSlot, setTargetSlot] = useState<'start' | 'end' | null>(null);
     const [isPageLoading, setIsPageLoading] = useState(true);
+    const [startImage, setStartImage] = useState<File | null>(null);
+    const [endImage, setEndImage] = useState<File | null>(null);
+    const [startImageUrl, setStartImageUrl] = useState<string | null>(null);
+    const [endImageUrl, setEndImageUrl] = useState<string | null>(null);
+    const [prompt, setPrompt] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
@@ -23,7 +33,7 @@ export default function VideoPage() {
         }
     }, [router]);
 
-    // Show loading while checking auth
+    // Show loading while checking auth (AFTER all hooks)
     if (isPageLoading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
@@ -31,19 +41,6 @@ export default function VideoPage() {
             </div>
         );
     }
-
-    // State
-    const [startImage, setStartImage] = useState<File | null>(null);
-    const [endImage, setEndImage] = useState<File | null>(null);
-
-    // For generated images (URLs)
-    const [startImageUrl, setStartImageUrl] = useState<string | null>(null);
-    const [endImageUrl, setEndImageUrl] = useState<string | null>(null);
-
-    const [prompt, setPrompt] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const [videoUrl, setVideoUrl] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
 
     const containerVariants = {
         hidden: { opacity: 0 },

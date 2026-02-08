@@ -8,7 +8,12 @@ import { Sparkles, Download, Wand2 } from "lucide-react";
 export default function NanbananaPage() {
     const router = useRouter();
 
+    // All hooks must be declared BEFORE any conditional return
     const [isLoading, setIsLoading] = useState(true);
+    const [prompt, setPrompt] = useState("");
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
@@ -19,12 +24,7 @@ export default function NanbananaPage() {
         }
     }, [router]);
 
-    const [prompt, setPrompt] = useState("");
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-
-    // Show loading while checking auth
+    // Show loading while checking auth (AFTER all hooks)
     if (isLoading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">

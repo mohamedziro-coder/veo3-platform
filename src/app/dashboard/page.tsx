@@ -8,6 +8,8 @@ import { Video, Image as ImageIcon, Mic, ArrowRight, Sparkles, ShieldCheck } fro
 
 export default function Dashboard() {
     const router = useRouter();
+
+    // All hooks must be declared BEFORE any conditional return
     const [isAdmin, setIsAdmin] = useState(false);
     const [userName, setUserName] = useState("Creator");
     const [activities, setActivities] = useState<any[]>([]);
@@ -34,7 +36,7 @@ export default function Dashboard() {
         setIsLoading(false);
     }, [router]);
 
-    // Show loading state while checking auth
+    // Show loading state while checking auth (AFTER all hooks)
     if (isLoading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
