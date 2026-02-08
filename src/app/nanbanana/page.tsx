@@ -8,21 +8,35 @@ import { Sparkles, Download, Wand2 } from "lucide-react";
 export default function NanbananaPage() {
     const router = useRouter();
 
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
         const user = localStorage.getItem('current_user');
         if (!user) {
             router.push('/login');
+        } else {
+            setIsLoading(false);
         }
     }, [router]);
+
     const [prompt, setPrompt] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    // Show loading while checking auth
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     const handleGenerate = async () => {
         if (!prompt) return;
 
-        setIsLoading(true);
+        setIsGenerating(true);
         setImageUrl(null);
         setError(null);
 
@@ -48,22 +62,21 @@ export default function NanbananaPage() {
                     activities.unshift({
                         email: user.email,
                         name: user.name,
-                        tool: "Image",
-                        timestamp: new Date().toISOString(),
-                        details: `Generated image: "${prompt.substring(0, 30)}${prompt.length > 30 ? '...' : ''}"`
+                        tool: 'Image Generation',
+                        timestamp: new Date().toISOString()
                     });
-                    localStorage.setItem('mock_activity', JSON.stringify(activities.slice(0, 50)));
+                    localStorage.setItem('mock_activity', JSON.stringify(activities));
                 } else {
                     setError("API response format unclear. Check console.");
                 }
             } else {
-                setError(data.error || "Failed to generate image");
+                setError(data.error || "Failed to generate image. Please try again.");
             }
         } catch (err) {
-            setError("Network error");
+            setError("An error occurred. Check your API connection.");
             console.error(err);
         } finally {
-            setIsLoading(false);
+            setIsGenerating(false);
         }
     };
 

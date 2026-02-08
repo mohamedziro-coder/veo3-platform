@@ -12,6 +12,7 @@ export default function Dashboard() {
     const [userName, setUserName] = useState("Creator");
     const [activities, setActivities] = useState<any[]>([]);
     const [generationCount, setGenerationCount] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const userStr = localStorage.getItem('current_user');
@@ -19,6 +20,7 @@ export default function Dashboard() {
             router.push('/login');
             return;
         }
+
         const user = JSON.parse(userStr);
         setUserName(user.name || "Creator");
         setIsAdmin(user.role === 'admin');
@@ -28,7 +30,18 @@ export default function Dashboard() {
         const userActivities = allActivities.filter((a: any) => a.email === user.email);
         setActivities(userActivities.slice(0, 5)); // Show last 5
         setGenerationCount(userActivities.length);
+
+        setIsLoading(false);
     }, [router]);
+
+    // Show loading state while checking auth
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     const containerVariants = {
         hidden: { opacity: 0 },
