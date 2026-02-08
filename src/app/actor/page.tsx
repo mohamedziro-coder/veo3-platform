@@ -9,13 +9,25 @@ import ActorLibrary from "@/components/ActorLibrary";
 
 export default function ActorStudioPage() {
     const router = useRouter();
+    const [isPageLoading, setIsPageLoading] = useState(true);
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
         if (!user) {
             router.push('/login');
+        } else {
+            setIsPageLoading(false);
         }
     }, [router]);
+
+    // Show loading while checking auth
+    if (isPageLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <main className="min-h-screen bg-black text-white pt-24 px-6 relative overflow-hidden">
