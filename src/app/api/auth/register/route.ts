@@ -3,10 +3,6 @@ import { createUser, getUserByEmail, updateVerificationToken } from '@/lib/db';
 import { Resend } from 'resend';
 import crypto from 'crypto';
 
-const resendInfo = {
-    apiKey: process.env.RESEND_API_KEY
-};
-
 export async function POST(req: NextRequest) {
     try {
         const { name, email, password } = await req.json();
@@ -37,13 +33,13 @@ export async function POST(req: NextRequest) {
         await updateVerificationToken(email, token);
 
         // Send Verification Email
-        // Initialize Resend dynamically to avoid build-time errors if key is missing
-        const resend = new Resend(process.env.RESEND_API_KEY);
+        // Initialize Resend dynamically
+        // Fallback to provided key if env var is missing (User requested fix)
+        const apiKey = process.env.RESEND_API_KEY || 're_2VeZePpi_QqupWcvwheBs8P3Se53re7Be';
+        const resend = new Resend(apiKey);
 
         if (!process.env.RESEND_API_KEY) {
-            console.error("RESEND_API_KEY is missing");
-            // We could return error, but let's allow signup without verification if key is missing (fallback)
-            // or better, fail gracefully. For now, let's try to send.
+            console.warn("RESEND_API_KEY is missing from env, using fallback key.");
         }
 
         await resend.emails.send({
