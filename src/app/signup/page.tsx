@@ -33,7 +33,9 @@ export default function SignupPage() {
                 name,
                 email,
                 password,
-                role: email === 'admin@onlinetools.com' ? 'admin' : 'user'
+                password,
+                role: email === 'admin@onlinetools.com' ? 'admin' : 'user',
+                credits: 50 // Initial Free Credits
             };
             users.push(newUser);
             localStorage.setItem('mock_users', JSON.stringify(users));

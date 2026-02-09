@@ -7,6 +7,7 @@ import VideoPlayer from "@/components/VideoPlayer";
 import { Sparkles, PlayCircle, AlertCircle, ShoppingBag, Wand2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import FrameGenerator from "@/components/FrameGenerator";
+import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 
 export default function VideoPage() {
     const router = useRouter();
@@ -23,6 +24,10 @@ export default function VideoPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    // Credit usage state
+    const currentCredits = getUserCredits();
+    const canAfford = currentCredits >= COSTS.VIDEO;
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
@@ -71,6 +76,12 @@ export default function VideoPage() {
     }
 
     const handleGenerateVideo = async () => {
+        // 1. Credit Check
+        if (!canAfford) {
+            setError(`Insufficient credits. Required: ${COSTS.VIDEO}, Available: ${currentCredits}. Please upgrade.`);
+            return;
+        }
+
         // Validate inputs: We need Start AND End images (either File or URL)
         const hasStart = startImage || startImageUrl;
         const hasEnd = endImage || endImageUrl;
@@ -145,6 +156,9 @@ export default function VideoPage() {
 
             if (data.status === "success" && data.videoUrl) {
                 setVideoUrl(data.videoUrl);
+
+                // Deduct Credits
+                deductCredits(COSTS.VIDEO);
 
                 // Log Activity
                 const user = JSON.parse(localStorage.getItem('current_user') || '{}');
@@ -308,7 +322,7 @@ export default function VideoPage() {
                             ) : (
                                 <>
                                     <PlayCircle className="w-6 h-6" />
-                                    <span>Generate Video</span>
+                                    <span>Generate Video ({COSTS.VIDEO} Credits)</span>
                                 </>
                             )}
                         </button>

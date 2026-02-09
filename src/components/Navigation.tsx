@@ -14,18 +14,34 @@ export default function Navigation() {
     const isLandingPage = pathname === "/" || pathname === "/pricing";
     const isAuthPage = pathname === "/login" || pathname === "/signup";
 
-    // Check if user is admin
+    // Check if user is admin & get credits
     const [isAdmin, setIsAdmin] = useState(false);
-    useEffect(() => {
+    const [credits, setCredits] = useState(0);
+
+    const updateAuthStatus = () => {
         const userStr = localStorage.getItem('current_user');
         if (userStr) {
             try {
                 const user = JSON.parse(userStr);
                 setIsAdmin(user.role === 'admin');
+                setCredits(typeof user.credits === 'number' ? user.credits : 0);
             } catch (e) {
                 console.error("Failed to parse user", e);
             }
         }
+    };
+
+    useEffect(() => {
+        updateAuthStatus();
+
+        // Listen for events to update credits dynamically
+        window.addEventListener('storage', updateAuthStatus);
+        window.addEventListener('credits-updated', updateAuthStatus);
+
+        return () => {
+            window.removeEventListener('storage', updateAuthStatus);
+            window.removeEventListener('credits-updated', updateAuthStatus);
+        };
     }, [pathname]);
 
     // Navigation for the App (Dashboard + Tools)
@@ -143,8 +159,12 @@ export default function Navigation() {
                 })}
             </nav>
 
-            {/* User Profile / Sign Out */}
+            {/* User Profile / Credits */}
             <div className="flex items-center gap-2 pl-2">
+                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300">
+                    <Sparkles className="w-3 h-3" />
+                    <span>{credits} Credits</span>
+                </div>
                 <button
                     onClick={() => {
                         localStorage.removeItem('current_user');

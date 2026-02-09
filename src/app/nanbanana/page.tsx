@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Sparkles, Download, Wand2 } from "lucide-react";
+import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 
 export default function NanbananaPage() {
     const router = useRouter();
@@ -14,6 +15,9 @@ export default function NanbananaPage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    const currentCredits = getUserCredits();
+    const canAfford = currentCredits >= COSTS.IMAGE;
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
@@ -36,6 +40,11 @@ export default function NanbananaPage() {
     const handleGenerate = async () => {
         if (!prompt) return;
 
+        if (!canAfford) {
+            setError(`Ma3andekch credits kafin (${currentCredits} available, ${COSTS.IMAGE} required)`);
+            return;
+        }
+
         setIsGenerating(true);
         setImageUrl(null);
         setError(null);
@@ -55,6 +64,8 @@ export default function NanbananaPage() {
                 // For now, let's assume we get a generic success or URL
                 if (data.raw.url || data.raw) {
                     setImageUrl(data.raw.url || "https://picsum.photos/1024/1024"); // Fallback for mock/debug
+
+                    deductCredits(COSTS.IMAGE);
 
                     // Log Activity
                     const user = JSON.parse(localStorage.getItem('current_user') || '{}');
@@ -131,7 +142,7 @@ export default function NanbananaPage() {
                     ) : (
                         <>
                             <Wand2 className="w-6 h-6" />
-                            Générer (Sawb)
+                            Générer (Sawb) - {COSTS.IMAGE} Credits
                         </>
                     )}
                 </button>

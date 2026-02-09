@@ -26,7 +26,7 @@ export default function LoginPage() {
 
             if (!user && email === 'admin@onlinetools.com') {
                 // Auto-register admin for demo purposes if not found
-                user = { name: "Admin User", email: 'admin@onlinetools.com', password: password, role: 'admin' };
+                user = { name: "Admin User", email: 'admin@onlinetools.com', password: password, role: 'admin', credits: 100 };
                 users.push(user);
                 localStorage.setItem('mock_users', JSON.stringify(users));
             }

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Play, Square, Download, Wand2, Volume2, AlertCircle } from "lucide-react";
+import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 
 // Voice options - defined outside component to avoid recreation
 const VOICE_OPTIONS = [
@@ -28,6 +29,9 @@ export default function VoicePage() {
     const [selectedVoice, setSelectedVoice] = useState("ar-XA-Standard-A");
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
+    const currentCredits = getUserCredits();
+    const canAfford = currentCredits >= COSTS.VOICE;
+
     useEffect(() => {
         const user = localStorage.getItem('current_user');
         if (!user) {
@@ -42,7 +46,6 @@ export default function VoicePage() {
             audioRef.current.onended = () => setIsPlaying(false);
         }
     }, [audioUrl]);
-
 
     // Show loading while checking auth (AFTER all hooks)
     if (isPageLoading) {
@@ -69,6 +72,11 @@ export default function VoicePage() {
     const handleGenerate = async () => {
         if (!text) return;
 
+        if (!canAfford) {
+            setError(`Insufficient credits (${currentCredits} available, ${COSTS.VOICE} required)`);
+            return;
+        }
+
         setIsLoading(true);
         setAudioUrl(null);
         setError(null);
@@ -92,6 +100,8 @@ export default function VoicePage() {
                 const audioBlob = await fetch(`data:audio/mp3;base64,${data.audioContent}`).then(r => r.blob());
                 const url = URL.createObjectURL(audioBlob);
                 setAudioUrl(url);
+
+                deductCredits(COSTS.VOICE);
 
                 // Log Activity
                 const user = JSON.parse(localStorage.getItem('current_user') || '{}');
