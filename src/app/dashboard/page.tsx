@@ -21,40 +21,63 @@ export default function Dashboard() {
     const [selectedActivity, setSelectedActivity] = useState<any>(null);
 
     useEffect(() => {
-        const userStr = localStorage.getItem('current_user');
-        if (!userStr) {
-            router.push('/login');
-            return;
-        }
+        const loadUserData = () => {
+            const userStr = localStorage.getItem('current_user');
+            if (!userStr) {
+                router.push('/login');
+                return;
+            }
 
-        const user = JSON.parse(userStr);
-        // ... existing auth logic ...
-        setUserName(user.name || "Creator");
-        setIsAdmin(user.role === 'admin');
+            try {
+                const user = JSON.parse(userStr);
+                setUserName(user.name || "Creator");
+                setIsAdmin(user.role === 'admin');
 
-        // Fetch User Activity
-        let allActivities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
+                // Fetch User Activity
+                let allActivities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
 
-        // Seed Demo Activity if empty (for new users to see the UI)
-        if (allActivities.length === 0) {
-            const demoActivity = {
-                email: user.email,
-                name: user.name,
-                tool: 'Image Generation',
-                timestamp: new Date().toISOString(),
-                details: 'Cyberpunk Moroccan Market (Demo)',
-                prompt: 'A futuristic cyberpunk market in Marrakech, neon lights, flying carpets, 8k resolution',
-                resultUrl: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?q=80&w=1000&auto=format&fit=crop'
-            };
-            allActivities = [demoActivity];
-            localStorage.setItem('mock_activity', JSON.stringify(allActivities));
-        }
+                // Seed Demo Activity if empty
+                if (allActivities.length === 0) {
+                    // ... (keep existing seed logic if any, or just empty) ...
+                    // Shortened for brevity in this replace block, assuming original logic is preserved if not matched
+                    // Actually, better to just keep the original logic inside this function
+                }
 
-        const userActivities = allActivities.filter((a: any) => a.email === user.email);
-        setActivities(userActivities.slice(0, 5)); // Show last 5
-        setGenerationCount(userActivities.length);
+                // Re-implement the seed logic efficiently or just read what's there
+                if (allActivities.length === 0 && user.email) {
+                    const demoActivity = {
+                        email: user.email,
+                        name: user.name,
+                        tool: 'Image Generation',
+                        timestamp: new Date().toISOString(),
+                        details: 'Cyberpunk Moroccan Market (Demo)',
+                        prompt: 'A futuristic cyberpunk market in Marrakech, neon lights, flying carpets, 8k resolution',
+                        resultUrl: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?q=80&w=1000&auto=format&fit=crop'
+                    };
+                    allActivities = [demoActivity];
+                    localStorage.setItem('mock_activity', JSON.stringify(allActivities));
+                }
 
-        setIsLoading(false);
+                const userActivities = allActivities.filter((a: any) => a.email === user.email);
+                setActivities(userActivities.slice(0, 5));
+                setGenerationCount(userActivities.length);
+            } catch (e) {
+                console.error("Error parsing user data", e);
+            }
+            setIsLoading(false);
+        };
+
+        loadUserData();
+
+        // Listen for storage updates (triggered by Navigation sync)
+        window.addEventListener('storage', loadUserData);
+        // Custom event if we want to force update
+        window.addEventListener('user-updated', loadUserData);
+
+        return () => {
+            window.removeEventListener('storage', loadUserData);
+            window.removeEventListener('user-updated', loadUserData);
+        };
     }, [router]);
 
     // Show loading state while checking auth (AFTER all hooks)

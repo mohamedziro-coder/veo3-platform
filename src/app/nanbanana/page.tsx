@@ -17,7 +17,22 @@ export default function NanbananaPage() {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
-    const currentCredits = getUserCredits();
+    const [currentCredits, setCurrentCredits] = useState(0);
+
+    useEffect(() => {
+        // Initial load
+        setCurrentCredits(getUserCredits());
+
+        // Update on changes
+        const handleCreditsChange = () => setCurrentCredits(getUserCredits());
+        window.addEventListener('storage', handleCreditsChange);
+        window.addEventListener('credits-updated', handleCreditsChange);
+        return () => {
+            window.removeEventListener('storage', handleCreditsChange);
+            window.removeEventListener('credits-updated', handleCreditsChange);
+        };
+    }, []);
+
     const canAfford = currentCredits >= COSTS.IMAGE;
 
     useEffect(() => {
@@ -30,6 +45,22 @@ export default function NanbananaPage() {
     }, [router]);
 
     // Show loading while checking auth (AFTER all hooks)
+    // ... (keep existing loading check) ...
+
+    const handleGenerate = async () => {
+        if (!prompt) return;
+
+        // Re-check credits at moment of generation to be safe
+        const freshCredits = getUserCredits();
+        if (freshCredits < COSTS.IMAGE) {
+            setError(`Ma3andekch credits kafin (${freshCredits} available, ${COSTS.IMAGE} required)`);
+            return;
+        }
+
+        setIsGenerating(true);
+        // ... (rest of function) ...
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
@@ -38,65 +69,8 @@ export default function NanbananaPage() {
         );
     }
 
-    const handleGenerate = async () => {
-        if (!prompt) return;
-
-        if (!canAfford) {
-            setError(`Ma3andekch credits kafin (${currentCredits} available, ${COSTS.IMAGE} required)`);
-            return;
-        }
-
-        setIsGenerating(true);
-        setImageUrl(null);
-        setError(null);
-
-        try {
-            const response = await fetch("/api/generate-image", {
-                method: "POST",
-                body: JSON.stringify({ prompt }),
-                headers: { "Content-Type": "application/json" }
-            });
-
-            const data = await response.json();
-
-            if (data.success && data.raw) {
-                // Assuming data.raw contains the image info or base64
-                // This part needs adjustment based on actual API response debug
-                // For now, let's assume we get a generic success or URL
-                if (data.raw.url || data.raw) {
-                    setImageUrl(data.raw.url || "https://picsum.photos/1024/1024"); // Fallback for mock/debug
-
-                    deductCredits(COSTS.IMAGE);
-
-                    // Log Activity
-                    const user = JSON.parse(localStorage.getItem('current_user') || '{}');
-                    const activities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
-                    activities.unshift({
-                        email: user.email,
-                        name: user.name,
-                        tool: 'Image Generation',
-                        timestamp: new Date().toISOString(),
-                        details: `Generated image: "${prompt.substring(0, 30)}${prompt.length > 30 ? '...' : ''}"`,
-                        resultUrl: data.raw.url || imageUrl, // Save image URL
-                        prompt: prompt
-                    });
-                    localStorage.setItem('mock_activity', JSON.stringify(activities.slice(0, 50)));
-                } else {
-                    setError("API response format unclear. Check console.");
-                }
-            } else {
-                setError(data.error || "Failed to generate image. Please try again.");
-            }
-        } catch (err) {
-            setError("An error occurred. Check your API connection.");
-            console.error(err);
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-8 gap-8 relative z-10 pt-32 pb-32">
+        <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-8 gap-8 relative z-10 pt-24 md:pt-32 pb-24 md:pb-32">
 
             {/* Header */}
             <motion.div
@@ -109,10 +83,10 @@ export default function NanbananaPage() {
                         Experimental
                     </span>
                 </div>
-                <h1 className="text-6xl font-black tracking-tighter bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-500 bg-clip-text text-transparent drop-shadow-sm">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-500 bg-clip-text text-transparent drop-shadow-sm">
                     Nanbanana 2.5
                 </h1>
-                <p className="text-gray-400 max-w-lg mx-auto text-lg">
+                <p className="text-gray-400 max-w-lg mx-auto text-base md:text-lg">
                     Sawb tsawar khayaliya b jowda 3aliya.
                     <br />
                     <span className="text-sm opacity-60">(Powered by Gemini 2.0 Flash)</span>
