@@ -21,7 +21,7 @@ git --version
 
 Write-Host "Pushing changes..."
 git add .
-git commit -m "fix: resolve duplicate imports, redesign auth pages, and polish UI"
+git commit -m "polish: improve mobile design for auth pages"
 git push
 
 Write-Host "Done!"

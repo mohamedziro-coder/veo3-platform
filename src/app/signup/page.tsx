@@ -144,24 +144,25 @@ export default function SignupPage() {
             </div>
 
             {/* RIGHT SIDE - FORM */}
-            <div className="w-full lg:w-1/2 relative flex items-center justify-center p-6 lg:p-12">
+            <div className="w-full lg:w-1/2 relative flex items-center justify-center p-4 lg:p-12">
                 {/* Mobile Background */}
-                <div className="absolute inset-0 lg:hidden pointer-events-none z-0">
-                    <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[80%] bg-blue-900/20 blur-[100px] rounded-full" />
-                    <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-purple-900/20 blur-[100px] rounded-full" />
+                <div className="absolute inset-0 lg:hidden pointer-events-none z-0 overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+                    <div className="absolute top-[-10%] right-[-10%] w-[70%] h-[70%] bg-blue-600/20 blur-[80px] rounded-full animate-pulse" />
+                    <div className="absolute bottom-[-10%] left-[-10%] w-[70%] h-[70%] bg-purple-600/20 blur-[80px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
                 </div>
 
-                <div className="w-full max-w-md relative z-10">
+                <div className="w-full max-w-md relative z-10 bg-black/40 backdrop-blur-xl border border-white/10 p-6 rounded-3xl lg:bg-transparent lg:backdrop-blur-none lg:border-none lg:p-0">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="mb-8 lg:hidden"
+                        className="mb-8 lg:hidden text-center"
                     >
-                        <div className="flex items-center gap-2 font-bold text-xl tracking-tighter text-white">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
-                                <Sparkles className="w-4 h-4 text-white" />
+                        <div className="inline-flex items-center gap-2 font-bold text-xl tracking-tighter text-white">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                                <Sparkles className="w-5 h-5 text-white" />
                             </div>
-                            <span>Veo Platform</span>
+                            <span className="text-2xl">Veo Platform</span>
                         </div>
                     </motion.div>
 
