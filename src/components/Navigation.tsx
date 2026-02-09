@@ -132,7 +132,7 @@ export default function Navigation() {
                     {/* Mobile Burger Menu */}
                     <button
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                        className="md:hidden lg:hidden xl:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
                         aria-label="Toggle menu"
                     >
                         <motion.span
@@ -156,7 +156,7 @@ export default function Navigation() {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="md:hidden fixed top-20 left-0 right-0 z-40 px-6"
+                        className="md:hidden lg:hidden xl:hidden fixed top-20 left-0 right-0 z-40 px-6"
                     >
                         <div className="bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
                             <div className="flex flex-col gap-4">
@@ -257,7 +257,7 @@ export default function Navigation() {
             </div>
 
             {/* Mobile Navigation (Bottom Bar) */}
-            <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
+            <div className="md:hidden lg:hidden xl:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
                 <nav className="relative bg-[#0a0a0a]/90 backdrop-blur-2xl border border-white/10 rounded-full p-2 flex items-center justify-between shadow-2xl shadow-purple-900/20 ring-1 ring-white/5">
                     {appLinks.map((link) => {
                         const isActive = link.active;
