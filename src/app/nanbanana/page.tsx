@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, Download, Wand2 } from "lucide-react";
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
@@ -181,8 +182,23 @@ export default function NanbananaPage() {
                     className="w-full max-w-2xl mt-8"
                 >
                     <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                        <img src={imageUrl} alt="Generated" className="w-full h-auto" />
-                        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent flex justify-between items-end">
+                        <div className="relative w-full h-auto aspect-square md:aspect-video">
+                            {/* Fallback for external URLs that might not be in config, though we added unsplash/google */}
+                            {/* Using unoptimized for arbitrary generation URLs if they come from unknown sources, 
+                                but best effort to use Image if possible. 
+                                Since generated URLs are dynamic, we might need unoptimized=true if domain isn't in config.
+                                But we added generativelanguage.googleapis.com
+                            */}
+                            <Image
+                                src={imageUrl}
+                                alt="Generated"
+                                fill
+                                className="object-contain"
+                                sizes="(max-width: 768px) 100vw, 800px"
+                                unoptimized={!imageUrl.startsWith('https://images.unsplash.com') && !imageUrl.startsWith('https://generativelanguage.googleapis.com')}
+                            />
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent flex justify-between items-end z-10">
                             <button className="flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors">
                                 <Download className="w-4 h-4" />
                                 Telecharger

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Video, Image as ImageIcon, Mic, ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
 
@@ -202,9 +203,15 @@ export default function Dashboard() {
                                         {act.resultUrl ? (
                                             <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 relative">
                                                 {act.tool === 'Video' ? (
-                                                    <video src={act.resultUrl} className="w-full h-full object-cover" muted />
+                                                    <video src={act.resultUrl} className="w-full h-full object-cover" muted playsInline />
                                                 ) : (
-                                                    <img src={act.resultUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                                                    <Image
+                                                        src={act.resultUrl}
+                                                        alt="Thumbnail"
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="48px"
+                                                    />
                                                 )}
                                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                                             </div>
@@ -250,13 +257,19 @@ export default function Dashboard() {
                                     className="w-full h-full object-contain"
                                     autoPlay
                                     loop
+                                    playsInline // Better mobile performance
                                 />
                             ) : selectedActivity.resultUrl ? (
-                                <img
-                                    src={selectedActivity.resultUrl}
-                                    alt="Generated"
-                                    className="w-full h-full object-contain"
-                                />
+                                <div className="relative w-full h-full">
+                                    <Image
+                                        src={selectedActivity.resultUrl}
+                                        alt="Generated"
+                                        fill
+                                        className="object-contain"
+                                        sizes="(max-width: 768px) 100vw, 800px"
+                                        unoptimized={!selectedActivity.resultUrl.startsWith('http')} // Optimization only for supported domains
+                                    />
+                                </div>
                             ) : (
                                 <div className="text-gray-500 flex flex-col items-center gap-2">
                                     <Sparkles className="w-8 h-8 opacity-20" />
