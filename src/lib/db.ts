@@ -44,8 +44,26 @@ export async function getUserByEmail(email: string): Promise<User | null> {
     }
 }
 
+// Check IP usage
+export async function checkIpUsage(ip: string): Promise<boolean> {
+    try {
+        const sql = getDb();
+        const result = await sql`
+            SELECT COUNT(*) as count FROM users WHERE signup_ip = ${ip}
+        `;
+        // Limit to 1 account per IP (Strict) or 2 (Lenient)
+        // User asked to stop "bazaf" (many), so 1 is safest to prevent free credit abuse.
+        return parseInt(result[0].count) < 1;
+    } catch (error) {
+        // If column doesn't exist yet, we might want to allow (fail open) or block (fail closed).
+        // For now, log error and allow to avoid breaking app before migration.
+        console.error('Error checking IP usage:', error);
+        return true;
+    }
+}
+
 // Create new user
-export async function createUser(name: string, email: string, password: string): Promise<User | null> {
+export async function createUser(name: string, email: string, password: string, ip?: string): Promise<User | null> {
     try {
         const sql = getDb();
 
@@ -55,6 +73,16 @@ export async function createUser(name: string, email: string, password: string):
             throw new Error('User already exists with this email');
         }
 
+        // Check IP Limit
+        let initialCredits = 50;
+        if (ip) {
+            const isNewIp = await checkIpUsage(ip);
+            if (!isNewIp) {
+                // User creates duplicate account -> 0 credits penalty
+                initialCredits = 0;
+            }
+        }
+
         // Hash password
         const passwordHash = await bcrypt.hash(password, 10);
 
@@ -62,9 +90,10 @@ export async function createUser(name: string, email: string, password: string):
         const role = email === 'admin@onlinetools.com' ? 'admin' : 'user';
 
         // Insert user
+        // Note: This assumes signup_ip column exists. User needs to run migration.
         const result = await sql`
-            INSERT INTO users (name, email, password_hash, role, credits)
-            VALUES (${name}, ${email}, ${passwordHash}, ${role}, 50)
+            INSERT INTO users (name, email, password_hash, role, credits, signup_ip)
+            VALUES (${name}, ${email}, ${passwordHash}, ${role}, ${initialCredits}, ${ip || null})
             RETURNING id, email, name, role, credits, created_at
         `;
 

@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, getUserByEmail } from '@/lib/db';
+import { createUser, getUserByEmail, updateVerificationToken } from '@/lib/db';
+import { Resend } from 'resend';
+import crypto from 'crypto';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: NextRequest) {
     try {
@@ -13,17 +17,11 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check if user already exists
-        const existingUser = await getUserByEmail(email);
-        if (existingUser) {
-            return NextResponse.json(
-                { error: 'User already exists with this email' },
-                { status: 409 }
-            );
-        }
+        // Get IP address
+        const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
 
         // Create user
-        const user = await createUser(name, email, password);
+        const user = await createUser(name, email, password, ip);
 
         if (!user) {
             return NextResponse.json(
@@ -32,15 +30,30 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Return user data
+        // Generate Verification Token
+        const token = crypto.randomBytes(32).toString('hex');
+        await updateVerificationToken(email, token);
+
+        // Send Verification Email
+        await resend.emails.send({
+            from: 'Veo 3 <onboarding@resend.dev>', // Use default Resend testing domain or configured domain
+            to: email,
+            subject: 'Verify your Veo 3 Account',
+            html: `
+                <h1>Welcome to Veo 3, ${name}!</h1>
+                <p>Click the link below to verify your email address and activate your 50 credits:</p>
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/verify?token=${token}">Verify Email</a>
+                <p>If you didn't create an account, you can ignore this email.</p>
+            `
+        });
+
+        // Return success but indicate verification check needed
         return NextResponse.json({
             success: true,
+            message: "verification_required",
             user: {
                 id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                credits: user.credits
+                email: user.email
             }
         });
 

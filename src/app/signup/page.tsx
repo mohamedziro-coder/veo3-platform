@@ -8,53 +8,14 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 export default function SignupPage() {
-    const [step, setStep] = useState<'form' | 'verify'>('form');
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [code, setCode] = useState(""); // Input code
-    const [serverCode, setServerCode] = useState(""); // Code from server (Simulation)
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const router = useRouter();
-
-
-    const handleSendCode = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setIsLoading(true);
-
-        try {
-            // 1. Basic Validation
-            if (!name || !email || !password) {
-                throw new Error("Please fill in all fields");
-            }
-
-            // 2. Send Code via API
-            const response = await fetch("/api/auth/send-code", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email })
-            });
-
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.error || "Failed to send verification code");
-            }
-
-            // 3. Store code (Simulation: we get it back. In prod, we wouldn't)
-            setServerCode(data.debugCode);
-            setStep('verify');
-
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const handleVerifyAndSignup = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,12 +23,7 @@ export default function SignupPage() {
         setIsLoading(true);
 
         try {
-            // 1. Check Code
-            if (code !== serverCode) {
-                throw new Error("Invalid verification code");
-            }
-
-            // 2. Call registration API
+            // 1. Call registration API
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -80,18 +36,16 @@ export default function SignupPage() {
                 throw new Error(data.error || 'Registration failed');
             }
 
-            if (!data.success || !data.user) {
+            if (data.message === "verification_required") {
+                setSuccess(true);
+            } else if (data.success && data.user) {
+                // Fallback for immediate login if verification disabled
+                localStorage.setItem('current_user', JSON.stringify(data.user));
+                window.dispatchEvent(new Event('storage'));
+                setTimeout(() => router.push('/dashboard'), 1000);
+            } else {
                 throw new Error('Invalid response from server');
             }
-
-            // Store user in localStorage (for session management)
-            localStorage.setItem('current_user', JSON.stringify(data.user));
-            window.dispatchEvent(new Event('storage'));
-
-            setSuccess(true);
-            setTimeout(() => {
-                router.push('/');
-            }, 1000);
 
         } catch (err: any) {
             setError(err.message);
@@ -167,27 +121,44 @@ export default function SignupPage() {
                     </motion.div>
 
                     <motion.div
-                        key={step}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         className="relative"
                     >
                         <div className="mb-8">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className={cn("text-xs font-bold uppercase tracking-wider", step === 'form' ? "text-blue-500" : "text-gray-600")}>Step 1</span>
-                                <div className="h-px flex-1 bg-white/10" />
-                                <span className={cn("text-xs font-bold uppercase tracking-wider", step === 'verify' ? "text-blue-500" : "text-gray-600")}>Step 2</span>
-                            </div>
                             <h2 className="text-3xl font-bold text-white mb-2">
-                                {step === 'form' ? 'Get Started' : 'Verify Email'}
+                                Get Started
                             </h2>
                             <p className="text-gray-500">
-                                {step === 'form' ? 'Create your account in seconds.' : `We sent a code to ${email}`}
+                                Create your account to start generating.
                             </p>
                         </div>
 
-                        {step === 'form' ? (
-                            <form onSubmit={handleSendCode} className="space-y-5">
+                        {success ? (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="text-center space-y-6"
+                            >
+                                <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6 border border-green-500/30">
+                                    <Mail className="w-10 h-10 text-green-400" />
+                                </div>
+                                <h2 className="text-3xl font-bold text-white">Check Your Email</h2>
+                                <p className="text-gray-400 text-lg leading-relaxed">
+                                    We've sent a verification link to <span className="text-white font-medium">{email}</span>. Please click the link to activate your account.
+                                </p>
+                                <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-sm text-gray-500">
+                                    Can't find it? Check your spam folder.
+                                </div>
+                                <Link
+                                    href="/login"
+                                    className="block w-full py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all text-center"
+                                >
+                                    Go to Login
+                                </Link>
+                            </motion.div>
+                        ) : (
+                            <form onSubmit={handleVerifyAndSignup} className="space-y-5">
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-gray-300 ml-1">Full Name</label>
                                     <div className="relative group/input">
@@ -240,78 +211,16 @@ export default function SignupPage() {
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="w-full py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl shadow-white/5"
-                                >
-                                    {isLoading ? (
-                                        <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                    ) : (
-                                        <>
-                                            <span>Continue</span>
-                                            <ArrowRight className="w-5 h-5" />
-                                        </>
-                                    )}
-                                </button>
-                            </form>
-                        ) : (
-                            <form onSubmit={handleVerifyAndSignup} className="space-y-6">
-                                <div className="space-y-4">
-                                    <input
-                                        type="text"
-                                        value={code}
-                                        onChange={(e) => setCode(e.target.value)}
-                                        placeholder="000000"
-                                        maxLength={6}
-                                        className="w-full py-6 text-center text-4xl font-mono tracking-[0.5em] bg-transparent border-b-2 border-white/20 text-white placeholder-white/10 focus:outline-none focus:border-blue-500 transition-all"
-                                        autoFocus
-                                        required
-                                    />
-                                    <div className="text-center text-sm text-gray-500">
-                                        Enter the 6-digit code we sent you.
-                                    </div>
-                                </div>
-
-                                {step === 'verify' && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="mx-auto max-w-xs px-4 py-3 rounded-xl bg-blue-500/5 border border-blue-500/10 backdrop-blur-md"
-                                    >
-                                        <div className="flex items-center justify-between gap-3">
-                                            <div className="flex flex-col">
-                                                <span className="text-[10px] uppercase tracking-wider text-blue-400 font-bold">Resend Simulator</span>
-                                                <span className="text-xs text-blue-200">Testing Code</span>
-                                            </div>
-                                            <div className="px-3 py-1 rounded bg-blue-500/20 text-white font-mono font-bold tracking-widest border border-blue-500/30">
-                                                {serverCode}
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                )}
-
-                                {error && (
-                                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
-                                        {error}
-                                    </div>
-                                )}
-
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
                                     className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg hover:shadow-lg hover:shadow-blue-500/20 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
                                     {isLoading ? (
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                     ) : (
-                                        <span>Verify Account</span>
+                                        <>
+                                            <span>Sign Up</span>
+                                            <ArrowRight className="w-5 h-5" />
+                                        </>
                                     )}
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setStep('form')}
-                                    className="w-full text-sm text-gray-500 hover:text-white transition-colors py-2"
-                                >
-                                    Change Email
                                 </button>
                             </form>
                         )}
