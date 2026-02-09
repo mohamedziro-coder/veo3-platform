@@ -11,7 +11,7 @@ export default function Navigation() {
     const pathname = usePathname();
 
     // Check if we are on the Landing Page or Auth pages
-    const isLandingPage = pathname === "/";
+    const isLandingPage = pathname === "/" || pathname === "/pricing";
     const isAuthPage = pathname === "/login" || pathname === "/signup";
 
     // Check if user is admin
@@ -93,7 +93,7 @@ export default function Navigation() {
                 <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
                     <Link href="/#features" className="hover:text-white transition-colors">Features</Link>
                     <Link href="/#how-it-works" className="hover:text-white transition-colors">How it Works</Link>
-                    <Link href="/#pricing" className="hover:text-white transition-colors">Pricing</Link>
+                    <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
                 </div>
 
                 {/* Auth Buttons */}
