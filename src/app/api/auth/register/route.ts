@@ -3,7 +3,9 @@ import { createUser, getUserByEmail, updateVerificationToken } from '@/lib/db';
 import { Resend } from 'resend';
 import crypto from 'crypto';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resendInfo = {
+    apiKey: process.env.RESEND_API_KEY
+};
 
 export async function POST(req: NextRequest) {
     try {
@@ -35,6 +37,15 @@ export async function POST(req: NextRequest) {
         await updateVerificationToken(email, token);
 
         // Send Verification Email
+        // Initialize Resend dynamically to avoid build-time errors if key is missing
+        const resend = new Resend(process.env.RESEND_API_KEY);
+
+        if (!process.env.RESEND_API_KEY) {
+            console.error("RESEND_API_KEY is missing");
+            // We could return error, but let's allow signup without verification if key is missing (fallback)
+            // or better, fail gracefully. For now, let's try to send.
+        }
+
         await resend.emails.send({
             from: 'Veo 3 <onboarding@resend.dev>', // Use default Resend testing domain or configured domain
             to: email,
