@@ -10,6 +10,9 @@ import { cn } from "@/lib/utils";
 export default function Navigation() {
     const pathname = usePathname();
 
+    // Mobile menu state (must be at top level, not inside conditions)
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
     // Check if we are on the Landing Page or Auth pages
     const isLandingPage = pathname === "/" || pathname === "/pricing";
     const isAuthPage = pathname === "/login" || pathname === "/signup";
@@ -95,8 +98,6 @@ export default function Navigation() {
 
     // Landing Page Navigation
     if (isLandingPage) {
-        const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
         return (
             <>
                 <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
