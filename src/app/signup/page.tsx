@@ -7,26 +7,71 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+    const [step, setStep] = useState<'form' | 'verify'>('form');
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [code, setCode] = useState(""); // Input code
+    const [serverCode, setServerCode] = useState(""); // Code from server (Simulation)
 
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+
+    const handleSendCode = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
         setError(null);
+        setIsLoading(true);
 
         try {
-            // Mock Local Auth implementation
-            const users = JSON.parse(localStorage.getItem('mock_users') || '[]');
+            // 1. Basic Validation
+            if (!name || !email || !password) {
+                throw new Error("Please fill in all fields");
+            }
 
-            if (users.find((u: any) => u.email === email)) {
-                throw new Error("Email already exists");
+            // 2. Send Code via API
+            const response = await fetch("/api/auth/send-code", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || "Failed to send verification code");
+            }
+
+            // 3. Store code (Simulation: we get it back. In prod, we wouldn't)
+            setServerCode(data.debugCode);
+            setStep('verify');
+
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleVerifyAndSignup = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setIsLoading(true);
+
+        try {
+            // 1. Check Code
+            if (code !== serverCode) {
+                throw new Error("Invalid verification code");
+            }
+
+            // 2. Create Account (Mock Logic)
+            const users = JSON.parse(localStorage.getItem('mock_users') || '[]');
+            const userExists = users.some((u: any) => u.email === email);
+
+            if (userExists) {
+                throw new Error("User already exists with this email");
             }
 
             const newUser = {
@@ -40,12 +85,15 @@ export default function SignupPage() {
             localStorage.setItem('mock_users', JSON.stringify(users));
             localStorage.setItem('current_user', JSON.stringify(newUser));
 
+            window.dispatchEvent(new Event('storage')); // Update Navbar
+
             setSuccess(true);
             setTimeout(() => {
-                router.push("/dashboard");
-            }, 1500);
+                router.push('/');
+            }, 1000);
+
         } catch (err: any) {
-            setError(err.message || "An error occurred during signup");
+            setError(err.message);
         } finally {
             setIsLoading(false);
         }
