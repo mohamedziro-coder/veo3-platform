@@ -114,87 +114,128 @@ export default function SignupPage() {
             >
                 <div className="glass-panel p-8 md:p-10 rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl">
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2">Create Account</h1>
-                        <p className="text-gray-400">Join the future of AI generation</p>
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent mb-2">
+                            {step === 'form' ? 'Create Account' : 'Verify Email'}
+                        </h1>
+                        <p className="text-gray-400">
+                            {step === 'form' ? 'Join Veo3 Platform today' : `Enter the code sent to ${email}`}
+                        </p>
+                        {step === 'verify' && (
+                            <div className="mt-2 text-xs text-yellow-500 bg-yellow-900/20 p-2 rounded">
+                                Simulation Mode: Code is <b>{serverCode}</b>
+                            </div>
+                        )}
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {error && (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center"
-                            >
-                                {error}
-                            </motion.div>
-                        )}
+                    {step === 'form' ? (
+                        <form onSubmit={handleSendCode} className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300 ml-1">Full Name</label>
+                                <div className="relative group/input">
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-white transition-colors" />
+                                    <input
+                                        type="text"
+                                        placeholder="John Doe"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-12 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-all font-medium"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
+                                <div className="relative group/input">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-white transition-colors" />
+                                    <input
+                                        type="email"
+                                        placeholder="name@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-12 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-all font-medium"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
+                                <div className="relative group/input">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-white transition-colors" />
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-12 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-all font-medium"
+                                        required
+                                    />
+                                </div>
+                            </div>
 
-                        {success && (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 text-sm text-center"
+                            {error && (
+                                <div className="text-red-400 text-sm text-center bg-red-900/20 p-2 rounded-lg">
+                                    {error}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-100 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
-                                Account created! Please check your email for verification.
-                            </motion.div>
-                        )}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300 ml-1">Full Name</label>
-                            <div className="relative group/input">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-blue-400 transition-colors" />
+                                {isLoading ? (
+                                    <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        <span>Send Verification Code</span>
+                                        <ArrowRight className="w-4 h-4" />
+                                    </>
+                                )}
+                            </button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleVerifyAndSignup} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300 ml-1">Verification Code</label>
                                 <input
                                     type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="John Doe"
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
+                                    placeholder="123456"
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                    maxLength={6}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-center text-3xl tracking-[1em] text-white placeholder-gray-700 focus:outline-none focus:border-white/30 transition-all font-mono"
+                                    required
+                                    autoFocus
                                 />
                             </div>
-                        </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
-                            <div className="relative group/input">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-blue-400 transition-colors" />
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="you@example.com"
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
-                            <div className="relative group/input">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-blue-400 transition-colors" />
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold hover:shadow-lg hover:shadow-blue-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <>
-                                    <span>Create Account</span>
-                                    <ArrowRight className="w-4 h-4" />
-                                </>
+                            {error && (
+                                <div className="text-red-400 text-sm text-center bg-red-900/20 p-2 rounded-lg">
+                                    {error}
+                                </div>
                             )}
-                        </button>
-                    </form>
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                                {isLoading ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <span>Verify & Create Account</span>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setStep('form')}
+                                className="w-full text-gray-500 hover:text-white text-sm transition-colors"
+                            >
+                                Back to Signup
+                            </button>
+                        </form>
+                    )}
 
                     <div className="mt-8 text-center text-sm text-gray-400">
                         Already have an account?{" "}
