@@ -21,7 +21,7 @@ git --version
 
 Write-Host "Pushing changes..."
 git add .
-git commit -m "polish: improve mobile design for auth pages"
+git commit -m "feat: optimize mobile navigation with progress bar and loading state"
 git push
 
 Write-Host "Done!"
