@@ -157,8 +157,24 @@ export default function NanbananaPage() {
                 )}
             </motion.div>
 
+            {/* Loading State */}
+            {isGenerating && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="w-full max-w-2xl mt-8"
+                >
+                    <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-white/5 aspect-[4/3] flex flex-col items-center justify-center gap-4">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 to-purple-500/10 animate-pulse" />
+                        <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin relative z-10" />
+                        <p className="text-yellow-200 font-bold text-lg animate-pulse relative z-10">Keyrsem f'tasswira dyalk...</p>
+                        <p className="text-gray-500 text-sm relative z-10">Katakhod ta9riban 5-10 tawani</p>
+                    </div>
+                </motion.div>
+            )}
+
             {/* Result Section */}
-            {imageUrl && (
+            {!isGenerating && imageUrl && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
