@@ -5,6 +5,16 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Play, Square, Download, Wand2, Volume2, AlertCircle } from "lucide-react";
 
+// Voice options - defined outside component to avoid recreation
+const VOICE_OPTIONS = [
+    { id: "ar-XA-Standard-A", name: "Arabic (Female)", lang: "ar-XA" },
+    { id: "ar-XA-Standard-B", name: "Arabic (Male)", lang: "ar-XA" },
+    { id: "en-US-Journey-F", name: "English (Premium Female)", lang: "en-US" },
+    { id: "en-US-Journey-D", name: "English (Premium Male)", lang: "en-US" },
+    { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR" },
+    { id: "fr-FR-Neural2-B", name: "French (Male)", lang: "fr-FR" },
+];
+
 export default function VoicePage() {
     const router = useRouter();
 
@@ -27,14 +37,12 @@ export default function VoicePage() {
         }
     }, [router]);
 
-    const voices = [
-        { id: "ar-XA-Standard-A", name: "Arabic (Female)", lang: "ar-XA" },
-        { id: "ar-XA-Standard-B", name: "Arabic (Male)", lang: "ar-XA" },
-        { id: "en-US-Journey-F", name: "English (Premium Female)", lang: "en-US" },
-        { id: "en-US-Journey-D", name: "English (Premium Male)", lang: "en-US" },
-        { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR" },
-        { id: "fr-FR-Neural2-B", name: "French (Male)", lang: "fr-FR" },
-    ];
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.onended = () => setIsPlaying(false);
+        }
+    }, [audioUrl]);
+
 
     // Show loading while checking auth (AFTER all hooks)
     if (isPageLoading) {
@@ -72,7 +80,7 @@ export default function VoicePage() {
                 body: JSON.stringify({
                     text,
                     voiceId: selectedVoice,
-                    languageCode: voices.find(v => v.id === selectedVoice)?.lang || "ar-XA"
+                    languageCode: VOICE_OPTIONS.find(v => v.id === selectedVoice)?.lang || "ar-XA"
                 }),
                 headers: { "Content-Type": "application/json" }
             });
@@ -119,11 +127,6 @@ export default function VoicePage() {
         }
     };
 
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.onended = () => setIsPlaying(false);
-        }
-    }, [audioUrl]);
 
     return (
         <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden pt-24 bg-black">
@@ -167,7 +170,17 @@ export default function VoicePage() {
                         >
                             <div className="bg-red-500/10 border border-red-500/20 text-red-200 px-6 py-4 rounded-2xl flex items-center gap-3 backdrop-blur-md">
                                 <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" />
-                                <p className="text-sm font-medium">{error}</p>
+                                <div>
+                                    <p className="text-sm font-medium">{error}</p>
+                                    {(error.includes("API Key") || error.includes("Configure")) && (
+                                        <button
+                                            onClick={() => router.push('/admin')}
+                                            className="text-xs text-red-300 underline mt-1 hover:text-red-100"
+                                        >
+                                            Go to Admin Settings
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </motion.div>
                     )}
@@ -179,7 +192,7 @@ export default function VoicePage() {
 
                         {/* Voice Selector */}
                         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                            {voices.map((voice) => (
+                            {VOICE_OPTIONS.map((voice) => (
                                 <button
                                     key={voice.id}
                                     onClick={() => setSelectedVoice(voice.id)}
@@ -255,7 +268,7 @@ export default function VoicePage() {
                                                 key={i}
                                                 className={`w-1 rounded-full bg-cyan-400 transition-all duration-100 ${isPlaying ? "animate-pulse" : ""}`}
                                                 style={{
-                                                    height: isPlaying ? `${Math.random() * 100}%` : "20%",
+                                                    height: isPlaying ? `${Math.max(20, (Math.sin(i * 0.5) + 1) * 40 + 20)}%` : "20%",
                                                     animationDelay: `${i * 0.05}s`
                                                 }}
                                             />
