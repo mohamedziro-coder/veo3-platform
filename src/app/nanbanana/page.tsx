@@ -92,7 +92,7 @@ export default function NanbananaPage() {
     };
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-8 gap-8 relative z-10 pt-32">
+        <main className="flex min-h-screen flex-col items-center justify-center p-8 gap-8 relative z-10 pt-32 pb-32">
 
             {/* Header */}
             <motion.div

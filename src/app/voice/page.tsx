@@ -139,7 +139,7 @@ export default function VoicePage() {
 
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden pt-24 bg-black">
+        <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden pt-24 pb-32 bg-black">
 
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none">

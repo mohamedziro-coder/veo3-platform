@@ -21,7 +21,7 @@ git --version
 
 Write-Host "Pushing changes..."
 git add .
-git commit -m "polish: implement total mobile responsive design"
+git commit -m "fix: add bottom padding to all pages for mobile navigation"
 git push
 
 Write-Host "Done!"
