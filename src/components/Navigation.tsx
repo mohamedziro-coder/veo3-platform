@@ -95,36 +95,111 @@ export default function Navigation() {
 
     // Landing Page Navigation
     if (isLandingPage) {
+        const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
         return (
-            <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
-                {/* Logo */}
-                <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white">
-                        <Sparkles className="w-5 h-5 fill-white" />
+            <>
+                <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
+                    {/* Logo */}
+                    <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white">
+                            <Sparkles className="w-5 h-5 fill-white" />
+                        </div>
+                        <span>Veo Platform</span>
                     </div>
-                    <span>Veo Platform</span>
-                </div>
 
-                {/* Desktop Menu */}
-                <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-                    <Link href="/#features" className="hover:text-white transition-colors">Features</Link>
-                    <Link href="/#how-it-works" className="hover:text-white transition-colors">How it Works</Link>
-                    <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
-                </div>
+                    {/* Desktop Menu */}
+                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+                        <Link href="/#features" className="hover:text-white transition-colors">Features</Link>
+                        <Link href="/#how-it-works" className="hover:text-white transition-colors">How it Works</Link>
+                        <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+                    </div>
 
-                {/* Auth Buttons */}
-                <div className="flex items-center gap-4">
-                    <Link href="/login" className="text-sm font-medium text-white hover:text-gray-300 transition-colors">
-                        Sign In
-                    </Link>
-                    <Link
-                        href="/signup"
-                        className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition-transform"
+                    {/* Auth Buttons */}
+                    <div className="hidden md:flex items-center gap-4">
+                        <Link href="/login" className="text-sm font-medium text-white hover:text-gray-300 transition-colors">
+                            Sign In
+                        </Link>
+                        <Link
+                            href="/signup"
+                            className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition-transform"
+                        >
+                            Get Started
+                        </Link>
+                    </div>
+
+                    {/* Mobile Burger Menu */}
+                    <button
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                        aria-label="Toggle menu"
                     >
-                        Get Started
-                    </Link>
+                        <motion.span
+                            animate={mobileMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
+                            className="w-5 h-0.5 bg-white rounded-full"
+                        />
+                        <motion.span
+                            animate={mobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
+                            className="w-5 h-0.5 bg-white rounded-full"
+                        />
+                        <motion.span
+                            animate={mobileMenuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
+                            className="w-5 h-0.5 bg-white rounded-full"
+                        />
+                    </button>
                 </div>
-            </div>
+
+                {/* Mobile Menu Dropdown */}
+                {mobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="md:hidden fixed top-20 left-0 right-0 z-40 px-6"
+                    >
+                        <div className="bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
+                            <div className="flex flex-col gap-4">
+                                <Link
+                                    href="/#features"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="text-gray-400 hover:text-white transition-colors py-2 text-sm font-medium"
+                                >
+                                    Features
+                                </Link>
+                                <Link
+                                    href="/#how-it-works"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="text-gray-400 hover:text-white transition-colors py-2 text-sm font-medium"
+                                >
+                                    How it Works
+                                </Link>
+                                <Link
+                                    href="/pricing"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="text-gray-400 hover:text-white transition-colors py-2 text-sm font-medium"
+                                >
+                                    Pricing
+                                </Link>
+                                <div className="h-px bg-white/10 my-2" />
+                                <Link
+                                    href="/login"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="text-white hover:text-gray-300 transition-colors py-2 text-sm font-medium"
+                                >
+                                    Sign In
+                                </Link>
+                                <Link
+                                    href="/signup"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="px-5 py-3 rounded-full bg-white text-black text-sm font-bold hover:scale-105 transition-transform text-center"
+                                >
+                                    Get Started
+                                </Link>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </>
         );
     }
 
