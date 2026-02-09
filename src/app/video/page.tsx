@@ -168,7 +168,9 @@ export default function VideoPage() {
                     name: user.name,
                     tool: "Video",
                     timestamp: new Date().toISOString(),
-                    details: `Generated product video: "${prompt.substring(0, 30)}${prompt.length > 30 ? '...' : ''}"`
+                    details: `Generated product video: "${prompt.substring(0, 30)}${prompt.length > 30 ? '...' : ''}"`,
+                    resultUrl: data.videoUrl, // Save the video URL
+                    prompt: prompt // Save the full prompt
                 });
                 localStorage.setItem('mock_activity', JSON.stringify(activities.slice(0, 50)));
             } else {

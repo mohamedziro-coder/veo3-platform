@@ -74,9 +74,12 @@ export default function NanbananaPage() {
                         email: user.email,
                         name: user.name,
                         tool: 'Image Generation',
-                        timestamp: new Date().toISOString()
+                        timestamp: new Date().toISOString(),
+                        details: `Generated image: "${prompt.substring(0, 30)}${prompt.length > 30 ? '...' : ''}"`,
+                        resultUrl: data.raw.url || imageUrl, // Save image URL
+                        prompt: prompt
                     });
-                    localStorage.setItem('mock_activity', JSON.stringify(activities));
+                    localStorage.setItem('mock_activity', JSON.stringify(activities.slice(0, 50)));
                 } else {
                     setError("API response format unclear. Check console.");
                 }

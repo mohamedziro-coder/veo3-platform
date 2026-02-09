@@ -6,6 +6,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Video, Image as ImageIcon, Mic, ArrowRight, Sparkles, ShieldCheck } from "lucide-react";
 
+import Modal from "@/components/Modal";
+
 export default function Dashboard() {
     const router = useRouter();
 
@@ -15,6 +17,7 @@ export default function Dashboard() {
     const [activities, setActivities] = useState<any[]>([]);
     const [generationCount, setGenerationCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedActivity, setSelectedActivity] = useState<any>(null);
 
     useEffect(() => {
         const userStr = localStorage.getItem('current_user');
@@ -24,6 +27,7 @@ export default function Dashboard() {
         }
 
         const user = JSON.parse(userStr);
+        // ... existing auth logic ...
         setUserName(user.name || "Creator");
         setIsAdmin(user.role === 'admin');
 
@@ -52,6 +56,8 @@ export default function Dashboard() {
             transition: { staggerChildren: 0.1 }
         }
     };
+
+    // ... existing variants and tools definitions ...
 
     const itemVariants = {
         hidden: { opacity: 0, y: 20 },
@@ -170,19 +176,23 @@ export default function Dashboard() {
                     <div className="space-y-3">
                         {activities.length > 0 ? (
                             activities.map((act, i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                                <div
+                                    key={i}
+                                    onClick={() => setSelectedActivity(act)}
+                                    className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 hover:bg-white/10 transition-all cursor-pointer group"
+                                >
                                     <div className="flex items-center gap-4">
                                         <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center ${act.tool === 'Video' ? 'text-purple-400' :
-                                            act.tool === 'Image' ? 'text-yellow-400' : 'text-blue-400'
+                                            act.tool === 'Image Generation' ? 'text-yellow-400' : 'text-blue-400'
                                             }`}>
                                             <Sparkles className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-white">{act.details}</p>
-                                            <p className="text-xs text-gray-500">{act.tool} Tool • {new Date(act.timestamp).toLocaleTimeString()}</p>
+                                            <p className="text-sm font-medium text-white group-hover:text-purple-300 transition-colors">{act.details}</p>
+                                            <p className="text-xs text-gray-500">{act.tool} • {new Date(act.timestamp).toLocaleTimeString()}</p>
                                         </div>
                                     </div>
-                                    <ArrowRight className="w-4 h-4 text-gray-600" />
+                                    <ArrowRight className="w-4 h-4 text-gray-600 group-hover:text-white group-hover:translate-x-1 transition-all" />
                                 </div>
                             ))
                         ) : (
@@ -193,6 +203,83 @@ export default function Dashboard() {
                     </div>
                 </motion.div>
             </motion.div>
+
+            {/* Activity Details Modal */}
+            <Modal
+                isOpen={!!selectedActivity}
+                onClose={() => setSelectedActivity(null)}
+                title={selectedActivity?.tool === 'Video' ? 'Video Details' : 'Image Details'}
+            >
+                {selectedActivity && (
+                    <div className="space-y-6">
+                        {/* Media Preview */}
+                        <div className="rounded-xl overflow-hidden border border-white/10 bg-black/50 aspect-video flex items-center justify-center">
+                            {selectedActivity.tool === 'Video' && selectedActivity.resultUrl ? (
+                                <video
+                                    src={selectedActivity.resultUrl}
+                                    controls
+                                    className="w-full h-full object-contain"
+                                    autoPlay
+                                    loop
+                                />
+                            ) : selectedActivity.resultUrl ? (
+                                <img
+                                    src={selectedActivity.resultUrl}
+                                    alt="Generated"
+                                    className="w-full h-full object-contain"
+                                />
+                            ) : (
+                                <div className="text-gray-500 flex flex-col items-center gap-2">
+                                    <Sparkles className="w-8 h-8 opacity-20" />
+                                    <span>Preview not available</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Details */}
+                        <div className="space-y-4">
+                            <div>
+                                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Prompt</h4>
+                                <p className="text-white bg-white/5 p-4 rounded-xl border border-white/10 text-sm leading-relaxed">
+                                    {selectedActivity.prompt || selectedActivity.details}
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Date</h4>
+                                    <p className="text-white text-sm">{new Date(selectedActivity.timestamp).toLocaleDateString()}</p>
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Time</h4>
+                                    <p className="text-white text-sm">{new Date(selectedActivity.timestamp).toLocaleTimeString()}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-4">
+                            {selectedActivity.resultUrl && (
+                                <a
+                                    href={selectedActivity.resultUrl}
+                                    download
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex-1 bg-white text-black font-bold py-3 rounded-xl text-center hover:bg-gray-200 transition-colors"
+                                >
+                                    Download
+                                </a>
+                            )}
+                            <button
+                                onClick={() => setSelectedActivity(null)}
+                                className="flex-1 bg-white/10 text-white font-bold py-3 rounded-xl hover:bg-white/20 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </main>
     );
 }
