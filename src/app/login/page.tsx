@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowRight, Github, Chrome } from "lucide-react";
+import { Mail, Lock, ArrowRight, Github, Chrome, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -45,104 +45,161 @@ export default function LoginPage() {
     };
 
     return (
-        <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
-            {/* Background Ambience */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-purple-900/10 blur-[150px]" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-900/10 blur-[150px]" />
+        <main className="min-h-screen flex bg-black overflow-hidden font-sans selection:bg-purple-500/30">
+            {/* LEFT SIDE - VISUALS (Desktop Only) */}
+            <div className="hidden lg:flex w-1/2 relative bg-black items-center justify-center p-12 overflow-hidden">
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(168,85,247,0.1),transparent_70%)]" />
+                    <div className="absolute bottom-0 right-0 w-[80%] h-[80%] bg-[radial-gradient(circle_at_100%_100%,rgba(59,130,246,0.15),transparent_60%)]" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/5 blur-[120px] rounded-full animate-pulse" />
+                </div>
+
+                <div className="relative z-10 max-w-lg">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                    >
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center mb-8 shadow-2xl shadow-purple-900/20">
+                            <Sparkles className="w-8 h-8 text-white" />
+                        </div>
+                        <h1 className="text-6xl font-bold tracking-tight text-white mb-6 leading-tight">
+                            Welcome <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">Back.</span>
+                        </h1>
+                        <p className="text-lg text-gray-400 leading-relaxed mb-8">
+                            Continue your journey with Veo Platform. Your next masterpiece is waiting to be created.
+                        </p>
+
+                        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <Sparkles className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <div className="text-white font-bold">Pro Tip</div>
+                                    <div className="text-xs text-gray-500">Maximize your credits</div>
+                                </div>
+                            </div>
+                            <p className="text-sm text-gray-400">
+                                "Use specific prompts for better results. Instead of 'a cat', try 'a cinematic shot of a futuristic cyber-cat in neon rain'."
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md relative z-10"
-            >
-                <div className="glass-panel p-8 md:p-10 rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl">
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2">Welcome Back</h1>
-                        <p className="text-gray-400">Sign in to continue to Veo Platform</p>
-                    </div>
-
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {error && (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center"
-                            >
-                                {error}
-                            </motion.div>
-                        )}
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
-                            <div className="relative group/input">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-purple-400 transition-colors" />
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="you@example.com"
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
-                            <div className="relative group/input">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-purple-400 transition-colors" />
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/20 transition-all"
-                                />
-                            </div>
-                        </div>
-
-
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold hover:shadow-lg hover:shadow-purple-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            {isLoading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                <>
-                                    <span>Sign In</span>
-                                    <ArrowRight className="w-4 h-4" />
-                                </>
-                            )}
-                        </button>
-                    </form>
-
-                    <div className="my-8 flex items-center gap-4 text-xs text-gray-500 font-medium uppercase tracking-wider">
-                        <div className="h-px bg-white/10 flex-1" />
-                        <span>Or continue with</span>
-                        <div className="h-px bg-white/10 flex-1" />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-white font-medium">
-                            <Chrome className="w-5 h-5" />
-                            <span>Google</span>
-                        </button>
-                        <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-white font-medium">
-                            <Github className="w-5 h-5" />
-                            <span>Github</span>
-                        </button>
-                    </div>
-
-                    <div className="mt-8 text-center text-sm text-gray-400">
-                        Don't have an account?{" "}
-                        <Link href="/signup" className="text-white hover:text-purple-400 font-medium transition-colors">
-                            Sign up
-                        </Link>
-                    </div>
+            {/* RIGHT SIDE - FORM */}
+            <div className="w-full lg:w-1/2 relative flex items-center justify-center p-6 lg:p-12">
+                {/* Mobile Background */}
+                <div className="absolute inset-0 lg:hidden pointer-events-none z-0">
+                    <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[80%] bg-purple-900/20 blur-[100px] rounded-full" />
+                    <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-blue-900/20 blur-[100px] rounded-full" />
                 </div>
-            </motion.div>
+
+                <div className="w-full max-w-md relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="mb-8 lg:hidden"
+                    >
+                        <div className="flex items-center gap-2 font-bold text-xl tracking-tighter text-white">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                                <Sparkles className="w-4 h-4 text-white" />
+                            </div>
+                            <span>Veo Platform</span>
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="relative"
+                    >
+                        <div className="mb-8">
+                            <h2 className="text-3xl font-bold text-white mb-2">Sign In</h2>
+                            <p className="text-gray-500">Access your account and projects.</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
+                                <div className="relative group/input">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="name@example.com"
+                                        className="w-full pl-4 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all font-medium"
+                                        required
+                                    />
+                                    <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
+                                <div className="relative group/input">
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        className="w-full pl-4 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all font-medium"
+                                        required
+                                    />
+                                    <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                </div>
+                            </div>
+
+                            {error && (
+                                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                                    {error}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl shadow-white/5"
+                            >
+                                {isLoading ? (
+                                    <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        <span>Sign In</span>
+                                        <ArrowRight className="w-5 h-5" />
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="my-8 flex items-center gap-4 text-xs text-gray-500 font-medium uppercase tracking-wider">
+                            <div className="h-px bg-white/10 flex-1" />
+                            <span>Or continue with</span>
+                            <div className="h-px bg-white/10 flex-1" />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-white font-medium group">
+                                <Chrome className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+                                <span>Google</span>
+                            </button>
+                            <button className="flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-white font-medium group">
+                                <Github className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+                                <span>Github</span>
+                            </button>
+                        </div>
+
+                        <div className="mt-8 pt-8 border-t border-white/5 text-center">
+                            <p className="text-gray-500">
+                                Don't have an account?{" "}
+                                <Link href="/signup" className="text-white hover:text-purple-400 font-medium transition-colors">
+                                    Sign Up
+                                </Link>
+                            </p>
+                        </div>
+                    </motion.div>
+                </div>
+            </div>
         </main>
     );
 }

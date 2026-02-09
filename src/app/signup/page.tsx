@@ -6,7 +6,6 @@ import { Mail, Lock, User, ArrowRight, Github, Chrome, Sparkles, Video } from "l
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
     const [step, setStep] = useState<'form' | 'verify'>('form');
