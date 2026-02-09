@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
         // Use 'gemini-2.0-flash-exp' as it has strong multimodal capabilities for "Image to Image" (editing)
         // 'nano-banana-pro-preview' might be text-only or specific. 
         // For consistency, Flash 2.0 is excellent at following visual instructions.
-        const modelName = "gemini-3.0-pro-image-preview";
+        const modelName = "nano-banana-pro-preview";
         const model = genAI.getGenerativeModel({ model: modelName });
 
         console.log(`Generating with ${modelName}. Prompt: "${prompt.substring(0, 50)}..." | Image present: ${!!image}`);
