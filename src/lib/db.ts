@@ -90,14 +90,24 @@ export async function createUser(name: string, email: string, password: string, 
         const role = email === 'admin@onlinetools.com' ? 'admin' : 'user';
 
         // Insert user
-        // Note: This assumes signup_ip column exists. User needs to run migration.
-        const result = await sql`
-            INSERT INTO users (name, email, password_hash, role, credits, signup_ip)
-            VALUES (${name}, ${email}, ${passwordHash}, ${role}, ${initialCredits}, ${ip || null})
-            RETURNING id, email, name, role, credits, created_at
-        `;
-
-        return result[0] as User;
+        // Try to insert with signup_ip. If it fails (e.g. column missing), fallback to old insert.
+        try {
+            const result = await sql`
+                INSERT INTO users (name, email, password_hash, role, credits, signup_ip)
+                VALUES (${name}, ${email}, ${passwordHash}, ${role}, ${initialCredits}, ${ip || null})
+                RETURNING id, email, name, role, credits, created_at
+            `;
+            return result[0] as User;
+        } catch (dbError: any) {
+            console.error('Failed to insert with signup_ip, falling back:', dbError.message);
+            // Fallback: Insert without signup_ip (migration not run yet)
+            const result = await sql`
+                INSERT INTO users (name, email, password_hash, role, credits)
+                VALUES (${name}, ${email}, ${passwordHash}, ${role}, ${initialCredits})
+                RETURNING id, email, name, role, credits, created_at
+            `;
+            return result[0] as User;
+        }
     } catch (error) {
         console.error('Error creating user:', error);
         throw error;
