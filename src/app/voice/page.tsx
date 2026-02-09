@@ -245,7 +245,7 @@ export default function VoicePage() {
                                 ) : (
                                     <>
                                         <Mic className="w-5 h-5" />
-                                        <span>Generate Voice</span>
+                                        <span>Generate Voice ({COSTS.VOICE} Credits)</span>
                                     </>
                                 )}
                             </button>
