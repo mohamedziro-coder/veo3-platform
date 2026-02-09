@@ -32,7 +32,23 @@ export default function Dashboard() {
         setIsAdmin(user.role === 'admin');
 
         // Fetch User Activity
-        const allActivities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
+        let allActivities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
+
+        // Seed Demo Activity if empty (for new users to see the UI)
+        if (allActivities.length === 0) {
+            const demoActivity = {
+                email: user.email,
+                name: user.name,
+                tool: 'Image Generation',
+                timestamp: new Date().toISOString(),
+                details: 'Cyberpunk Moroccan Market (Demo)',
+                prompt: 'A futuristic cyberpunk market in Marrakech, neon lights, flying carpets, 8k resolution',
+                resultUrl: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?q=80&w=1000&auto=format&fit=crop'
+            };
+            allActivities = [demoActivity];
+            localStorage.setItem('mock_activity', JSON.stringify(allActivities));
+        }
+
         const userActivities = allActivities.filter((a: any) => a.email === user.email);
         setActivities(userActivities.slice(0, 5)); // Show last 5
         setGenerationCount(userActivities.length);
@@ -182,13 +198,26 @@ export default function Dashboard() {
                                     className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 hover:bg-white/10 transition-all cursor-pointer group"
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center ${act.tool === 'Video' ? 'text-purple-400' :
-                                            act.tool === 'Image Generation' ? 'text-yellow-400' : 'text-blue-400'
-                                            }`}>
-                                            <Sparkles className="w-5 h-5" />
-                                        </div>
+                                        {/* Thumbnail or Icon */}
+                                        {act.resultUrl ? (
+                                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 relative">
+                                                {act.tool === 'Video' ? (
+                                                    <video src={act.resultUrl} className="w-full h-full object-cover" muted />
+                                                ) : (
+                                                    <img src={act.resultUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                                                )}
+                                                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+                                            </div>
+                                        ) : (
+                                            <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center ${act.tool === 'Video' ? 'text-purple-400' :
+                                                act.tool === 'Image Generation' ? 'text-yellow-400' : 'text-blue-400'
+                                                }`}>
+                                                <Sparkles className="w-5 h-5" />
+                                            </div>
+                                        )}
+
                                         <div>
-                                            <p className="text-sm font-medium text-white group-hover:text-purple-300 transition-colors">{act.details}</p>
+                                            <p className="text-sm font-medium text-white group-hover:text-purple-300 transition-colors line-clamp-1">{act.details || act.prompt}</p>
                                             <p className="text-xs text-gray-500">{act.tool} • {new Date(act.timestamp).toLocaleTimeString()}</p>
                                         </div>
                                     </div>
