@@ -61,12 +61,12 @@ export default function LandingPage() {
           </motion.div>
 
           {/* Headline */}
-          <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl font-black tracking-tighter leading-[1.1]">
+          <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tighter leading-[1.1] mb-4">
             Create <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">Anything</span> <br />
             <span className="text-white">With AI.</span>
           </motion.h1>
 
-          <motion.p variants={itemVariants} className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          <motion.p variants={itemVariants} className="text-lg md:text-2xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
             The all-in-one platform for creators. Generate Cinematic Videos, Ultra-HD Images, and Professional Voiceovers in seconds.
           </motion.p>
 

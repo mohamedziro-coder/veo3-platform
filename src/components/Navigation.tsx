@@ -130,52 +130,95 @@ export default function Navigation() {
 
     // App Navigation (Dashboard & Tools)
     return (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 w-full max-w-fit px-4">
-            <nav className="relative bg-black/50 backdrop-blur-xl border border-white/10 rounded-full p-1.5 flex items-center gap-1 shadow-2xl shadow-purple-900/10 ring-1 ring-white/5">
-                {appLinks.map((link) => {
-                    const isActive = link.active;
+        <>
+            {/* Desktop Navigation (Top Pill) */}
+            <div className="hidden md:flex fixed top-6 left-1/2 -translate-x-1/2 z-50 items-center gap-4 w-full max-w-fit px-4">
+                <nav className="relative bg-black/50 backdrop-blur-xl border border-white/10 rounded-full p-1.5 flex items-center gap-1 shadow-2xl shadow-purple-900/10 ring-1 ring-white/5">
+                    {appLinks.map((link) => {
+                        const isActive = link.active;
 
-                    return (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            className={cn(
-                                "relative flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 z-10",
-                                isActive ? "text-white" : "text-gray-400 hover:text-white hover:bg-white/5"
-                            )}
-                        >
-                            {isActive && (
-                                <motion.div
-                                    layoutId="activeTab"
-                                    className="absolute inset-0 bg-white/10 rounded-full -z-10 border border-white/5"
-                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                />
-                            )}
+                        return (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={cn(
+                                    "relative flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 z-10",
+                                    isActive ? "text-white" : "text-gray-400 hover:text-white hover:bg-white/5"
+                                )}
+                            >
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="activeTabDesktop"
+                                        className="absolute inset-0 bg-white/10 rounded-full -z-10 border border-white/5"
+                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                    />
+                                )}
 
-                            <link.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-gray-400")} />
-                            <span className="font-medium text-sm tracking-wide hidden sm:inline">{link.label}</span>
-                        </Link>
-                    );
-                })}
-            </nav>
+                                <link.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-gray-400")} />
+                                <span className="font-medium text-sm tracking-wide">{link.label}</span>
+                            </Link>
+                        );
+                    })}
+                </nav>
 
-            {/* User Profile / Credits */}
-            <div className="flex items-center gap-2 pl-2">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300 whitespace-nowrap">
-                    <Sparkles className="w-3 h-3" />
-                    <span>{credits} <span className="hidden sm:inline">Credits</span></span>
+                {/* Desktop User Profile / Credits */}
+                <div className="flex items-center gap-2 pl-2">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300 whitespace-nowrap">
+                        <Sparkles className="w-3 h-3" />
+                        <span>{credits} <span>Credits</span></span>
+                    </div>
+                    <button
+                        onClick={() => {
+                            localStorage.removeItem('current_user');
+                            window.location.href = '/';
+                        }}
+                        className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-colors"
+                        title="Sign Out"
+                    >
+                        <LogOut className="w-4 h-4" />
+                    </button>
                 </div>
-                <button
-                    onClick={() => {
-                        localStorage.removeItem('current_user');
-                        window.location.href = '/';
-                    }}
-                    className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-colors"
-                    title="Sign Out"
-                >
-                    <LogOut className="w-4 h-4" />
-                </button>
             </div>
-        </div>
+
+            {/* Mobile Navigation (Bottom Bar) */}
+            <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
+                <nav className="relative bg-[#0a0a0a]/90 backdrop-blur-2xl border border-white/10 rounded-full p-2 flex items-center justify-between shadow-2xl shadow-purple-900/20 ring-1 ring-white/5">
+                    {appLinks.map((link) => {
+                        const isActive = link.active;
+
+                        return (
+                            <Link
+                                key={link.href}
+                                href={link.href}
+                                className={cn(
+                                    "relative flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-300 z-10",
+                                    isActive ? "text-white" : "text-gray-500 hover:text-gray-300"
+                                )}
+                            >
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="activeTabMobile"
+                                        className="absolute inset-0 bg-white/10 rounded-full -z-10"
+                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                    />
+                                )}
+                                <link.icon className={cn("w-5 h-5", isActive && "text-purple-400")} />
+                            </Link>
+                        );
+                    })}
+                    {/* Mobile Credit Indicator (Mini) */}
+                    <div className="w-px h-6 bg-white/10 mx-1" />
+                    <button
+                        onClick={() => {
+                            localStorage.removeItem('current_user');
+                            window.location.href = '/';
+                        }}
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-red-400 hover:bg-red-500/10 active:scale-95 transition-all"
+                    >
+                        <LogOut className="w-5 h-5" />
+                    </button>
+                </nav>
+            </div>
+        </>
     );
 }
