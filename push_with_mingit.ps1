@@ -21,7 +21,7 @@ git --version
 
 Write-Host "Pushing changes..."
 git add .
-git commit -m "fix: resolve hydration error and React hooks order in voice page"
+git commit -m "fix: resolve duplicate imports, redesign auth pages, and polish UI"
 git push
 
 Write-Host "Done!"
