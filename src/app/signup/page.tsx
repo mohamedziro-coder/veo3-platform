@@ -67,26 +67,26 @@ export default function SignupPage() {
                 throw new Error("Invalid verification code");
             }
 
-            // 2. Create Account (Mock Logic)
-            const users = JSON.parse(localStorage.getItem('mock_users') || '[]');
-            const userExists = users.some((u: any) => u.email === email);
+            // 2. Call registration API
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
 
-            if (userExists) {
-                throw new Error("User already exists with this email");
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Registration failed');
             }
 
-            const newUser = {
-                name,
-                email,
-                password,
-                role: email === 'admin@onlinetools.com' ? 'admin' : 'user',
-                credits: 50 // Initial Free Credits
-            };
-            users.push(newUser);
-            localStorage.setItem('mock_users', JSON.stringify(users));
-            localStorage.setItem('current_user', JSON.stringify(newUser));
+            if (!data.success || !data.user) {
+                throw new Error('Invalid response from server');
+            }
 
-            window.dispatchEvent(new Event('storage')); // Update Navbar
+            // Store user in localStorage (for session management)
+            localStorage.setItem('current_user', JSON.stringify(data.user));
+            window.dispatchEvent(new Event('storage'));
 
             setSuccess(true);
             setTimeout(() => {

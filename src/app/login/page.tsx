@@ -20,22 +20,27 @@ export default function LoginPage() {
         setError(null);
 
         try {
-            // Mock Local Login logic
-            let users = JSON.parse(localStorage.getItem('mock_users') || '[]');
-            let user = users.find((u: any) => u.email === email && u.password === password);
+            // Call login API
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
 
-            if (!user && email === 'admin@onlinetools.com') {
-                // Auto-register admin for demo purposes if not found
-                user = { name: "Admin User", email: 'admin@onlinetools.com', password: password, role: 'admin', credits: 100 };
-                users.push(user);
-                localStorage.setItem('mock_users', JSON.stringify(users));
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Login failed');
             }
 
-            if (!user) {
-                throw new Error("Invalid email or password");
+            if (!data.success || !data.user) {
+                throw new Error('Invalid response from server');
             }
 
-            localStorage.setItem('current_user', JSON.stringify(user));
+            // Store user in localStorage (for now, session management)
+            localStorage.setItem('current_user', JSON.stringify(data.user));
+            window.dispatchEvent(new Event('storage'));
+
             router.push("/dashboard");
         } catch (err: any) {
             setError(err.message || "Invalid email or password");
