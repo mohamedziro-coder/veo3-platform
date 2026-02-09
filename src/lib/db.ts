@@ -214,3 +214,36 @@ export async function getUserActivity(email: string): Promise<Activity[]> {
         return [];
     }
 }
+
+// Update verification token
+export async function updateVerificationToken(email: string, token: string): Promise<boolean> {
+    try {
+        const sql = getDb();
+        await sql`
+            UPDATE users 
+            SET verification_token = ${token}, is_verified = FALSE 
+            WHERE email = ${email}
+        `;
+        return true;
+    } catch (error) {
+        console.error('Error updating verification token:', error);
+        return false;
+    }
+}
+
+// Verify user email
+export async function verifyUserEmail(token: string): Promise<User | null> {
+    try {
+        const sql = getDb();
+        const result = await sql`
+            UPDATE users 
+            SET is_verified = TRUE, verification_token = NULL 
+            WHERE verification_token = ${token}
+            RETURNING id, email, name, role, credits, created_at
+        `;
+        return result[0] as User || null;
+    } catch (error) {
+        console.error('Error verifying user email:', error);
+        return null;
+    }
+}
