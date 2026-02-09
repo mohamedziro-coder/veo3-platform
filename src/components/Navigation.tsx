@@ -161,9 +161,9 @@ export default function Navigation() {
 
             {/* User Profile / Credits */}
             <div className="flex items-center gap-2 pl-2">
-                <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300 whitespace-nowrap">
                     <Sparkles className="w-3 h-3" />
-                    <span>{credits} Credits</span>
+                    <span>{credits} <span className="hidden sm:inline">Credits</span></span>
                 </div>
                 <button
                     onClick={() => {

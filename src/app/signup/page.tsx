@@ -121,8 +121,9 @@ export default function SignupPage() {
                             {step === 'form' ? 'Join Veo3 Platform today' : `Enter the code sent to ${email}`}
                         </p>
                         {step === 'verify' && (
-                            <div className="mt-2 text-xs text-yellow-500 bg-yellow-900/20 p-2 rounded">
-                                Simulation Mode: Code is <b>{serverCode}</b>
+                            <div className="mt-4 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-200 text-xs font-mono flex flex-col items-center gap-1">
+                                <span className="text-blue-400 uppercase tracking-wider text-[10px]">Development Mode</span>
+                                <div>Your code is: <span className="font-bold text-white text-lg tracking-widest">{serverCode}</span></div>
                             </div>
                         )}
                     </div>
