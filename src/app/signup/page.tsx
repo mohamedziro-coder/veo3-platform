@@ -33,7 +33,6 @@ export default function SignupPage() {
                 name,
                 email,
                 password,
-                password,
                 role: email === 'admin@onlinetools.com' ? 'admin' : 'user',
                 credits: 50 // Initial Free Credits
             };
