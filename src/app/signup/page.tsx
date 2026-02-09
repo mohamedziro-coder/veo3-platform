@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, Github, Chrome } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Github, Chrome, Sparkles, Video } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
@@ -100,152 +102,231 @@ export default function SignupPage() {
     };
 
     return (
-        <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
-            {/* Background Ambience */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-blue-900/10 blur-[150px]" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-900/10 blur-[150px]" />
+        <main className="min-h-screen flex bg-black overflow-hidden font-sans selection:bg-blue-500/30">
+            {/* LEFT SIDE - VISUALS (Desktop Only) */}
+            <div className="hidden lg:flex w-1/2 relative bg-black items-center justify-center p-12 overflow-hidden">
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_70%)]" />
+                    <div className="absolute bottom-0 right-0 w-[80%] h-[80%] bg-[radial-gradient(circle_at_100%_100%,rgba(168,85,247,0.15),transparent_60%)]" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/5 blur-[120px] rounded-full animate-pulse" />
+                </div>
+
+                <div className="relative z-10 max-w-lg">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                    >
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center mb-8 shadow-2xl shadow-blue-900/20">
+                            <Sparkles className="w-8 h-8 text-white" />
+                        </div>
+                        <h1 className="text-6xl font-bold tracking-tight text-white mb-6 leading-tight">
+                            Create the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Impossible.</span>
+                        </h1>
+                        <p className="text-lg text-gray-400 leading-relaxed mb-8">
+                            Join Veo Platform to access state-of-the-art AI generation tools.
+                            Turn your imagination into reality with a single click.
+                        </p>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                <Video className="w-6 h-6 text-blue-400 mb-2" />
+                                <div className="text-sm font-semibold text-white">AI Video</div>
+                                <div className="text-xs text-gray-500"> Cinematic Generation</div>
+                            </div>
+                            <div className="p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                <Sparkles className="w-6 h-6 text-purple-400 mb-2" />
+                                <div className="text-sm font-semibold text-white">Advanced Models</div>
+                                <div className="text-xs text-gray-500"> Latest Tech Stack</div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md relative z-10"
-            >
-                <div className="glass-panel p-8 md:p-10 rounded-3xl border border-white/10 bg-black/40 backdrop-blur-xl">
-                    <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent mb-2">
-                            {step === 'form' ? 'Create Account' : 'Verify Email'}
-                        </h1>
-                        <p className="text-gray-400">
-                            {step === 'form' ? 'Join Veo3 Platform today' : `Enter the code sent to ${email}`}
-                        </p>
-                        {step === 'verify' && (
-                            <div className="mt-4 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-200 text-xs font-mono flex flex-col items-center gap-1">
-                                <span className="text-blue-400 uppercase tracking-wider text-[10px]">Development Mode</span>
-                                <div>Your code is: <span className="font-bold text-white text-lg tracking-widest">{serverCode}</span></div>
-                            </div>
-                        )}
-                    </div>
+            {/* RIGHT SIDE - FORM */}
+            <div className="w-full lg:w-1/2 relative flex items-center justify-center p-6 lg:p-12">
+                {/* Mobile Background */}
+                <div className="absolute inset-0 lg:hidden pointer-events-none z-0">
+                    <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[80%] bg-blue-900/20 blur-[100px] rounded-full" />
+                    <div className="absolute bottom-[-20%] left-[-20%] w-[80%] h-[80%] bg-purple-900/20 blur-[100px] rounded-full" />
+                </div>
 
-                    {step === 'form' ? (
-                        <form onSubmit={handleSendCode} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300 ml-1">Full Name</label>
-                                <div className="relative group/input">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-white transition-colors" />
+                <div className="w-full max-w-md relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="mb-8 lg:hidden"
+                    >
+                        <div className="flex items-center gap-2 font-bold text-xl tracking-tighter text-white">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center">
+                                <Sparkles className="w-4 h-4 text-white" />
+                            </div>
+                            <span>Veo Platform</span>
+                        </div>
+                    </motion.div>
+
+                    <motion.div
+                        key={step}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="relative"
+                    >
+                        <div className="mb-8">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className={cn("text-xs font-bold uppercase tracking-wider", step === 'form' ? "text-blue-500" : "text-gray-600")}>Step 1</span>
+                                <div className="h-px flex-1 bg-white/10" />
+                                <span className={cn("text-xs font-bold uppercase tracking-wider", step === 'verify' ? "text-blue-500" : "text-gray-600")}>Step 2</span>
+                            </div>
+                            <h2 className="text-3xl font-bold text-white mb-2">
+                                {step === 'form' ? 'Get Started' : 'Verify Email'}
+                            </h2>
+                            <p className="text-gray-500">
+                                {step === 'form' ? 'Create your account in seconds.' : `We sent a code to ${email}`}
+                            </p>
+                        </div>
+
+                        {step === 'form' ? (
+                            <form onSubmit={handleSendCode} className="space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300 ml-1">Full Name</label>
+                                    <div className="relative group/input">
+                                        <input
+                                            type="text"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            placeholder="John Doe"
+                                            className="w-full pl-4 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition-all font-medium"
+                                            required
+                                        />
+                                        <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
+                                    <div className="relative group/input">
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="name@example.com"
+                                            className="w-full pl-4 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition-all font-medium"
+                                            required
+                                        />
+                                        <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
+                                    <div className="relative group/input">
+                                        <input
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="••••••••"
+                                            className="w-full pl-4 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition-all font-medium"
+                                            required
+                                        />
+                                        <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 pointer-events-none" />
+                                    </div>
+                                </div>
+
+                                {error && (
+                                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                                        {error}
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xl shadow-white/5"
+                                >
+                                    {isLoading ? (
+                                        <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                    ) : (
+                                        <>
+                                            <span>Continue</span>
+                                            <ArrowRight className="w-5 h-5" />
+                                        </>
+                                    )}
+                                </button>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleVerifyAndSignup} className="space-y-6">
+                                <div className="space-y-4">
                                     <input
                                         type="text"
-                                        placeholder="John Doe"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-12 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-all font-medium"
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value)}
+                                        placeholder="000000"
+                                        maxLength={6}
+                                        className="w-full py-6 text-center text-4xl font-mono tracking-[0.5em] bg-transparent border-b-2 border-white/20 text-white placeholder-white/10 focus:outline-none focus:border-blue-500 transition-all"
+                                        autoFocus
                                         required
                                     />
+                                    <div className="text-center text-sm text-gray-500">
+                                        Enter the 6-digit code we sent you.
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
-                                <div className="relative group/input">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-white transition-colors" />
-                                    <input
-                                        type="email"
-                                        placeholder="name@example.com"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-12 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-all font-medium"
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300 ml-1">Password</label>
-                                <div className="relative group/input">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within/input:text-white transition-colors" />
-                                    <input
-                                        type="password"
-                                        placeholder="••••••••"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-12 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-all font-medium"
-                                        required
-                                    />
-                                </div>
-                            </div>
 
-                            {error && (
-                                <div className="text-red-400 text-sm text-center bg-red-900/20 p-2 rounded-lg">
-                                    {error}
-                                </div>
-                            )}
-
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-100 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                            >
-                                {isLoading ? (
-                                    <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                ) : (
-                                    <>
-                                        <span>Send Verification Code</span>
-                                        <ArrowRight className="w-4 h-4" />
-                                    </>
+                                {step === 'verify' && (
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="mx-auto max-w-xs px-4 py-3 rounded-xl bg-blue-500/5 border border-blue-500/10 backdrop-blur-md"
+                                    >
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] uppercase tracking-wider text-blue-400 font-bold">Resend Simulator</span>
+                                                <span className="text-xs text-blue-200">Testing Code</span>
+                                            </div>
+                                            <div className="px-3 py-1 rounded bg-blue-500/20 text-white font-mono font-bold tracking-widest border border-blue-500/30">
+                                                {serverCode}
+                                            </div>
+                                        </div>
+                                    </motion.div>
                                 )}
-                            </button>
-                        </form>
-                    ) : (
-                        <form onSubmit={handleVerifyAndSignup} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300 ml-1">Verification Code</label>
-                                <input
-                                    type="text"
-                                    placeholder="123456"
-                                    value={code}
-                                    onChange={(e) => setCode(e.target.value)}
-                                    maxLength={6}
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-center text-3xl tracking-[1em] text-white placeholder-gray-700 focus:outline-none focus:border-white/30 transition-all font-mono"
-                                    required
-                                    autoFocus
-                                />
-                            </div>
 
-                            {error && (
-                                <div className="text-red-400 text-sm text-center bg-red-900/20 p-2 rounded-lg">
-                                    {error}
-                                </div>
-                            )}
-
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                {isLoading ? (
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                ) : (
-                                    <span>Verify & Create Account</span>
+                                {error && (
+                                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                                        {error}
+                                    </div>
                                 )}
-                            </button>
 
-                            <button
-                                type="button"
-                                onClick={() => setStep('form')}
-                                className="w-full text-gray-500 hover:text-white text-sm transition-colors"
-                            >
-                                Back to Signup
-                            </button>
-                        </form>
-                    )}
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg hover:shadow-lg hover:shadow-blue-500/20 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {isLoading ? (
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                        <span>Verify Account</span>
+                                    )}
+                                </button>
 
-                    <div className="mt-8 text-center text-sm text-gray-400">
-                        Already have an account?{" "}
-                        <Link href="/login" className="text-white hover:text-blue-400 font-medium transition-colors">
-                            Sign in
-                        </Link>
-                    </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setStep('form')}
+                                    className="w-full text-sm text-gray-500 hover:text-white transition-colors py-2"
+                                >
+                                    Change Email
+                                </button>
+                            </form>
+                        )}
+
+                        <div className="mt-8 pt-8 border-t border-white/5 text-center">
+                            <p className="text-gray-500">
+                                Already have an account?{" "}
+                                <Link href="/login" className="text-white hover:text-blue-400 font-medium transition-colors">
+                                    Sign In
+                                </Link>
+                            </p>
+                        </div>
+                    </motion.div>
                 </div>
-            </motion.div>
+            </div>
         </main>
     );
 }
