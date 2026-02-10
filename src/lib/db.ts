@@ -86,8 +86,9 @@ export async function createUser(name: string, email: string, password: string, 
         // Hash password
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // Determine role (admin if specific email, otherwise user)
-        const role = email === 'admin@onlinetools.com' ? 'admin' : 'user';
+        // Determine role (admin if specific email or matches env var)
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@onlinetools.com';
+        const role = (email === adminEmail || email === 'admin@onlinetools.com') ? 'admin' : 'user';
 
         // Insert user
         // Try to insert with signup_ip. If it fails (e.g. column missing), fallback to old insert.
