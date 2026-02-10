@@ -114,8 +114,18 @@ export async function pollOperationStatus(operationName: string): Promise<{
             throw new Error('Failed to get access token');
         }
 
-        const location = config.GOOGLE_LOCATION || 'us-central1';
+        // Expected operationName format: projects/PROJECT_ID/locations/LOCATION/operations/OP_ID
+        let location = config.GOOGLE_LOCATION || 'us-central1';
+
+        // Try to extract location from operation name if present
+        const match = operationName.match(/locations\/([^\/]+)\/operations/);
+        if (match && match[1]) {
+            location = match[1];
+        }
+
         const url = `https://${location}-aiplatform.googleapis.com/v1/${operationName}`;
+
+        console.log(`[VEO-LRO] Polling URL: ${url}`);
 
         const response = await fetch(url, {
             headers: {
@@ -125,8 +135,9 @@ export async function pollOperationStatus(operationName: string): Promise<{
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error(`[VEO-LRO] Poll Error (${response.status}):`, errorText);
-            throw new Error(`Failed to poll operation: ${response.status}`);
+            // If 404, it might mean the operation is not found in this region or API version issue
+            console.error(`[VEO-LRO] Poll Error (${response.status}) for ${url}:`, errorText);
+            throw new Error(`Failed to poll operation: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
