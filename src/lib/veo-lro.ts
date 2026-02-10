@@ -115,15 +115,25 @@ export async function pollOperationStatus(operationName: string): Promise<{
         }
 
         // Expected operationName format: projects/PROJECT_ID/locations/LOCATION/operations/OP_ID
-        let location = config.GOOGLE_LOCATION || 'us-central1';
+        // Issue: API might return projects/.../publishers/google/models/.../operations/OP_ID
+        // Fix: Normalize to standard operations path
 
-        // Try to extract location from operation name if present
-        const match = operationName.match(/locations\/([^\/]+)\/operations/);
+        let cleanOperationName = operationName;
+
+        // Remove /publishers/google/models/MODEL_ID if present
+        if (cleanOperationName.includes('/publishers/google/models/')) {
+            cleanOperationName = cleanOperationName.replace(/\/publishers\/google\/models\/[^\/]+/, '');
+            console.log(`[VEO-LRO] Normalized operation name: ${cleanOperationName}`);
+        }
+
+        // Try to extract location from operation name
+        let location = config.GOOGLE_LOCATION || 'us-central1';
+        const match = cleanOperationName.match(/locations\/([^\/]+)\/operations/);
         if (match && match[1]) {
             location = match[1];
         }
 
-        const url = `https://${location}-aiplatform.googleapis.com/v1/${operationName}`;
+        const url = `https://${location}-aiplatform.googleapis.com/v1/${cleanOperationName}`;
 
         console.log(`[VEO-LRO] Polling URL: ${url}`);
 
