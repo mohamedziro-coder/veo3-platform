@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Sparkles, Zap, Shield, Globe, ArrowRight } from "lucide-react";
+import { ArrowRight, Check, Sparkles, Globe, Shield, Zap, Star, CreditCard } from 'lucide-react';
 import Link from "next/link";
 
 const PLANS = [
@@ -60,11 +60,11 @@ const PLANS = [
 
 export default function PricingPage() {
     return (
-        <main className="min-h-screen bg-black text-white relative overflow-hidden pt-24 pb-20">
-            {/* Ambient Background */}
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-900/20 rounded-full blur-[120px]" />
-                <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-blue-900/10 rounded-full blur-[150px]" />
+        <main className="min-h-screen pt-24 pb-20 px-4 md:px-8 bg-gray-50 relative overflow-hidden">
+            {/* Background Ambience */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-500/5 blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-purple-500/5 blur-[120px]" />
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -73,98 +73,75 @@ export default function PricingPage() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-sm font-medium text-purple-300"
+                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-700 text-sm font-medium"
                     >
                         <Sparkles className="w-4 h-4" />
                         <span>Simple Pricing</span>
                     </motion.div>
 
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400"
-                    >
-                        Choose Your Power
-                    </motion.h1>
-
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-xl text-gray-400 max-w-2xl mx-auto"
-                    >
-                        Unlock the full potential of Veo 3.0 with flexible plans designed for every stage of your creative journey.
-                    </motion.p>
+                    <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-6 text-gray-900">
+                        Simple, Transparent Pricing
+                    </h1>
+                    <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
+                        Choose the plan that fits your creative needs. Unlock the full potential of Veo 3.0.
+                    </p>
                 </div>
 
                 {/* Pricing Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {PLANS.map((plan, i) => (
-                        <motion.div
+                        <div
                             key={plan.name}
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 + (i * 0.1) }}
-                            className={`relative group rounded-3xl p-1 ${plan.popular ? 'ring-2 ring-purple-500/50 shadow-[0_0_50px_rgba(168,85,247,0.2)]' : 'border border-white/10'}`}
+                            className={`relative rounded-3xl p-8 border transition-all duration-300 flex flex-col h-full ${plan.popular
+                                ? 'bg-white border-primary/20 shadow-xl scale-[1.02] z-10'
+                                : 'bg-white/60 border-gray-200 hover:border-primary/20 hover:bg-white hover:shadow-lg'
+                                }`}
                         >
-                            {/* Card Background & Glass Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent rounded-3xl pointer-events-none" />
-                            <div className="h-full bg-black/60 backdrop-blur-xl rounded-[1.4rem] p-8 flex flex-col relative overflow-hidden">
-
-                                {/* Popular Badge */}
-                                {plan.popular && (
-                                    <div className="absolute top-0 right-0 bg-gradient-to-bl from-purple-600 to-blue-600 text-white text-xs font-bold px-4 py-1.5 rounded-bl-2xl">
-                                        MOST POPULAR
-                                    </div>
-                                )}
-
-                                {/* Plan Name & Description */}
-                                <div className="mb-8">
-                                    <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                                    <p className="text-gray-400 text-sm h-10">{plan.description}</p>
+                            {plan.popular && (
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                                    Most Popular
                                 </div>
+                            )}
 
-                                {/* Price */}
-                                <div className="mb-8 flex items-baseline gap-1">
-                                    <span className="text-4xl font-bold tracking-tight">{plan.price}</span>
+                            <div className="mb-8">
+                                <h3 className={`text-xl font-bold mb-2 ${plan.popular ? 'text-primary' : 'text-gray-900'}`}>{plan.name}</h3>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-4xl md:text-5xl font-black text-gray-900">{plan.price}</span>
                                     {plan.period && <span className="text-gray-500">{plan.period}</span>}
                                 </div>
-
-                                {/* Action Button */}
-                                <Link
-                                    href={plan.href}
-                                    className={`w-full py-4 rounded-xl font-bold text-center transition-all mb-8 flex items-center justify-center gap-2 group/btn ${plan.popular
-                                            ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:scale-[1.02] shadow-lg shadow-purple-900/20'
-                                            : 'bg-white/10 hover:bg-white/20'
-                                        }`}
-                                >
-                                    {plan.cta}
-                                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                                </Link>
-
-                                {/* Features List */}
-                                <div className="space-y-4 flex-1">
-                                    {plan.features.map((feature, fIndex) => (
-                                        <div key={fIndex} className="flex items-start gap-3 text-sm text-gray-300">
-                                            <div className={`mt-0.5 p-0.5 rounded-full ${plan.popular ? 'bg-purple-500/20 text-purple-300' : 'bg-gray-800 text-gray-400'}`}>
-                                                <Check className="w-3 h-3" />
-                                            </div>
-                                            <span>{feature}</span>
-                                        </div>
-                                    ))}
-                                </div>
+                                <p className="text-gray-500 mt-4 text-sm leading-relaxed">{plan.description}</p>
                             </div>
-                        </motion.div>
+
+                            <ul className="space-y-4 mb-8 flex-grow">
+                                {plan.features.map((feature, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-sm">
+                                        <Check className={`w-5 h-5 flex-shrink-0 ${plan.popular ? 'text-primary' : 'text-gray-400'}`} />
+                                        <span className="text-gray-600">{feature}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <button className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 ${plan.popular
+                                ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/20'
+                                : 'bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300'
+                                }`}>
+                                <span>{plan.cta}</span>
+                                {plan.popular && <Sparkles className="w-4 h-4" />}
+                            </button>
+                        </div>
                     ))}
                 </div>
 
                 {/* Trust Badges */}
-                <div className="mt-24 pt-12 border-t border-white/5 flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                    {/* Add dummy logs or trust text */}
-                    <div className="flex items-center gap-2"><Globe className="w-5 h-5" /> Global Payment Support</div>
-                    <div className="flex items-center gap-2"><Shield className="w-5 h-5" /> Secure SSL Encryption</div>
-                    <div className="flex items-center gap-2"><Zap className="w-5 h-5" /> Instant Activation</div>
+                <div className="max-w-7xl mx-auto mt-20 text-center relative z-10">
+                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">Trusted by Creators from</p>
+                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                        {/* Placeholder logos */}
+                        <div className="flex items-center gap-2 text-xl font-black text-gray-900"><Shield className="w-6 h-6" /> Google</div>
+                        <div className="flex items-center gap-2 text-xl font-black text-gray-900"><Zap className="w-6 h-6" /> OpenAI</div>
+                        <div className="flex items-center gap-2 text-xl font-black text-gray-900"><Star className="w-6 h-6" /> Anthropic</div>
+                        <div className="flex items-center gap-2 text-xl font-black text-gray-900"><CreditCard className="w-6 h-6" /> Stripe</div>
+                    </div>
                 </div>
             </div>
         </main>

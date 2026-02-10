@@ -70,7 +70,7 @@ export default function NanbananaPage() {
     }
 
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-8 gap-8 relative z-10 pt-24 md:pt-32 pb-24 md:pb-32">
+        <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-8 gap-8 relative z-10 pt-24 md:pt-32 pb-24 md:pb-32 bg-gray-50">
 
             {/* Header */}
             <motion.div
@@ -83,10 +83,10 @@ export default function NanbananaPage() {
                         Experimental
                     </span>
                 </div>
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-500 bg-clip-text text-transparent drop-shadow-sm">
+                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-gray-900 drop-shadow-sm">
                     Nanbanana 2.5
                 </h1>
-                <p className="text-gray-400 max-w-lg mx-auto text-base md:text-lg">
+                <p className="text-gray-500 max-w-lg mx-auto text-base md:text-lg">
                     Sawb tsawar khayaliya b jowda 3aliya.
                     <br />
                     <span className="text-sm opacity-60">(Powered by Gemini 2.0 Flash)</span>
@@ -101,12 +101,11 @@ export default function NanbananaPage() {
                 className="w-full max-w-2xl space-y-6"
             >
                 <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/20 to-pink-500/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
                     <textarea
                         placeholder="Wsef taswira li bghiti... (Matalan: 'Un chat cyberpunk dans une ville néon au Maroc')"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
-                        className="relative w-full px-6 py-6 rounded-2xl bg-black/50 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 transition-all text-lg resize-none min-h-[120px]"
+                        className="relative w-full px-6 py-6 rounded-2xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-lg resize-none min-h-[120px] shadow-sm"
                     />
                 </div>
 
@@ -139,10 +138,10 @@ export default function NanbananaPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="w-full max-w-2xl mt-8"
                 >
-                    <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-white/5 aspect-[4/3] flex flex-col items-center justify-center gap-4">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 to-purple-500/10 animate-pulse" />
-                        <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin relative z-10" />
-                        <p className="text-yellow-200 font-bold text-lg animate-pulse relative z-10">Keyrsem f'tasswira dyalk...</p>
+                    <div className="relative rounded-3xl overflow-hidden border border-gray-200 shadow-xl bg-white aspect-[4/3] flex flex-col items-center justify-center gap-4">
+                        <div className="absolute inset-0 bg-gray-50 animate-pulse" />
+                        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin relative z-10" />
+                        <p className="text-gray-900 font-bold text-lg animate-pulse relative z-10">Keyrsem f'tasswira dyalk...</p>
                         <p className="text-gray-500 text-sm relative z-10">Katakhod ta9riban 5-10 tawani</p>
                     </div>
                 </motion.div>
@@ -155,7 +154,7 @@ export default function NanbananaPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="w-full max-w-2xl mt-8"
                 >
-                    <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                    <div className="relative rounded-3xl overflow-hidden border border-gray-200 shadow-xl bg-white">
                         <div className="relative w-full h-auto aspect-square md:aspect-video">
                             {/* Fallback for external URLs that might not be in config, though we added unsplash/google */}
                             {/* Using unoptimized for arbitrary generation URLs if they come from unknown sources, 

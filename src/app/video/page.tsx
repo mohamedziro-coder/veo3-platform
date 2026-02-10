@@ -41,8 +41,8 @@ export default function VideoPage() {
     // Show loading while checking auth (AFTER all hooks)
     if (isPageLoading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
@@ -186,12 +186,12 @@ export default function VideoPage() {
     };
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden pt-24 pb-32">
+        <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden pt-24 pb-32 bg-gray-50">
 
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-purple-900/10 blur-[150px]" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-900/10 blur-[150px]" />
+                <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-purple-500/5 blur-[150px]" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-blue-500/5 blur-[150px]" />
             </div>
 
             <motion.div
@@ -203,16 +203,16 @@ export default function VideoPage() {
 
                 {/* Header */}
                 <motion.div variants={itemVariants} className="text-center space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs font-medium text-purple-300">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 backdrop-blur-md text-xs font-medium text-purple-600 shadow-sm">
                         <Sparkles className="w-3 h-3" />
                         <span>Powered by Veo 3.0</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-gradient-to-br from-white via-purple-100 to-purple-400 bg-clip-text text-transparent neon-glow">
+                    <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-gray-900">
                         Product Video Ad
                     </h1>
-                    <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
                         Upload your product, generate frames, and let AI animate it. <br />
-                        <span className="text-white/50 text-sm">Product-Centric Frame Generation.</span>
+                        <span className="text-gray-400 text-sm">Product-Centric Frame Generation.</span>
                     </p>
                 </motion.div>
 
@@ -234,14 +234,14 @@ export default function VideoPage() {
                 </AnimatePresence>
 
                 {/* Main Interface Card */}
-                <motion.div variants={itemVariants} className="w-full glass-panel rounded-[2rem] p-6 md:p-10 relative overflow-hidden group">
+                <motion.div variants={itemVariants} className="w-full bg-white border border-gray-200 shadow-xl rounded-[2rem] p-6 md:p-10 relative overflow-hidden group">
 
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 relative z-10">
                         {/* Start Slot */}
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs font-bold text-gray-400 uppercase">2. Start Frame</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase">2. Start Frame</label>
                                 <button
                                     onClick={() => handleOpenGenerator('start')}
                                     className="text-xs flex items-center gap-1 text-yellow-500 hover:text-yellow-400 transition-colors"
@@ -264,7 +264,7 @@ export default function VideoPage() {
                         {/* End Slot */}
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs font-bold text-gray-400 uppercase">3. End Frame</label>
+                                <label className="text-xs font-bold text-gray-500 uppercase">3. End Frame</label>
                                 <button
                                     onClick={() => handleOpenGenerator('end')}
                                     className="text-xs flex items-center gap-1 text-yellow-500 hover:text-yellow-400 transition-colors"
@@ -295,13 +295,12 @@ export default function VideoPage() {
                     {/* Prompt Section */}
                     <div className="mt-8 space-y-4">
                         <div className="relative group/input">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl blur opacity-0 group-focus-within/input:opacity-50 transition duration-500"></div>
                             <input
                                 type="text"
                                 placeholder="Describe the motion... (e.g., 'Cinematic slow zoom, product rotating')"
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
-                                className="relative w-full px-6 py-4 rounded-xl bg-[#0a0a0a] border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition-all text-lg shadow-inner"
+                                className="relative w-full px-6 py-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-lg shadow-sm"
                             />
                         </div>
                     </div>
@@ -311,7 +310,7 @@ export default function VideoPage() {
                         <button
                             onClick={handleGenerateVideo}
                             disabled={isLoading}
-                            className="w-full py-5 rounded-xl bg-white text-black font-bold text-xl shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 relative overflow-hidden"
+                            className="w-full py-5 rounded-xl bg-primary text-white font-bold text-xl shadow-lg hover:shadow-xl hover:bg-primary/90 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 relative overflow-hidden"
                         >
                             {/* Gradient Overlay on Hover */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000" />

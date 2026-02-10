@@ -50,8 +50,8 @@ export default function VoicePage() {
     // Show loading while checking auth (AFTER all hooks)
     if (isPageLoading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen bg-white flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
@@ -139,12 +139,12 @@ export default function VoicePage() {
 
 
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden pt-24 pb-32 bg-black">
+        <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden pt-24 pb-32 bg-gray-50">
 
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-900/10 blur-[150px]" />
-                <div className="absolute bottom-[-10%] right-[10%] w-[60%] h-[60%] rounded-full bg-cyan-900/10 blur-[150px]" />
+                <div className="absolute top-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/5 blur-[150px]" />
+                <div className="absolute bottom-[-10%] right-[10%] w-[60%] h-[60%] rounded-full bg-cyan-500/5 blur-[150px]" />
             </div>
 
             <motion.div
@@ -156,16 +156,16 @@ export default function VoicePage() {
 
                 {/* Header */}
                 <motion.div variants={itemVariants} className="text-center space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs font-medium text-cyan-300/90">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 backdrop-blur-md text-xs font-medium text-cyan-600 shadow-sm">
                         <Volume2 className="w-3 h-3" />
                         <span>Veo Voice Studio</span>
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-bold tracking-tighter bg-gradient-to-br from-cyan-200 via-blue-400 to-purple-500 bg-clip-text text-transparent neon-glow">
+                    <h1 className="text-5xl md:text-6xl font-bold tracking-tighter text-gray-900">
                         Voice Over API
                     </h1>
-                    <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
                         Hawel text l'sout htirafi (Professional TTS). <br />
-                        <span className="text-white/50 text-sm">Powered by Google Cloud TTS.</span>
+                        <span className="text-gray-400 text-sm">Powered by Google Cloud TTS.</span>
                     </p>
                 </motion.div>
 
@@ -197,8 +197,8 @@ export default function VoicePage() {
                 </AnimatePresence>
 
                 {/* Main Interface */}
-                <motion.div variants={itemVariants} className="w-full glass-panel rounded-[2rem] p-1 md:p-2 relative overflow-hidden ring-1 ring-white/10">
-                    <div className="bg-black/40 rounded-[1.8rem] overflow-hidden p-6 md:p-8 space-y-6">
+                <motion.div variants={itemVariants} className="w-full bg-white border border-gray-200 shadow-xl rounded-[2rem] p-1 md:p-2 relative overflow-hidden">
+                    <div className="bg-white rounded-[1.8rem] overflow-hidden p-6 md:p-8 space-y-6">
 
                         {/* Voice Selector */}
                         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
@@ -207,8 +207,8 @@ export default function VoicePage() {
                                     key={voice.id}
                                     onClick={() => setSelectedVoice(voice.id)}
                                     className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedVoice === voice.id
-                                        ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
-                                        : "bg-white/5 text-gray-400 hover:bg-white/10"
+                                        ? "bg-primary text-white shadow-md"
+                                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                                         }`}
                                 >
                                     {voice.name}
@@ -222,12 +222,12 @@ export default function VoicePage() {
                                 placeholder="Kteb l'script hna... (Arabic, French, or English)"
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
-                                className="w-full h-40 bg-transparent border-none text-white placeholder-gray-600 focus:outline-none focus:ring-0 text-xl resize-none leading-relaxed"
+                                className="w-full h-40 bg-gray-50 rounded-xl p-4 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-xl resize-none leading-relaxed shadow-inner"
                             />
                         </div>
 
                         {/* Controls */}
-                        <div className="flex justify-between items-center border-t border-white/5 pt-6">
+                        <div className="flex justify-between items-center border-t border-gray-100 pt-6">
                             <div className="text-xs text-gray-500 font-mono">
                                 {text.length} chars
                             </div>
@@ -262,7 +262,7 @@ export default function VoicePage() {
                             exit={{ opacity: 0, y: 20 }}
                             className="w-full max-w-3xl"
                         >
-                            <div className="glass-panel rounded-2xl p-6 flex items-center gap-6">
+                            <div className="bg-white border border-gray-200 shadow-xl rounded-2xl p-6 flex items-center gap-6">
                                 <button
                                     onClick={togglePlayback}
                                     className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform shadow-xl shadow-white/10"
@@ -289,7 +289,7 @@ export default function VoicePage() {
                                 <a
                                     href={audioUrl}
                                     download="veo-voice.mp3"
-                                    className="p-4 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white"
+                                    className="p-4 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-900"
                                 >
                                     <Download className="w-5 h-5" />
                                 </a>
