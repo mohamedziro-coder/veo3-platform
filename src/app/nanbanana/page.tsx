@@ -232,7 +232,20 @@ export default function NanbananaPage() {
                             />
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent flex justify-between items-end z-10">
-                            <button className="flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors">
+                            <button
+                                onClick={() => {
+                                    if (!imageUrl) return;
+                                    // Use same robust download logic as dashboard
+                                    const link = document.createElement('a');
+                                    link.href = imageUrl;
+                                    link.download = `generated-image-${Date.now()}.png`;
+                                    link.target = '_blank';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                }}
+                                className="flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
+                            >
                                 <Download className="w-4 h-4" />
                                 Telecharger
                             </button>
