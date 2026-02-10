@@ -19,11 +19,21 @@ export async function uploadBase64ToGCS(
                 : undefined
         });
 
-        const bucketName = process.env.GCS_BUCKET_NAME || config.GCS_BUCKET_NAME;
+        let bucketName = process.env.GCS_BUCKET_NAME || config.GCS_BUCKET_NAME;
 
         if (!bucketName) {
+            console.error('[GCS] No bucket name configured in env or settings');
             throw new Error('GCS_BUCKET_NAME not configured');
         }
+
+        // Sanitize: Remove gs:// prefix if present and trim whitespace
+        bucketName = bucketName.replace(/^gs:\/\//, '').trim();
+
+        if (!bucketName) {
+            throw new Error('Invalid GCS bucket name (empty after sanitization)');
+        }
+
+        console.log(`[GCS] Using bucket: "${bucketName}"`);
 
         const bucket = storage.bucket(bucketName);
         const timestamp = Date.now();

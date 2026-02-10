@@ -114,9 +114,20 @@ async function processVideoGeneration(
             message: "Generating video with Veo 3.1..."
         });
 
-        const bucketName = process.env.GCS_BUCKET_NAME || process.env.GOOGLE_CLOUD_BUCKET;
+        // Initialize config to get bucket name
+        const { getVertexConfigAsync } = await import('@/lib/config');
+        const config = await getVertexConfigAsync();
+        let bucketName = config.GCS_BUCKET_NAME || process.env.GCS_BUCKET_NAME;
+
         if (!bucketName) {
-            throw new Error('GCS_BUCKET_NAME not configured in environment');
+            throw new Error('GCS_BUCKET_NAME not configured in environment or settings');
+        }
+
+        // Sanitize: Remove gs:// prefix if present and trim whitespace
+        bucketName = bucketName.replace(/^gs:\/\//, '').trim();
+
+        if (!bucketName) {
+            throw new Error('Invalid GCS bucket name (empty after sanitization)');
         }
 
         const outputGcsUri = `gs://${bucketName}/veo-outputs/${operationId}/`;
