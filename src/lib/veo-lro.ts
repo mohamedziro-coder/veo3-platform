@@ -126,12 +126,14 @@ export async function pollOperationStatus(operationName: string): Promise<{
         const client = await auth.getClient();
 
         const opId = sanitize(operationName.split('/').pop() || '');
+        const cleanOpName = operationName.startsWith('/') ? operationName.substring(1) : operationName;
 
-        // CRITICAL FIX: Use v1beta1 instead of v1 to support UUID Operation IDs
-        // "must be a Long" error happens because v1 only accepts numeric IDs
-        const pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/operations/${opId}`;
+        // FINAL FIX: Use the FULL raw operation name provided by the API
+        // This includes the "publishers/google/models/..." nested path which is REQUIRED for UUIDs.
+        // v1beta1 is used for maximum compatibility with these nested LROs.
+        const pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/${cleanOpName}`;
 
-        console.log(`[VEO-LRO] Polling via Gaxios (v1beta1 Standard): ${pollingUrl}`);
+        console.log(`[VEO-LRO] Polling via Gaxios (v1beta1 Raw Name): ${pollingUrl}`);
 
         const response = await client.request({
             url: pollingUrl,
