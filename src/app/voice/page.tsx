@@ -124,6 +124,12 @@ export default function VoicePage() {
 
             const data = await response.json();
 
+            if (!response.ok) {
+                // Handle HTTP errors (401, 402, 400, 500, etc.)
+                setError(data.error || `Server error: ${response.status}`);
+                return;
+            }
+
             if (data.success && data.audioContent) {
                 // Create Blob from base64
                 const audioBlob = await fetch(`data:audio/mp3;base64,${data.audioContent}`).then(r => r.blob());
@@ -158,9 +164,9 @@ export default function VoicePage() {
             } else {
                 setError(data.error || "Failed to generate audio. Ensure Text-to-Speech API is enabled.");
             }
-        } catch (err) {
-            setError("Network connection error.");
-            console.error(err);
+        } catch (err: any) {
+            console.error("Voice generation error:", err);
+            setError(err.message || "Network connection error.");
         } finally {
             setIsLoading(false);
         }
