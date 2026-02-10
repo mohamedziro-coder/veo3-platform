@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     }
 }
 
-// Background video generation function
+// Background video generation function using REST API
 async function processVideoGeneration(
     operationId: string,
     startImage: string,
@@ -66,8 +66,9 @@ async function processVideoGeneration(
     try {
         console.log(`[PROCESS] Starting background generation for operation: ${operationId}`);
 
-        // Initialize Vertex AI Model
-        const modelName = process.env.VEO_MODEL_NAME || "veo-3.1-fast-generate-001";
+        // Import helpers (dynamic import to avoid circular dependencies)
+        const { uploadBase64ToGCS, gcsUriToHttps } = await import('@/lib/gcs-upload');
+        const { startVideoGeneration, pollOperationStatus } = await import('@/lib/veo-lro');
 
         // Helper to process base64/url
         const processImage = async (input: string) => {
@@ -84,72 +85,130 @@ async function processVideoGeneration(
             return input.split(",")[1] || input;
         };
 
-        const parts: any[] = [];
-        parts.push({ text: `Generate a video. ${prompt || "Cinematic shot."}` });
+        // Step 1: Upload images to GCS (Veo requires GCS URIs)
+        storeOperationResult(operationId, {
+            status: "processing",
+            message: "Uploading images to Cloud Storage..."
+        });
+
+        let startImageGcsUri: string;
+        let endImageGcsUri: string | undefined;
 
         if (startImage) {
             const startBase64 = await processImage(startImage);
-            parts.push({ inlineData: { mimeType: "image/jpeg", data: startBase64 } });
+            startImageGcsUri = await uploadBase64ToGCS(startBase64, 'start-frame.jpg');
+            console.log(`[PROCESS] Start image uploaded: ${startImageGcsUri}`);
+        } else {
+            throw new Error('Start image is required');
         }
+
         if (endImage) {
             const endBase64 = await processImage(endImage);
-            parts.push({ inlineData: { mimeType: "image/jpeg", data: endBase64 } });
+            endImageGcsUri = await uploadBase64ToGCS(endBase64, 'end-frame.jpg');
+            console.log(`[PROCESS] End image uploaded: ${endImageGcsUri}`);
         }
 
-        // Vertex AI Configuration - using only valid Veo 3.1 parameters
-        const generationConfig = {
-            temperature: 0.7, // Controls creativity (0.0-2.0, higher = more creative)
-            // Note: aspect_ratio, resolution, duration are not supported in SDK generateContent call
-            // These are typically set at model initialization or via specific video generation endpoints
-        };
-
-        const generativeModel = await getVeoModel(modelName);
-
-        console.log(`[PROCESS] Calling Vertex AI for operation: ${operationId}`);
-
-        // This is the long-running call that may take 30-120 seconds
-        const result = await generativeModel.generateContent({
-            contents: [{ role: 'user', parts }],
-            generationConfig: generationConfig as any,
+        // Step 2: Start Veo LRO via REST API
+        storeOperationResult(operationId, {
+            status: "processing",
+            message: "Generating video with Veo 3.1..."
         });
 
-        // Parse Response
-        const response = result.response;
-        let videoUrl = null;
+        const bucketName = process.env.GCS_BUCKET_NAME || process.env.GOOGLE_CLOUD_BUCKET;
+        if (!bucketName) {
+            throw new Error('GCS_BUCKET_NAME not configured in environment');
+        }
 
-        // Check for fileUri (GCS) or inline data
-        if (response.candidates?.[0]?.content?.parts?.[0]?.fileData?.fileUri) {
-            videoUrl = response.candidates[0].content.parts[0].fileData.fileUri;
-        } else if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
-            const text = response.candidates[0].content.parts[0].text;
-            if (text.startsWith("gs://") || text.startsWith("http")) {
-                videoUrl = text;
+        const outputGcsUri = `gs://${bucketName}/veo-outputs/${operationId}/`;
+
+        const { operationName } = await startVideoGeneration({
+            prompt: prompt || "Cinematic video shot",
+            startImageGcsUri,
+            endImageGcsUri,
+            outputGcsUri
+        });
+
+        console.log(`[PROCESS] Vertex AI operation started: ${operationName}`);
+
+        // Step 3: Poll operation status
+        let attempts = 0;
+        const MAX_ATTEMPTS = 80; // 4 minutes (3s intervals)
+        let lastMessage = "Generating video...";
+
+        while (attempts < MAX_ATTEMPTS) {
+            await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
+
+            const { done, error, response } = await pollOperationStatus(operationName);
+
+            // Update progress message every 10 attempts (30 seconds)
+            if (attempts % 10 === 0) {
+                const elapsed = Math.floor((attempts * 3) / 60);
+                lastMessage = `Generating video... ${elapsed}m ${(attempts * 3) % 60}s elapsed`;
+                storeOperationResult(operationId, {
+                    status: "processing",
+                    message: lastMessage
+                });
             }
+
+            if (done) {
+                if (error) {
+                    console.error(`[PROCESS] Vertex AI operation failed:`, error);
+                    storeOperationResult(operationId, {
+                        status: "failed",
+                        error: error.message || "Video generation failed"
+                    });
+                    return;
+                }
+
+                // Extract video GCS URI from response
+                console.log(`[PROCESS] Operation completed! Response:`, JSON.stringify(response));
+
+                // The response structure should contain the generated video
+                // Response format: { generatedVideos: [{ video: { gcsUri: "gs://..." } }] }
+                let videoUrl = null;
+
+                if (response?.generatedVideos?.[0]?.video?.gcsUri) {
+                    const gcsUri = response.generatedVideos[0].video.gcsUri;
+                    videoUrl = gcsUriToHttps(gcsUri);
+                    console.log(`[PROCESS] Video URL: ${videoUrl}`);
+                } else if (response?.generatedSamples?.[0]?.video?.uri) {
+                    // Alternative response format
+                    videoUrl = response.generatedSamples[0].video.uri;
+                    if (videoUrl.startsWith('gs://')) {
+                        videoUrl = gcsUriToHttps(videoUrl);
+                    }
+                } else {
+                    console.error('[PROCESS] Unexpected response format:', response);
+                    throw new Error('Could not extract video URL from response');
+                }
+
+                // Success!
+                storeOperationResult(operationId, {
+                    status: "complete",
+                    videoUrl,
+                    credits,
+                    message: "Video generated successfully!"
+                });
+
+                console.log(`[PROCESS] Operation ${operationId} completed successfully`);
+                return;
+            }
+
+            attempts++;
         }
 
-        // Convert gs:// to https://
-        if (videoUrl && videoUrl.startsWith("gs://")) {
-            videoUrl = videoUrl.replace("gs://", "https://storage.googleapis.com/");
-        }
-
-        if (videoUrl) {
-            console.log(`[PROCESS] Operation ${operationId} completed successfully`);
-            storeOperationResult(operationId, {
-                status: "complete",
-                videoUrl: videoUrl,
-                credits: credits
-            });
-        } else {
-            throw new Error("No video URL in response");
-        }
+        // Timeout
+        console.error(`[PROCESS] Operation ${operationId} timed out after ${MAX_ATTEMPTS * 3}s`);
+        storeOperationResult(operationId, {
+            status: "failed",
+            error: "Video generation timed out. Please try again."
+        });
 
     } catch (error: any) {
-        console.error(`[PROCESS] Operation ${operationId} failed:`, error);
+        console.error(`[PROCESS] Operation ${operationId} error:`, error);
         storeOperationResult(operationId, {
             status: "failed",
             error: error.message || "Video generation failed"
         });
-        throw error;
     }
 }
-

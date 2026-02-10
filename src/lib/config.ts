@@ -7,6 +7,7 @@ interface VertexConfig {
     GOOGLE_PROJECT_ID?: string;
     GOOGLE_LOCATION?: string;
     GOOGLE_APPLICATION_CREDENTIALS_JSON?: string;
+    GCS_BUCKET_NAME?: string;
     [key: string]: any;
 }
 
@@ -19,7 +20,8 @@ export function getVertexConfig(): VertexConfig {
             return {
                 GOOGLE_PROJECT_ID: config.GOOGLE_PROJECT_ID || process.env.GOOGLE_PROJECT_ID,
                 GOOGLE_LOCATION: config.GOOGLE_LOCATION || process.env.GOOGLE_LOCATION || 'us-central1',
-                GOOGLE_APPLICATION_CREDENTIALS_JSON: config.GOOGLE_APPLICATION_CREDENTIALS_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+                GOOGLE_APPLICATION_CREDENTIALS_JSON: config.GOOGLE_APPLICATION_CREDENTIALS_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+                GCS_BUCKET_NAME: config.GCS_BUCKET_NAME || process.env.GCS_BUCKET_NAME
             };
         }
     } catch (e) {
@@ -30,7 +32,8 @@ export function getVertexConfig(): VertexConfig {
     return {
         GOOGLE_PROJECT_ID: process.env.GOOGLE_PROJECT_ID,
         GOOGLE_LOCATION: process.env.GOOGLE_LOCATION || 'us-central1',
-        GOOGLE_APPLICATION_CREDENTIALS_JSON: process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+        GOOGLE_APPLICATION_CREDENTIALS_JSON: process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+        GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME
     };
 }
 
@@ -43,7 +46,8 @@ export async function getVertexConfigAsync(): Promise<VertexConfig> {
         return {
             GOOGLE_PROJECT_ID: dbConfig.GOOGLE_PROJECT_ID || process.env.GOOGLE_PROJECT_ID,
             GOOGLE_LOCATION: dbConfig.GOOGLE_LOCATION || process.env.GOOGLE_LOCATION || 'us-central1',
-            GOOGLE_APPLICATION_CREDENTIALS_JSON: dbConfig.GOOGLE_APPLICATION_CREDENTIALS_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+            GOOGLE_APPLICATION_CREDENTIALS_JSON: dbConfig.GOOGLE_APPLICATION_CREDENTIALS_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
+            GCS_BUCKET_NAME: dbConfig.GCS_BUCKET_NAME || process.env.GCS_BUCKET_NAME
         };
     }
 
