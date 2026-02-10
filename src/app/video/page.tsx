@@ -164,6 +164,7 @@ export default function VideoPage() {
                     user.credits = data.credits;
                     localStorage.setItem('current_user', JSON.stringify(user));
                     window.dispatchEvent(new Event('storage'));
+                    window.dispatchEvent(new Event('credits-updated'));
                 } else {
                     deductCredits(COSTS.VIDEO);
                 }

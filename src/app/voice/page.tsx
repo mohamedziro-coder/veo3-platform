@@ -145,6 +145,7 @@ export default function VoicePage() {
 
                     // Trigger storage event for other components
                     window.dispatchEvent(new Event('storage'));
+                    window.dispatchEvent(new Event('credits-updated'));
                 } else {
                     // Fallback to client-side deduction if server doesn't return credits (shouldn't happen now)
                     deductCredits(COSTS.VOICE);

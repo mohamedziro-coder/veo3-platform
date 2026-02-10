@@ -256,80 +256,28 @@ export default function Dashboard() {
             <Modal
                 isOpen={!!selectedActivity}
                 onClose={() => setSelectedActivity(null)}
-                title={selectedActivity?.tool === 'Video' ? 'Video Details' : 'Image Details'}
+                title={selectedActivity?.tool || 'Activity Details'}
             >
                 {selectedActivity && (
-                    <div className="space-y-6">
-                        {/* Media Preview */}
-                        <div className="rounded-xl overflow-hidden border border-white/10 bg-black/50 aspect-video flex items-center justify-center">
-                            {selectedActivity.tool === 'Video' && selectedActivity.resultUrl ? (
-                                <video
-                                    src={selectedActivity.resultUrl}
-                                    controls
-                                    className="w-full h-full object-contain"
-                                    autoPlay
-                                    loop
-                                    playsInline // Better mobile performance
-                                />
-                            ) : selectedActivity.resultUrl ? (
-                                <div className="relative w-full h-full">
-                                    <Image
-                                        src={selectedActivity.resultUrl}
-                                        alt="Generated"
-                                        fill
-                                        className="object-contain"
-                                        sizes="(max-width: 768px) 100vw, 800px"
-                                        unoptimized={!selectedActivity.resultUrl.startsWith('http')} // Optimization only for supported domains
-                                    />
-                                </div>
-                            ) : (
-                                <div className="text-gray-500 flex flex-col items-center gap-2">
-                                    <Sparkles className="w-8 h-8 opacity-20" />
-                                    <span>Preview not available</span>
-                                </div>
-                            )}
-                        </div>
+                    <div className="space-y-4">
+                        {/* Activity Info */}
+                        <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                            <div className="flex items-center gap-2">
+                                <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-lg ${selectedActivity.tool === 'Video' ? 'bg-purple-100 text-purple-700' :
+                                    selectedActivity.tool === 'Image' ? 'bg-yellow-100 text-yellow-700' :
+                                        'bg-blue-100 text-blue-700'
+                                    }`}>
+                                    {selectedActivity.tool}
+                                </span>
+                                <span className="text-xs text-gray-400">
+                                    {new Date(selectedActivity.timestamp).toLocaleString()}
+                                </span>
+                            </div>
 
-                        {/* Details */}
-                        <div className="space-y-4">
                             <div>
-                                <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Prompt</h4>
-                                <p className="text-white bg-white/5 p-4 rounded-xl border border-white/10 text-sm leading-relaxed">
-                                    {selectedActivity.prompt || selectedActivity.details}
-                                </p>
+                                <h4 className="text-sm font-semibold text-gray-700 mb-1">Details</h4>
+                                <p className="text-sm text-gray-900">{selectedActivity.details}</p>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Date</h4>
-                                    <p className="text-white text-sm">{new Date(selectedActivity.timestamp).toLocaleDateString()}</p>
-                                </div>
-                                <div>
-                                    <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Time</h4>
-                                    <p className="text-white text-sm">{new Date(selectedActivity.timestamp).toLocaleTimeString()}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex gap-3 pt-4">
-                            {selectedActivity.resultUrl && (
-                                <a
-                                    href={selectedActivity.resultUrl}
-                                    download
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex-1 bg-white text-black font-bold py-3 rounded-xl text-center hover:bg-gray-200 transition-colors"
-                                >
-                                    Download
-                                </a>
-                            )}
-                            <button
-                                onClick={() => setSelectedActivity(null)}
-                                className="flex-1 bg-white/10 text-white font-bold py-3 rounded-xl hover:bg-white/20 transition-colors"
-                            >
-                                Close
-                            </button>
                         </div>
                     </div>
                 )}
