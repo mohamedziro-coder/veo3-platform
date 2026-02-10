@@ -115,17 +115,25 @@ export async function pollOperationStatus(operationName: string): Promise<{
         }
 
         // Expected operationName format: projects/PROJECT_ID/locations/LOCATION/operations/OP_ID
-        // We use v1beta1 to support GenAI operations which may use UUIDs instead of Longs
+        // We use v1beta1 to support GenAI operations (UUIDs) AND normalize the path to remove model reference
+
+        let cleanOperationName = operationName;
+
+        // Remove /publishers/google/models/MODEL_ID if present
+        if (cleanOperationName.includes('/publishers/google/models/')) {
+            cleanOperationName = cleanOperationName.replace(/\/publishers\/google\/models\/[^\/]+/, '');
+            console.log(`[VEO-LRO] Normalized operation name: ${cleanOperationName}`);
+        }
 
         let location = config.GOOGLE_LOCATION || 'us-central1';
 
-        // Try to extract location from operation name
-        const match = operationName.match(/locations\/([^\/]+)\/operations/);
+        // Try to extract location from normalized operation name
+        const match = cleanOperationName.match(/locations\/([^\/]+)\/operations/);
         if (match && match[1]) {
             location = match[1];
         }
 
-        const url = `https://${location}-aiplatform.googleapis.com/v1beta1/${operationName}`;
+        const url = `https://${location}-aiplatform.googleapis.com/v1beta1/${cleanOperationName}`;
 
         console.log(`[VEO-LRO] Polling URL: ${url}`);
 
