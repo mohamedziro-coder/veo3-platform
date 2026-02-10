@@ -33,15 +33,12 @@ export async function startVideoGeneration(params: {
 
         console.log(`[VEO-LRO] Starting video generation: ${url}`);
 
-        // Validate URL before fetch
-        try {
-            new URL(url);
-        } catch (e) {
-            console.error('[VEO-LRO] INVALID URL CONSTRUCTED:', url);
-            throw new Error(`Invalid Vertex API URL: ${url}`);
+        // Validate URL
+        try { new URL(url); } catch (e) {
+            throw new Error(`Invalid Vertex URL: ${url}`);
         }
 
-        // Create OAuth2 client for Vertex AI
+        // Create OAuth2 client
         const auth = new GoogleAuth({
             credentials: config.GOOGLE_APPLICATION_CREDENTIALS_JSON
                 ? JSON.parse(config.GOOGLE_APPLICATION_CREDENTIALS_JSON)
@@ -50,11 +47,6 @@ export async function startVideoGeneration(params: {
         });
 
         const client = await auth.getClient();
-        const accessToken = await client.getAccessToken();
-
-        if (!accessToken.token) {
-            throw new Error('Failed to get access token');
-        }
 
         const requestBody: any = {
             instances: [{
@@ -71,7 +63,6 @@ export async function startVideoGeneration(params: {
             }
         };
 
-        // Add last frame if provided
         if (params.endImageGcsUri) {
             requestBody.instances[0].lastFrame = {
                 gcsUri: params.endImageGcsUri,
@@ -79,22 +70,16 @@ export async function startVideoGeneration(params: {
             };
         }
 
-        const response = await fetch(url, {
+        // CRITICAL: Use client.request (gaxios) instead of fetch
+        console.log(`[VEO-LRO] Executing Request via Gaxios...`);
+        const response = await client.request({
+            url,
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
+            data: requestBody,
+            timeout: 20000 // 20s timeout
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`[VEO-LRO] API Error (${response.status}):`, errorText);
-            throw new Error(`Vertex AI API error: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
+        const data = response.data as any;
         console.log(`[VEO-LRO] Operation started: ${data.name}`);
 
         return { operationName: data.name };
@@ -103,7 +88,8 @@ export async function startVideoGeneration(params: {
         console.error('[VEO-LRO] Failed to start video generation:', {
             message: error.message,
             stack: error.stack,
-            cause: error.cause
+            cause: error.cause,
+            response: error.response?.data
         });
         throw error;
     }
@@ -111,7 +97,6 @@ export async function startVideoGeneration(params: {
 
 /**
  * Poll Vertex AI operation status
- * Returns operation details including done status and result
  */
 export async function pollOperationStatus(operationName: string): Promise<{
     done: boolean;
@@ -121,16 +106,11 @@ export async function pollOperationStatus(operationName: string): Promise<{
     try {
         const config = await getVertexConfigAsync();
         const projectId = sanitize(config.GOOGLE_PROJECT_ID);
-        if (!projectId) {
-            throw new Error('GOOGLE_PROJECT_ID is not configured');
-        }
+        if (!projectId) throw new Error('GOOGLE_PROJECT_ID is not configured');
         let location = sanitize(config.GOOGLE_LOCATION || 'us-central1');
 
-        // Check location in operationName
         const locMatch = operationName.match(/locations\/(.+?)\/operations/);
-        if (locMatch && locMatch[1]) {
-            location = sanitize(locMatch[1]);
-        }
+        if (locMatch && locMatch[1]) location = sanitize(locMatch[1]);
 
         const auth = new GoogleAuth({
             credentials: config.GOOGLE_APPLICATION_CREDENTIALS_JSON
@@ -139,108 +119,50 @@ export async function pollOperationStatus(operationName: string): Promise<{
             scopes: ['https://www.googleapis.com/auth/cloud-platform']
         });
         const client = await auth.getClient();
-        const accessToken = await client.getAccessToken();
 
-        if (!accessToken.token) {
-            throw new Error('Failed to get access token');
-        }
-
-        // Extract and sanitize Operation ID
-        const rawOpId = operationName.split('/').pop() || '';
-        const opId = sanitize(rawOpId);
+        const opId = sanitize(operationName.split('/').pop() || '');
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(opId);
 
-        console.log(`[VEO-LRO] Polling Operation ID: ${opId} (Type: ${isUuid ? 'UUID' : 'Long'}) in ${location}`);
-
         let pollingUrl: string;
-
         if (isUuid) {
             let modelId = 'veo-3.1-fast-generate-001';
-            if (operationName.includes('/models/')) {
-                const modelMatch = operationName.match(/\/models\/([^\/]+)/);
-                if (modelMatch && modelMatch[1]) {
-                    modelId = sanitize(modelMatch[1]);
-                }
-            }
-            if (!modelId) throw new Error('Model ID could not be determined for UUID operation');
-
-            const cleanModelId = sanitize(modelId);
-
-            // Construct Publisher Proxy URL for UUID operations
-            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${cleanModelId}/operations/${opId}`;
+            const modelMatch = operationName.match(/\/models\/([^\/]+)/);
+            if (modelMatch && modelMatch[1]) modelId = sanitize(modelMatch[1]);
+            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}/operations/${opId}`;
         } else {
-            // Use Standard Operations Endpoint for Numeric IDs
             pollingUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/operations/${opId}`;
         }
 
-        return await executePoll(pollingUrl, accessToken.token);
+        console.log(`[VEO-LRO] Polling via Gaxios: ${pollingUrl}`);
 
-    } catch (error: any) {
-        console.error('[VEO-LRO] Failed to poll operation:', {
-            message: error.message,
-            stack: error.stack,
-            cause: error.cause
-        });
-        throw error;
-    }
-}
-
-async function executePoll(url: string, token: string) {
-    console.log(`[VEO-LRO] Polling URL: ${url}`);
-
-    // Validate URL
-    try {
-        new URL(url);
-    } catch (e) {
-        console.error('[VEO-LRO] MALFORMED POLLING URL:', url);
-        throw new Error(`Invalid Polling URL: ${url}`);
-    }
-
-    // Create AbortController with 10s timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            signal: controller.signal
+        const response = await client.request({
+            url: pollingUrl,
+            method: 'GET',
+            timeout: 10000
         });
 
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`[VEO-LRO] HTTP Error ${response.status}: ${errorText}`);
-            throw new Error(`API Error ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
+        const data = response.data as any;
         return {
             done: data.done || false,
             error: data.error,
             response: data.response
         };
-    } catch (error: any) {
-        clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-            throw new Error('Polling request timed out after 10s');
-        }
 
-        if (error.message && error.message.includes('fetch failed')) {
-            // ADVANCED DIAGNOSTIC: Log string details
-            const hex = Array.from(url).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
-            console.error(`[VEO-LRO] FETCH FAILED!`, {
-                url,
-                urlHex: hex,
-                urlLength: url.length,
+    } catch (error: any) {
+        // Advanced logging for fetch-like failures in gaxios
+        if (error.message?.includes('fetch failed') || error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+            console.error('[VEO-LRO] NETWORK ERROR in Gaxios:', {
+                code: error.code,
                 message: error.message,
-                stack: error.stack,
                 cause: error.cause
             });
         }
+        console.error('[VEO-LRO] Failed to poll operation:', {
+            message: error.message,
+            stack: error.stack,
+            cause: error.cause,
+            response: error.response?.data
+        });
         throw error;
     }
 }
