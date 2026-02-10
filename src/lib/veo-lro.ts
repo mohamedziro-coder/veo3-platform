@@ -126,19 +126,12 @@ export async function pollOperationStatus(operationName: string): Promise<{
         const client = await auth.getClient();
 
         const opId = sanitize(operationName.split('/').pop() || '');
-        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(opId);
 
-        let pollingUrl: string;
-        if (isUuid) {
-            let modelId = 'veo-3.1-fast-generate-001';
-            const modelMatch = operationName.match(/\/models\/([^\/]+)/);
-            if (modelMatch && modelMatch[1]) modelId = sanitize(modelMatch[1]);
-            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}/operations/${opId}`;
-        } else {
-            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/operations/${opId}`;
-        }
+        // Use STANDARD operations endpoint for ALL types (UUID and Numeric)
+        // This is the most robust way to poll LROs in Vertex AI
+        const pollingUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/operations/${opId}`;
 
-        console.log(`[VEO-LRO] Polling via Gaxios: ${pollingUrl}`);
+        console.log(`[VEO-LRO] Polling via Gaxios (Standard Path): ${pollingUrl}`);
 
         const response = await client.request({
             url: pollingUrl,
