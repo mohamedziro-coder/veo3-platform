@@ -131,6 +131,8 @@ export async function pollOperationStatus(operationName: string): Promise<{
         // Numeric ID -> Standard Operations Endpoint (v1/projects/.../operations)
         // UUID -> GenAI Operations Endpoint (v1beta1/projects/.../publishers/google/models/.../operations)
 
+        // Sanitize inputs to prevent URL malformation (spaces/newlines causing "fetch failed")
+        const cleanProjectId = projectId.trim();
         let pollingUrl: string;
 
         if (isUuid) {
@@ -144,12 +146,14 @@ export async function pollOperationStatus(operationName: string): Promise<{
             }
             if (!modelId) throw new Error('Model ID could not be determined for UUID operation');
 
+            const cleanModelId = modelId.trim();
+
             // Construct Publisher Proxy URL for UUID operations
-            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}/operations/${opId}`;
+            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${cleanProjectId}/locations/${location}/publishers/google/models/${cleanModelId}/operations/${opId}`;
             console.log(`[VEO-LRO] Using GenAI Operations Endpoint (UUID): ${pollingUrl}`);
         } else {
             // Use Standard Operations Endpoint for Numeric IDs
-            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/operations/${opId}`;
+            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${cleanProjectId}/locations/${location}/operations/${opId}`;
             console.log(`[VEO-LRO] Using Standard Operations Endpoint (Long): ${pollingUrl}`);
         }
 
