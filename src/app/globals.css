@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  /* Cyberpunk / Space Palette */
-  --background: #050505;
-  --foreground: #ffffff;
+  /* Clean / SaaS Palette */
+  --background: #FFFFFF;
+  --foreground: #1A1A1A;
 
-  --neon-purple: #a855f7;
-  --neon-blue: #3b82f6;
-  --gold-accent: #fbbf24;
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --primary: #4A90E2;
+  --secondary: #50E3C2;
+  --accent: #F8E71C;
+  
+  --muted: #F5F5F5;
+  --muted-foreground: #333333;
+  
+  --border: #E5E5E5;
 }
 
 @theme inline {
@@ -18,9 +21,12 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  --color-neon-purple: var(--neon-purple);
-  --color-neon-blue: var(--neon-blue);
-  --color-gold: var(--gold-accent);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
 }
 
 body {
@@ -30,57 +36,47 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Light Mode */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #F5F5F5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: #CCCCCC;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--neon-purple);
+  background: var(--primary);
 }
 
 /* Selection */
 ::selection {
-  background: var(--neon-purple);
+  background: var(--primary);
   color: #fff;
-  text-shadow: 0 0 8px var(--neon-purple);
 }
 
-/* Glassmorphism Utilities */
+/* Utilities */
 .glass-panel {
-  background: var(--glass-bg);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-.neon-glow {
-  text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-blue);
-}
-
-
-/* Background Patterns */
+/* Removed neon-glow and background patterns for clean look */
 .bg-noise {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.07'/%3E%3C/svg%3E");
+  display: none;
 }
 
 .bg-grid-white {
-  background-size: 50px 50px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  display: none;
 }
 
 .bg-grid-small-white {
-  background-size: 20px 20px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  display: none;
 }

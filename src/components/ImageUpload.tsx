@@ -55,7 +55,7 @@ export default function ImageUpload({ label, onImageSelect, selectedImage, exter
     return (
         <div className="flex flex-col gap-3 w-full group/upload">
             <div className="flex items-center justify-between">
-                <label className="text-sm font-semibold text-gray-300 ml-1 tracking-wide uppercase text-xs">{label}</label>
+                <label className="text-sm font-semibold text-gray-600 ml-1 tracking-wide uppercase text-xs">{label}</label>
                 {selectedImage && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
                         Ready
@@ -71,8 +71,8 @@ export default function ImageUpload({ label, onImageSelect, selectedImage, exter
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={cn(
-                    "relative h-56 w-full cursor-pointer rounded-2xl border-2 border-dashed transition-all duration-300 flex items-center justify-center overflow-hidden bg-black/20 backdrop-blur-sm",
-                    isDragging ? "border-purple-500 bg-purple-500/10 shadow-[0_0_30px_rgba(168,85,247,0.2)]" : "border-white/10 hover:bg-white/5",
+                    "relative h-56 w-full cursor-pointer rounded-2xl border-2 border-dashed transition-all duration-300 flex items-center justify-center overflow-hidden bg-gray-50/50 backdrop-blur-sm",
+                    isDragging ? "border-primary bg-primary/5 shadow-[0_0_30px_rgba(74,144,226,0.1)]" : "border-gray-200 hover:bg-gray-100",
                     selectedImage ? "border-transparent" : ""
                 )}
             >
@@ -103,12 +103,12 @@ export default function ImageUpload({ label, onImageSelect, selectedImage, exter
                             <div className="absolute inset-0 bg-black/0 group-hover/upload:bg-black/20 transition-colors duration-300" />
 
                             <motion.button
-                                whileHover={{ scale: 1.1, backgroundColor: "rgba(0,0,0,0.8)" }}
+                                whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,1)" }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={removeImage}
-                                className="absolute top-3 right-3 p-2 bg-black/50 rounded-full transition-colors border border-white/20 z-10"
+                                className="absolute top-3 right-3 p-2 bg-white/80 rounded-full transition-colors border border-gray-200 z-10 shadow-sm"
                             >
-                                <X className="w-4 h-4 text-white" />
+                                <X className="w-4 h-4 text-gray-900" />
                             </motion.button>
                         </motion.div>
                     ) : (
@@ -117,14 +117,14 @@ export default function ImageUpload({ label, onImageSelect, selectedImage, exter
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-col items-center gap-4 text-gray-500 group-hover/upload:text-purple-300 transition-colors"
+                            className="flex flex-col items-center gap-4 text-gray-400 group-hover/upload:text-primary transition-colors"
                         >
-                            <div className="p-4 rounded-full bg-white/5 border border-white/5 group-hover/upload:border-purple-500/30 group-hover/upload:bg-purple-500/10 transition-all duration-300">
+                            <div className="p-4 rounded-full bg-white border border-gray-100 group-hover/upload:border-primary/30 group-hover/upload:bg-primary/5 transition-all duration-300 shadow-sm">
                                 <Upload className="w-8 h-8" />
                             </div>
                             <div className="text-center space-y-1">
-                                <p className="text-sm font-medium text-gray-300">Click to upload</p>
-                                <p className="text-xs text-gray-600">JPG, PNG (Max 5MB)</p>
+                                <p className="text-sm font-medium text-gray-600">Click to upload</p>
+                                <p className="text-xs text-gray-400">JPG, PNG (Max 5MB)</p>
                             </div>
                         </motion.div>
                     )}

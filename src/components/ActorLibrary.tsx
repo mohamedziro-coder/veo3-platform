@@ -143,21 +143,21 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
             initial={isInline ? { opacity: 0, y: 20 } : { opacity: 0, scale: 0.9, y: 20 }}
             animate={isInline ? { opacity: 1, y: 0 } : { opacity: 1, scale: 1, y: 0 }}
             exit={isInline ? { opacity: 0, y: -20 } : { opacity: 0, scale: 0.9, y: 20 }}
-            className={`relative w-full ${isInline ? '' : 'max-w-6xl bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] shadow-2xl max-h-[90vh]'} flex flex-col overflow-hidden bg-[#0f0f0f] border border-white/10 rounded-[2.5rem]`}
+            className={`relative w-full ${isInline ? '' : 'max-w-6xl bg-white border border-gray-100 rounded-[2.5rem] shadow-2xl max-h-[90vh]'} flex flex-col overflow-hidden bg-white border border-gray-100 rounded-[2.5rem]`}
         >
             {/* Header */}
             {!isInline && (
-                <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                     <div>
-                        <h2 className="text-3xl font-bold flex items-center gap-3">
-                            <ShieldCheck className="w-8 h-8 text-blue-400" />
+                        <h2 className="text-3xl font-bold flex items-center gap-3 text-gray-900">
+                            <ShieldCheck className="w-8 h-8 text-primary" />
                             Consistency Actor Library
                         </h2>
-                        <p className="text-gray-400 mt-1">Select a pre-defined persona for perfect face consistency.</p>
+                        <p className="text-gray-500 mt-1">Select a pre-defined persona for perfect face consistency.</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-3 rounded-full hover:bg-white/5 text-gray-400 transition-colors"
+                        className="p-3 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"
                     >
                         <X className="w-6 h-6" />
                     </button>
@@ -170,7 +170,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                     <motion.div
                         key={actor.id}
                         whileHover={{ y: -5 }}
-                        className="group relative bg-white/[0.03] border border-white/10 rounded-3xl overflow-hidden hover:border-blue-500/50 transition-all"
+                        className="group relative bg-white border border-gray-100 rounded-3xl overflow-hidden hover:border-primary/50 hover:shadow-lg transition-all"
                     >
                         <div className="aspect-square relative overflow-hidden">
                             <img
@@ -178,9 +178,9 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                                 alt={actor.name}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
                             <div className="absolute bottom-4 left-4">
-                                <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md text-white shadow-lg ${actor.id.startsWith('custom') ? 'bg-purple-600' : 'bg-blue-600'}`}>
+                                <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md text-white shadow-lg ${actor.id.startsWith('custom') ? 'bg-purple-600' : 'bg-primary'}`}>
                                     {actor.role}
                                 </span>
                             </div>
@@ -188,31 +188,31 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
 
                         <div className="p-5 space-y-4">
                             <div>
-                                <h3 className="text-xl font-bold text-white">{actor.name}</h3>
+                                <h3 className="text-xl font-bold text-gray-900">{actor.name}</h3>
                                 <p className="text-xs text-gray-500 italic mt-1 line-clamp-1">{actor.bio}</p>
                             </div>
 
                             <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-white/5 p-2 rounded-lg border border-white/5">
-                                    <p className="text-[10px] text-gray-500 uppercase font-bold">Accent</p>
-                                    <p className="text-xs text-blue-300">{actor.accent}</p>
+                                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                    <p className="text-[10px] text-gray-400 uppercase font-bold">Accent</p>
+                                    <p className="text-xs text-gray-700">{actor.accent}</p>
                                 </div>
-                                <div className="bg-white/5 p-2 rounded-lg border border-white/5">
-                                    <p className="text-[10px] text-gray-500 uppercase font-bold">Age</p>
-                                    <p className="text-xs text-blue-300">{actor.age > 0 ? `${actor.age} yrs` : 'N/A'}</p>
+                                <div className="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                    <p className="text-[10px] text-gray-400 uppercase font-bold">Age</p>
+                                    <p className="text-xs text-gray-700">{actor.age > 0 ? `${actor.age} yrs` : 'N/A'}</p>
                                 </div>
                             </div>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => onSelect(actor as any)}
-                                    className={`flex-1 py-3 rounded-xl ${isInline ? 'bg-white/10 text-gray-300' : 'bg-white text-black'} font-bold text-sm hover:bg-blue-500 hover:text-white transition-all transform active:scale-95 flex items-center justify-center gap-2`}
+                                    className={`flex-1 py-3 rounded-xl ${isInline ? 'bg-gray-100 text-gray-600' : 'bg-gray-900 text-white'} font-bold text-sm hover:bg-primary hover:text-white transition-all transform active:scale-95 flex items-center justify-center gap-2`}
                                 >
                                     <Sparkles className="w-4 h-4" />
                                     {isInline ? 'Select' : 'Select'}
                                 </button>
                                 <button
                                     onClick={(e) => handleEditClick(actor, e)}
-                                    className="p-3 rounded-xl bg-white/10 text-white hover:bg-yellow-500 hover:text-black transition-all"
+                                    className="p-3 rounded-xl bg-gray-100 text-gray-500 hover:bg-accent hover:text-black transition-all"
                                     title="Remix with Nanbanana"
                                 >
                                     <Edit2 className="w-4 h-4" />
@@ -225,19 +225,19 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                 {/* EDITING OVERLAY */}
                 <AnimatePresence>
                     {editingActor && (
-                        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+                        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
-                                className="bg-[#111] border border-white/10 rounded-3xl p-6 md:p-8 max-w-4xl w-full flex flex-col md:flex-row gap-8"
+                                className="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 max-w-4xl w-full flex flex-col md:flex-row gap-8 shadow-2xl"
                             >
                                 {/* Left: Preview */}
                                 <div className="flex-1 space-y-4">
-                                    <h3 className="text-2xl font-bold flex items-center gap-2">
-                                        <span className="text-yellow-400">Nanbanana</span> Studio
+                                    <h3 className="text-2xl font-bold flex items-center gap-2 text-gray-900">
+                                        <span className="text-secondary">Nanbanana</span> Studio
                                     </h3>
-                                    <div className="aspect-square rounded-2xl overflow-hidden bg-black border border-white/10 relative group">
+                                    <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 relative group">
                                         <img
                                             src={generatedImage || editingActor.masterFrame}
                                             alt="Preview"
@@ -262,10 +262,10 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                                 <div className="flex-1 flex flex-col gap-4">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h4 className="text-lg font-bold">{editingActor.name}</h4>
+                                            <h4 className="text-lg font-bold text-gray-900">{editingActor.name}</h4>
                                             <p className="text-xs text-gray-500">Editing Master Frame</p>
                                         </div>
-                                        <button onClick={() => setEditingActor(null)} className="p-2 hover:bg-white/10 rounded-full">
+                                        <button onClick={() => setEditingActor(null)} className="p-2 hover:bg-gray-100 rounded-full text-gray-500">
                                             <X className="w-5 h-5" />
                                         </button>
                                     </div>
@@ -275,7 +275,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                                         <textarea
                                             value={editPrompt}
                                             onChange={(e) => setEditPrompt(e.target.value)}
-                                            className="w-full h-32 mt-2 bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-yellow-500/50 transition-colors resize-none"
+                                            className="w-full h-32 mt-2 bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-900 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors resize-none"
                                             placeholder="Describe the new look..."
                                         />
                                     </div>
@@ -284,7 +284,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                                         <button
                                             onClick={handleGenerateVariation}
                                             disabled={isGenerating}
-                                            className="py-4 bg-yellow-500 hover:bg-yellow-400 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                            className="py-4 bg-secondary hover:bg-secondary/90 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                                         >
                                             {isGenerating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                                             {generatedImage ? "Regenerate" : "Generate"}
@@ -292,7 +292,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                                         <button
                                             onClick={handleSaveVariation}
                                             disabled={!generatedImage}
-                                            className="py-4 bg-white/10 hover:bg-white hover:text-black text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className="py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             <Save className="w-4 h-4" />
                                             Save as Actor
@@ -307,7 +307,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                 {/* Add Custom Slot */}
                 <div
                     onClick={() => customFileInputRef.current?.click()}
-                    className="flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-3xl bg-white/[0.01] p-8 text-center gap-4 hover:border-blue-500/30 transition-colors cursor-pointer group min-h-[300px]"
+                    className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-3xl bg-gray-50/50 p-8 text-center gap-4 hover:border-primary/50 hover:bg-white transition-colors cursor-pointer group min-h-[300px]"
                 >
                     <input
                         type="file"
@@ -316,12 +316,12 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                         className="hidden"
                         accept="image/*"
                     />
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-gray-500 group-hover:text-blue-400 group-hover:bg-blue-500/10 transition-all">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
                         <UserPlus className="w-8 h-8" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-gray-400 group-hover:text-white transition-colors">Custom Actor</h3>
-                        <p className="text-xs text-gray-600 mt-1">Upload your own Master Frame</p>
+                        <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors">Custom Actor</h3>
+                        <p className="text-xs text-gray-500 mt-1">Upload your own Master Frame</p>
                     </div>
                 </div>
             </div>

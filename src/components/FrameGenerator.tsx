@@ -81,12 +81,12 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="bg-[#111] border border-white/10 rounded-3xl p-6 md:p-8 max-w-4xl w-full flex flex-col gap-6 shadow-2xl relative overflow-hidden"
+                        className="bg-white border border-gray-100 rounded-3xl p-6 md:p-8 max-w-4xl w-full flex flex-col gap-6 shadow-2xl relative overflow-hidden"
                     >
                         {/* Product Context Glow */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-500/5 rounded-full blur-[80px] pointer-events-none" />
@@ -97,13 +97,13 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
                                     <Wand2 className="w-6 h-6 text-yellow-500" />
                                     AI Frame Generator
                                 </h3>
-                                <p className="text-sm text-gray-400">
+                                <p className="text-sm text-gray-500">
                                     {contextImage
                                         ? "Creating End Frame (Consistent with Start Frame)"
                                         : "Creating Start Frame (Upload Product to Start)"}
                                 </p>
                             </div>
-                            <button onClick={handleClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                            <button onClick={handleClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
@@ -113,17 +113,17 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
                             <div className="flex-1 space-y-4">
 
                                 {/* Reference Image Section */}
-                                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                                <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
                                     <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-3">
                                         Reference Image
                                     </label>
 
                                     {contextImage ? (
                                         // Case 1: Context Image (Locked)
-                                        <div className="relative aspect-video rounded-lg overflow-hidden border border-yellow-500/30">
+                                        <div className="relative aspect-video rounded-lg overflow-hidden border border-accent/30">
                                             <img src={contextImage} alt="Context" className="w-full h-full object-cover opacity-80" />
                                             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                                <span className="text-xs font-bold text-yellow-500 bg-black/50 px-3 py-1 rounded-full border border-yellow-500/20">
+                                                <span className="text-xs font-bold text-black bg-accent px-3 py-1 rounded-full border border-yellow-500/20">
                                                     Start Frame Locked
                                                 </span>
                                             </div>
@@ -132,7 +132,7 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
                                         // Case 2: Product Upload (Mutable)
                                         <div
                                             onClick={() => fileInputRef.current?.click()}
-                                            className="relative aspect-video rounded-lg border-2 border-dashed border-white/20 hover:border-yellow-500/50 hover:bg-white/5 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
+                                            className="relative aspect-video rounded-lg border-2 border-dashed border-gray-200 hover:border-accent/50 hover:bg-white/50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group"
                                         >
                                             <input
                                                 type="file"
@@ -172,7 +172,7 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
                                     <textarea
                                         value={prompt}
                                         onChange={(e) => setPrompt(e.target.value)}
-                                        className="w-full h-24 bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-yellow-500/50 resize-none transition-colors"
+                                        className="w-full h-24 bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 focus:outline-none focus:border-accent/50 resize-none transition-colors"
                                         placeholder={contextImage
                                             ? "Describe how the scene transforms... (e.g. 'Camera zooms out, waves splashing')"
                                             : "Describe the scene with your product... (e.g. 'Product on a wooden table, sunlight')"}
@@ -182,7 +182,7 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
                                 <button
                                     onClick={handleGenerate}
                                     disabled={!prompt || isGenerating}
-                                    className="w-full py-3 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-yellow-900/20"
+                                    className="w-full py-3 bg-gradient-to-r from-accent to-yellow-500 text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-accent/20"
                                 >
                                     {isGenerating ? "Generating..." : "Generate Frame"}
                                 </button>
@@ -191,7 +191,7 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
                             {/* Right Column: Preview */}
                             <div className="flex-1 flex flex-col gap-4">
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Result</label>
-                                <div className="aspect-video bg-black/50 rounded-xl border border-white/10 overflow-hidden relative group">
+                                <div className="aspect-video bg-gray-50 rounded-xl border border-gray-200 overflow-hidden relative group">
                                     {generatedImage ? (
                                         <img src={generatedImage} alt="Generated" className="w-full h-full object-cover" />
                                     ) : (
@@ -201,8 +201,8 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
                                         </div>
                                     )}
                                     {isGenerating && (
-                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                            <div className="w-8 h-8 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin" />
+                                        <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-sm">
+                                            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                                         </div>
                                     )}
                                 </div>
@@ -215,7 +215,7 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
                                         }
                                     }}
                                     disabled={!generatedImage}
-                                    className="w-full py-3 bg-white text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="w-full py-3 bg-gray-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
                                     <Check className="w-4 h-4" />
                                     Use This Frame

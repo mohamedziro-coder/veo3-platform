@@ -26,24 +26,18 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30">
+    <main className="min-h-screen bg-white text-gray-900 selection:bg-primary/20">
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 overflow-hidden">
         {/* Ambient Background */}
-        {/* Ambient Background */}
-        <div className="absolute inset-0 pointer-events-none w-full h-full bg-black">
+        <div className="absolute inset-0 pointer-events-none w-full h-full bg-white">
           {/* Base Gradients */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-900/30 rounded-full blur-[130px]" />
-          <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-blue-900/20 rounded-full blur-[130px]" />
-
-          {/* Patterns */}
-          <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px]" />
-          <div className="absolute inset-0 bg-noise opacity-30 mix-blend-overlay" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/5 rounded-full blur-[130px]" />
+          <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-secondary/5 rounded-full blur-[130px]" />
 
           {/* Vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white" />
         </div>
 
         <motion.div
@@ -54,19 +48,19 @@ export default function LandingPage() {
         >
           {/* Badge */}
           <motion.div variants={itemVariants} className="flex justify-center">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-sm font-medium text-purple-300">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-md text-sm font-medium text-primary">
               <Sparkles className="w-4 h-4" />
               <span>Next-Gen AI Content Suite</span>
             </span>
           </motion.div>
 
           {/* Headline */}
-          <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tighter leading-[1.1] mb-4">
-            Create <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">Anything</span> <br />
-            <span className="text-white">With AI.</span>
+          <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tighter leading-[1.1] mb-4 text-gray-900">
+            Create <span className="text-primary">Anything</span> <br />
+            <span className="text-gray-900">With AI.</span>
           </motion.h1>
 
-          <motion.p variants={itemVariants} className="text-lg md:text-2xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
+          <motion.p variants={itemVariants} className="text-lg md:text-2xl text-gray-500 max-w-2xl mx-auto leading-relaxed px-4">
             The all-in-one platform for creators. Generate Cinematic Videos, Ultra-HD Images, and Professional Voiceovers in seconds.
           </motion.p>
 
@@ -74,12 +68,12 @@ export default function LandingPage() {
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Link
               href="/video"
-              className="px-8 py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-colors flex items-center gap-2 group"
+              className="px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg hover:bg-primary/90 transition-colors flex items-center gap-2 group shadow-lg shadow-primary/20"
             >
               Start Creating
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <button className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-medium text-lg hover:bg-white/10 transition-colors backdrop-blur-md">
+            <button className="px-8 py-4 rounded-xl bg-white border border-gray-200 text-gray-700 font-medium text-lg hover:bg-gray-50 transition-colors">
               View Showcase
             </button>
           </motion.div>
@@ -90,7 +84,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 1 }}
-          className="absolute bottom-0 w-full h-[30vh] bg-gradient-to-t from-[#050505] to-transparent z-10"
+          className="absolute bottom-0 w-full h-[30vh] bg-gradient-to-t from-white to-transparent z-10"
         />
       </section>
 
@@ -104,17 +98,17 @@ export default function LandingPage() {
         >
           {/* Feature 1: Video */}
           <Link href="/video" className="group">
-            <div className="h-full glass-panel p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-purple-500/50 transition-all duration-300 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-32 bg-purple-500/10 blur-[80px] group-hover:bg-purple-500/20 transition-colors" />
+            <div className="h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 hover:border-primary/50 hover:shadow-xl transition-all duration-300 relative overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[80px] group-hover:bg-primary/10 transition-colors" />
               <div className="relative z-10 space-y-6">
-                <div className="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center text-purple-300 group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                   <Video className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Cinematic Video</h3>
-                  <p className="text-gray-400">Turn images into motion using Veo 3.0. Create stunning transitions and effects.</p>
+                  <h3 className="text-2xl font-bold mb-2 text-gray-900">Cinematic Video</h3>
+                  <p className="text-gray-500">Turn images into motion using Veo 3.0. Create stunning transitions and effects.</p>
                 </div>
-                <div className="flex items-center text-purple-400 font-medium group-hover:gap-2 transition-all">
+                <div className="flex items-center text-primary font-medium group-hover:gap-2 transition-all">
                   <span>Launch Video Tool</span>
                   <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100" />
                 </div>
@@ -124,17 +118,17 @@ export default function LandingPage() {
 
           {/* Feature 2: Image */}
           <Link href="/nanbanana" className="group">
-            <div className="h-full glass-panel p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-yellow-500/50 transition-all duration-300 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-32 bg-yellow-500/10 blur-[80px] group-hover:bg-yellow-500/20 transition-colors" />
+            <div className="h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 hover:border-secondary/50 hover:shadow-xl transition-all duration-300 relative overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 p-32 bg-secondary/5 blur-[80px] group-hover:bg-secondary/10 transition-colors" />
               <div className="relative z-10 space-y-6">
-                <div className="w-14 h-14 rounded-2xl bg-yellow-500/20 flex items-center justify-center text-yellow-300 group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
                   <ImageIcon className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Nanbanana Image</h3>
-                  <p className="text-gray-400">Generate ultra-realistic images with Gemini 2.5 Flash. Pure imagination.</p>
+                  <h3 className="text-2xl font-bold mb-2 text-gray-900">Nanbanana Image</h3>
+                  <p className="text-gray-500">Generate ultra-realistic images with Gemini 2.5 Flash. Pure imagination.</p>
                 </div>
-                <div className="flex items-center text-yellow-400 font-medium group-hover:gap-2 transition-all">
+                <div className="flex items-center text-secondary font-medium group-hover:gap-2 transition-all">
                   <span>Launch Image Tool</span>
                   <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100" />
                 </div>
@@ -144,17 +138,17 @@ export default function LandingPage() {
 
           {/* Feature 3: Voice */}
           <Link href="/voice" className="group">
-            <div className="h-full glass-panel p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-blue-500/50 transition-all duration-300 relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-32 bg-blue-500/10 blur-[80px] group-hover:bg-blue-500/20 transition-colors" />
+            <div className="h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 hover:border-accent/50 hover:shadow-xl transition-all duration-300 relative overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 p-32 bg-accent/5 blur-[80px] group-hover:bg-accent/10 transition-colors" />
               <div className="relative z-10 space-y-6">
-                <div className="w-14 h-14 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-300 group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-accent-foreground group-hover:scale-110 transition-transform">
                   <Mic className="w-7 h-7" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">Voice Studio</h3>
-                  <p className="text-gray-400">Realistic Text-to-Speech in multiple languages using advanced neural models.</p>
+                  <h3 className="text-2xl font-bold mb-2 text-gray-900">Voice Studio</h3>
+                  <p className="text-gray-500">Realistic Text-to-Speech in multiple languages using advanced neural models.</p>
                 </div>
-                <div className="flex items-center text-blue-400 font-medium group-hover:gap-2 transition-all">
+                <div className="flex items-center text-accent-foreground font-medium group-hover:gap-2 transition-all">
                   <span>Launch Audio Tool</span>
                   <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100" />
                 </div>
@@ -172,10 +166,10 @@ export default function LandingPage() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             From Idea to Reality
           </h2>
-          <p className="text-xl text-gray-400">create professional content in 3 simple steps.</p>
+          <p className="text-xl text-gray-500">create professional content in 3 simple steps.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -184,16 +178,16 @@ export default function LandingPage() {
             { step: "02", title: "Describe It", desc: "Enter your prompt or upload reference images." },
             { step: "03", title: "Generate", desc: "Watch AI bring your vision to life in seconds." }
           ].map((item, i) => (
-            <div key={i} className="glass-panel p-8 rounded-3xl border border-white/5 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 text-[8rem] font-bold text-white/5 leading-none -mt-4 -mr-4 group-hover:text-white/10 transition-colors">
+            <div key={i} className="glass-panel p-8 rounded-3xl border border-gray-100 relative overflow-hidden group bg-white shadow-sm">
+              <div className="absolute top-0 right-0 text-[8rem] font-bold text-gray-100 leading-none -mt-4 -mr-4 group-hover:text-gray-200 transition-colors">
                 {item.step}
               </div>
               <div className="relative z-10">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center font-bold text-lg mb-6 shadow-lg shadow-purple-500/20">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-lg mb-6 text-primary">
                   {item.step}
                 </div>
-                <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
-                <p className="text-gray-400 leading-relaxed">{item.desc}</p>
+                <h3 className="text-2xl font-bold mb-3 text-gray-900">{item.title}</h3>
+                <p className="text-gray-500 leading-relaxed">{item.desc}</p>
               </div>
             </div>
           ))}
@@ -201,9 +195,9 @@ export default function LandingPage() {
       </section>
 
       {/* Section 4: Testimonials / Community */}
-      <section className="py-24 px-6 bg-gradient-to-b from-transparent to-purple-900/10 border-y border-white/5">
+      <section className="py-24 px-6 bg-gray-50 border-y border-gray-200">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-16">Loved by Creators</h2>
+          <h2 className="text-4xl md:text-5xl font-bold mb-16 text-gray-900">Loved by Creators</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { name: "Sarah K.", role: "Digital Artist", quote: "The video generation is mind-blowing. Veo 3 changed my workflow entirely." },
@@ -215,16 +209,16 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="glass-panel p-8 rounded-2xl text-left bg-white/5 border border-white/10"
+                className="glass-panel p-8 rounded-2xl text-left bg-white border border-gray-100 shadow-sm"
               >
-                <div className="flex items-center gap-1 text-yellow-500 mb-4">
+                <div className="flex items-center gap-1 text-accent mb-4">
                   {[1, 2, 3, 4, 5].map(s => <Sparkles key={s} className="w-4 h-4 fill-current" />)}
                 </div>
-                <p className="text-lg text-gray-300 mb-6 italic">"{t.quote}"</p>
+                <p className="text-lg text-gray-600 mb-6 italic">"{t.quote}"</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-gray-700 to-gray-600" />
+                  <div className="w-10 h-10 rounded-full bg-gray-200" />
                   <div>
-                    <div className="font-bold">{t.name}</div>
+                    <div className="font-bold text-gray-900">{t.name}</div>
                     <div className="text-xs text-gray-500 uppercase tracking-wider">{t.role}</div>
                   </div>
                 </div>
@@ -236,23 +230,23 @@ export default function LandingPage() {
 
       {/* Section 5: Pricing / CTA */}
       <section id="pricing" className="py-32 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-blue-600/5 blur-[100px]" />
-        <div className="max-w-5xl mx-auto glass-panel rounded-[3rem] p-12 md:p-20 text-center border border-white/10 bg-gradient-to-b from-white/5 to-black relative z-10">
-          <h2 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter">
-            Ready to <span className="text-purple-400">Create?</span>
+        <div className="absolute inset-0 bg-primary/5 blur-[100px]" />
+        <div className="max-w-5xl mx-auto glass-panel rounded-[3rem] p-12 md:p-20 text-center border border-gray-100 bg-white relative z-10 shadow-2xl">
+          <h2 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter text-gray-900">
+            Ready to <span className="text-primary">Create?</span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-12">
+          <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-12">
             Join thousands of creators using Veo Platform to build the future of content.
             Start for free today.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               href="/video"
-              className="px-10 py-5 rounded-2xl bg-white text-black font-bold text-xl hover:scale-105 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+              className="px-10 py-5 rounded-2xl bg-primary text-white font-bold text-xl hover:scale-105 transition-transform shadow-xl shadow-primary/20"
             >
               Get Started Free
             </Link>
-            <button className="px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xl hover:bg-white/10 transition-colors">
+            <button className="px-10 py-5 rounded-2xl bg-gray-50 border border-gray-200 text-gray-900 font-bold text-xl hover:bg-gray-100 transition-colors">
               Contact Sales
             </button>
           </div>
@@ -265,15 +259,15 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-black/50 py-12">
+      <footer className="border-t border-gray-200 bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-gray-500 text-sm">
             © 2026 Veo Platform. All rights reserved.
           </div>
           <div className="flex gap-6">
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">Privacy</Link>
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">Terms</Link>
-            <Link href="#" className="text-gray-400 hover:text-white transition-colors">Twitter</Link>
+            <Link href="#" className="text-gray-500 hover:text-gray-900 transition-colors">Privacy</Link>
+            <Link href="#" className="text-gray-500 hover:text-gray-900 transition-colors">Terms</Link>
+            <Link href="#" className="text-gray-500 hover:text-gray-900 transition-colors">Twitter</Link>
           </div>
         </div>
       </footer>

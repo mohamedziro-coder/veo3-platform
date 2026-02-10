@@ -83,8 +83,8 @@ export default function Dashboard() {
     // Show loading state while checking auth (AFTER all hooks)
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
@@ -153,11 +153,11 @@ export default function Dashboard() {
     const displayTools = isAdmin ? [...tools, adminTool] : tools;
 
     return (
-        <main className="min-h-screen bg-black text-white pt-24 px-6 relative overflow-hidden">
+        <main className="min-h-screen bg-gray-50 text-gray-900 pt-24 px-6 relative overflow-hidden">
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-900/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[100px]" />
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px]" />
             </div>
 
             <motion.div
@@ -169,12 +169,12 @@ export default function Dashboard() {
                 {/* Welcome Header */}
                 <motion.div variants={itemVariants} className="mb-12">
                     <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                        Welcome back, <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">{userName}</span>
-                        <span className="ml-4 text-sm bg-white/5 border border-white/10 px-3 py-1 rounded-full text-gray-400 font-normal">
+                        Welcome back, <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">{userName}</span>
+                        <span className="ml-4 text-sm bg-white border border-gray-200 px-3 py-1 rounded-full text-gray-500 font-normal">
                             {generationCount} Generations
                         </span>
                     </h1>
-                    <p className="text-gray-400 text-lg">Select a tool to start generating content.</p>
+                    <p className="text-gray-500 text-lg">Select a tool to start generating content.</p>
                 </motion.div>
 
                 {/* Tools Grid */}
@@ -183,18 +183,18 @@ export default function Dashboard() {
                         <Link key={i} href={tool.href} className="group">
                             <motion.div
                                 variants={itemVariants}
-                                className={`h-full glass-panel p-8 rounded-3xl bg-white/5 border border-white/10 hover:border-${tool.color}-500/50 transition-all duration-300 relative overflow-hidden`}
+                                className={`h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-${tool.color}-500/30 transition-all duration-300 relative overflow-hidden`}
                             >
-                                <div className={`absolute top-0 right-0 p-32 bg-${tool.color}-500/10 blur-[80px] group-hover:bg-${tool.color}-500/20 transition-colors opacity-0 group-hover:opacity-100 duration-500`} />
+                                <div className={`absolute top-0 right-0 p-32 bg-${tool.color}-500/5 blur-[80px] group-hover:bg-${tool.color}-500/10 transition-colors opacity-0 group-hover:opacity-100 duration-500`} />
                                 <div className="relative z-10 space-y-6">
-                                    <div className={`w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-${tool.color}-300 group-hover:scale-110 transition-transform`}>
+                                    <div className={`w-14 h-14 rounded-2xl bg-${tool.color}-500/10 flex items-center justify-center text-${tool.color}-600 group-hover:scale-110 transition-transform`}>
                                         <tool.icon className="w-7 h-7" />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl font-bold mb-2 group-hover:text-white transition-colors">{tool.title}</h3>
-                                        <p className="text-gray-400 leading-relaxed text-sm">{tool.desc}</p>
+                                        <h3 className="text-2xl font-bold mb-2 text-gray-900 group-hover:text-primary transition-colors">{tool.title}</h3>
+                                        <p className="text-gray-500 leading-relaxed text-sm">{tool.desc}</p>
                                     </div>
-                                    <div className={`flex items-center text-${tool.color}-400 font-medium group-hover:gap-2 transition-all`}>
+                                    <div className={`flex items-center text-${tool.color}-600 font-medium group-hover:gap-2 transition-all`}>
                                         <span>Launch App</span>
                                         <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </div>
@@ -204,10 +204,10 @@ export default function Dashboard() {
                     ))}
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="mt-12 glass-panel p-6 rounded-3xl border border-white/10">
+                <motion.div variants={itemVariants} className="mt-12 glass-panel p-6 rounded-3xl border border-gray-100 bg-white shadow-sm">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-bold flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-yellow-400" />
+                        <h3 className="text-xl font-bold flex items-center gap-2 text-gray-900">
+                            <Sparkles className="w-5 h-5 text-accent" />
                             Recent Activity
                         </h3>
                         <span className="text-xs text-gray-500 uppercase tracking-wider">Your Latest Actions</span>
@@ -219,12 +219,12 @@ export default function Dashboard() {
                                 <div
                                     key={i}
                                     onClick={() => setSelectedActivity(act)}
-                                    className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 hover:bg-white/10 transition-all cursor-pointer group"
+                                    className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-primary/20 hover:bg-white hover:shadow-md transition-all cursor-pointer group"
                                 >
                                     <div className="flex items-center gap-4">
                                         {/* Thumbnail or Icon */}
                                         {act.resultUrl ? (
-                                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 relative">
+                                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-200 relative">
                                                 {act.tool === 'Video' ? (
                                                     <video src={act.resultUrl} className="w-full h-full object-cover" muted playsInline />
                                                 ) : (
@@ -236,26 +236,26 @@ export default function Dashboard() {
                                                         sizes="48px"
                                                     />
                                                 )}
-                                                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
                                             </div>
                                         ) : (
-                                            <div className={`w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center ${act.tool === 'Video' ? 'text-purple-400' :
-                                                act.tool === 'Image Generation' ? 'text-yellow-400' : 'text-blue-400'
+                                            <div className={`w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center ${act.tool === 'Video' ? 'text-purple-500' :
+                                                act.tool === 'Image Generation' ? 'text-yellow-500' : 'text-blue-500'
                                                 }`}>
                                                 <Sparkles className="w-5 h-5" />
                                             </div>
                                         )}
 
                                         <div>
-                                            <p className="text-sm font-medium text-white group-hover:text-purple-300 transition-colors line-clamp-1">{act.details || act.prompt}</p>
+                                            <p className="text-sm font-medium text-gray-900 group-hover:text-primary transition-colors line-clamp-1">{act.details || act.prompt}</p>
                                             <p className="text-xs text-gray-500">{act.tool} • {new Date(act.timestamp).toLocaleTimeString()}</p>
                                         </div>
                                     </div>
-                                    <ArrowRight className="w-4 h-4 text-gray-600 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
                                 </div>
                             ))
                         ) : (
-                            <div className="h-32 flex items-center justify-center text-gray-500 bg-white/5 rounded-2xl border border-dashed border-white/10">
+                            <div className="h-32 flex items-center justify-center text-gray-400 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
                                 No recent generations found. Start creating!
                             </div>
                         )}

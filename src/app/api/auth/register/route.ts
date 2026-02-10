@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
 
         // Generate 6-Digit Verification Code (OTP)
         const token = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log("GENERATED_OTP:", token); // Debug log
         await updateVerificationToken(email, token);
 
         // Send Verification Email
