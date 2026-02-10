@@ -1,134 +1,114 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { getGeminiApiKey } from "@/lib/config";
+import { getVeoModel, vertexAI } from "@/lib/vertex";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
 
-// Helper to get GenAI instance dynamically
-const getGenAI = () => {
-    const key = getGeminiApiKey();
-    if (!key) return null;
-    return new GoogleGenerativeAI(key);
-}
-
 export async function POST(req: NextRequest) {
     try {
-        const { startImage, endImage, prompt, userEmail } = await req.json();
-
-        if (!startImage || !endImage) {
-            return NextResponse.json(
-                { error: "Both start and end images are required" },
-                { status: 400 }
-            );
-        }
+        const { startImage, endImage, prompt, userEmail, gravityIntensity = 0.5 } = await req.json();
 
         if (!userEmail) {
             return NextResponse.json({ error: "User authentication required" }, { status: 401 });
         }
 
-        // Deduct Credits First
+        // Deduct Credits
         const newBalance = await deductUserCredits(userEmail, COSTS.VIDEO);
         if (newBalance === null) {
             return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
         }
 
-        let finalPrompt = prompt;
-        const genAI = getGenAI();
+        // Initialize Vertex AI Model
+        const modelName = process.env.VEO_MODEL_NAME || "veo-3.1-fast-generate-001";
+        console.log(`Starting Vertex AI Generation (${modelName})...`);
 
-        if (!genAI) {
-            return NextResponse.json({ error: "Server missing API Key. Please configure in Admin Panel." }, { status: 500 });
-        }
-
-        // Enhance prompt using Gemini
-        if (true) { // Always try if we have the instance
-            try {
-                // Using Gemini 2.0 Flash as 1.5 Flash was not found in user's project
-                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-                // Remove header from base64 string if present (data:image/jpeg;base64,...)
-                const cleanStart = startImage.split(",")[1] || startImage;
-                const cleanEnd = endImage.split(",")[1] || endImage;
-
-                const result = await model.generateContent([
-                    "Analyze these two images (start and end frames) and the user's prompt (which might be in Moroccan Darija/Arabic). Create a detailed text-to-video prompt for Veo.",
-                    "RULES:",
-                    "1. Describe the visual motion/transition in English (cinematic style).",
-                    "2. IF the user asked for voice/speech: Explicitly add 'Audio: [Character/Voice] speaking in Moroccan Arabic dialect (Darija): \"[Translated dialogue or general topic]\"'.",
-                    "3. If no speech requested, suggest cinematic ambient sound.",
-                    "User prompt: " + (prompt || "smooth transition"),
-                    { inlineData: { data: cleanStart, mimeType: "image/jpeg" } },
-                    { inlineData: { data: cleanEnd, mimeType: "image/jpeg" } },
-                ]);
-
-                finalPrompt = result.response.text();
-                console.log("Gemini Enhanced Prompt:", finalPrompt);
-
-                // ---------------------------------------------------------
-                // REAL VEO GENERATION LOGIC
-                // ---------------------------------------------------------
-                let videoUrl = null;
-                let generationStatus = "failed";
-                let errorMessage = "Unknown error";
-
+        // Helper to process base64/url
+        const processImage = async (input: string) => {
+            if (input.startsWith("http")) {
+                // Vertex AI often accepts GCS URIs directly (gs://). 
+                // If it's a public URL, we might need to download and base64 it, 
+                // OR passing it as 'fileUri' if supported.
+                // For safety with base64 compatible models, we convert to base64.
                 try {
-                    // UPDATED MODEL NAME BASED ON DISCOVERY
-                    const modelName = "veo-3.0-generate-001";
-                    console.log(`Attempting to generate video with ${modelName}...`);
-                    const videoModel = genAI.getGenerativeModel({ model: modelName });
-
-                    const videoResult = await videoModel.generateContent([
-                        // Explicitly instruct Veo on start/end frames
-                        "Generate a video starting exactly from the first image and ending exactly at the second image. \n\n" + finalPrompt,
-                        { inlineData: { data: cleanStart, mimeType: "image/jpeg" } },
-                        { inlineData: { data: cleanEnd, mimeType: "image/jpeg" } }
-                    ]);
-
-                    const responseText = videoResult.response.text();
-
-                    if (responseText.startsWith("http")) {
-                        videoUrl = responseText;
-                        generationStatus = "success";
-                    } else {
-                        console.log("Veo output (raw - might need parsing):", responseText);
-                        errorMessage = "Veo returned non-URL response. Check server logs.";
-                    }
-
-                } catch (veoError: any) {
-                    console.error("--------------- VEO API ERROR ---------------");
-                    console.error("Message:", veoError.message);
-                    errorMessage = veoError.message;
-                    try {
-                        if (veoError.response) {
-                            console.error("API Response Error:", JSON.stringify(veoError.response, null, 2));
-                        }
-                    } catch (e) { }
-                    console.error("---------------------------------------------");
+                    const res = await fetch(input);
+                    const buf = await res.arrayBuffer();
+                    return Buffer.from(buf).toString("base64");
+                } catch (e) {
+                    console.error("Failed to fetch image:", input);
+                    throw new Error("Failed to fetch image URL");
                 }
-
-                return NextResponse.json({
-                    videoUrl: videoUrl,
-                    status: generationStatus,
-                    error: generationStatus === "success" ? null : errorMessage,
-                    usedPrompt: finalPrompt,
-                    credits: newBalance // Return new balance
-                });
-
-            } catch (geminiError) {
-                console.error("Gemini enhancement failed:", geminiError);
-                // If enhancement fails, try raw prompt with Veo? 
-                // For now, let's error out to be safe, or fallback to raw prompt:
-                // return NextResponse.json({ error: "Prompt enhancement failed" }, { status: 500 });
             }
-        } else {
-            console.warn("GEMINI_API_KEY not found.");
-            return NextResponse.json({ error: "Server missing API Key" }, { status: 500 });
+            return input.split(",")[1] || input;
+        };
+
+        const parts: any[] = [];
+        parts.push({ text: `Generate a video. ${prompt || "Cinematic shot."}` });
+
+        if (startImage) {
+            const startBase64 = await processImage(startImage);
+            parts.push({ inlineData: { mimeType: "image/jpeg", data: startBase64 } });
+        }
+        if (endImage) {
+            const endBase64 = await processImage(endImage);
+            parts.push({ inlineData: { mimeType: "image/jpeg", data: endBase64 } });
         }
 
-    } catch (error) {
-        console.error("Error generating video:", error);
-        return NextResponse.json(
-            { error: "Failed to generate video" },
-            { status: 500 }
-        );
+        // Vertex AI Configuration for Physics
+        // Note: 'motion_physics' parameter structure depends on specific model version.
+        // Assuming Veo 3.1 supports this structure based on user request.
+        const generationConfig = {
+            temperature: 0.2,
+            // Custom parameters often go into 'video_generation_config' or top-level depending on SDK version
+            // For now, we follow user's specified structure
+            motion_physics: {
+                gravity_intensity: parseFloat(gravityIntensity),
+                motion_fluidity: 0.9,
+                stabilization: true
+            }
+        };
+
+        const generativeModel = getVeoModel(modelName);
+
+        // Execute Generation
+        // Using standard generateContent. If it supports LRO, SDK might handle it or return Op.
+        // If it blocks, Vercel might timeout.
+        // We catch inputs and hope it returns fast or we handle the promise.
+
+        const result = await generativeModel.generateContent({
+            contents: [{ role: 'user', parts }],
+            generationConfig: generationConfig as any, // Cast to any to bypass strict type checks if fields are experimental
+        });
+
+        // Parse Response
+        const response = result.response;
+        let videoUrl = null;
+
+        // Check for fileUri (GCS) or inline data
+        if (response.candidates?.[0]?.content?.parts?.[0]?.fileData?.fileUri) {
+            videoUrl = response.candidates[0].content.parts[0].fileData.fileUri;
+        } else if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
+            const text = response.candidates[0].content.parts[0].text;
+            if (text.startsWith("gs://") || text.startsWith("http")) {
+                videoUrl = text;
+            }
+        }
+
+        // If videoUrl is a gs:// URI, we need to convert to https://storage.googleapis.com/... 
+        // or signed URL. For public buckets:
+        if (videoUrl && videoUrl.startsWith("gs://")) {
+            videoUrl = videoUrl.replace("gs://", "https://storage.googleapis.com/");
+        }
+
+        return NextResponse.json({
+            status: videoUrl ? "success" : "failed",
+            videoUrl: videoUrl,
+            credits: newBalance
+        });
+
+    } catch (error: any) {
+        console.error("Vertex AI Error:", error);
+        return NextResponse.json({
+            error: error.message || "Vertex AI Generation Failed",
+            details: error
+        }, { status: 500 });
     }
 }

@@ -21,6 +21,7 @@ export default function VideoPage() {
     const [startImageUrl, setStartImageUrl] = useState<string | null>(null);
     const [endImageUrl, setEndImageUrl] = useState<string | null>(null);
     const [prompt, setPrompt] = useState("");
+    const [gravityIntensity, setGravityIntensity] = useState(0.5);
     const [isLoading, setIsLoading] = useState(false);
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -187,6 +188,7 @@ export default function VideoPage() {
                     console.error('Failed to log activity:', activityError);
                 }
             } else {
+                console.error("API Error Response:", data);
                 setError(data.error || "Failed to generate video. Please checks credits/API.");
             }
 
@@ -315,6 +317,32 @@ export default function VideoPage() {
                                 onChange={(e) => setPrompt(e.target.value)}
                                 className="relative w-full px-6 py-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-lg shadow-sm"
                             />
+                        </div>
+                    </div>
+
+                    {/* Gravity Slider (Physics) */}
+                    <div className="mt-6 bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                        <div className="flex justify-between items-center mb-3">
+                            <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-purple-600" />
+                                Antigravity Intensity (Physics)
+                            </label>
+                            <span className="text-xs font-mono bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                                {(gravityIntensity * 100).toFixed(0)}%
+                            </span>
+                        </div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={gravityIntensity}
+                            onChange={(e) => setGravityIntensity(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                        />
+                        <div className="flex justify-between text-[10px] text-gray-400 mt-2 font-medium uppercase tracking-wider">
+                            <span>Standard Gravity</span>
+                            <span>Zero Gravity</span>
                         </div>
                     </div>
 
