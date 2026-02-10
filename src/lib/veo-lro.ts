@@ -33,7 +33,7 @@ export async function startVideoGeneration(params: {
         const location = config.GOOGLE_LOCATION || 'us-central1';
         const model = 'veo-3.1-fast-generate-001';
 
-        const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:predictLongRunning`;
+        const url = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:predictLongRunning`;
 
         console.log(`[VEO-LRO] Starting video generation: ${url}`);
         console.log(`[VEO-LRO] Start frame: ${params.startImageGcsUri}`);
@@ -115,25 +115,17 @@ export async function pollOperationStatus(operationName: string): Promise<{
         }
 
         // Expected operationName format: projects/PROJECT_ID/locations/LOCATION/operations/OP_ID
-        // Issue: API might return projects/.../publishers/google/models/.../operations/OP_ID
-        // Fix: Normalize to standard operations path
+        // We use v1beta1 to support GenAI operations which may use UUIDs instead of Longs
 
-        let cleanOperationName = operationName;
-
-        // Remove /publishers/google/models/MODEL_ID if present
-        if (cleanOperationName.includes('/publishers/google/models/')) {
-            cleanOperationName = cleanOperationName.replace(/\/publishers\/google\/models\/[^\/]+/, '');
-            console.log(`[VEO-LRO] Normalized operation name: ${cleanOperationName}`);
-        }
+        let location = config.GOOGLE_LOCATION || 'us-central1';
 
         // Try to extract location from operation name
-        let location = config.GOOGLE_LOCATION || 'us-central1';
-        const match = cleanOperationName.match(/locations\/([^\/]+)\/operations/);
+        const match = operationName.match(/locations\/([^\/]+)\/operations/);
         if (match && match[1]) {
             location = match[1];
         }
 
-        const url = `https://${location}-aiplatform.googleapis.com/v1/${cleanOperationName}`;
+        const url = `https://${location}-aiplatform.googleapis.com/v1beta1/${operationName}`;
 
         console.log(`[VEO-LRO] Polling URL: ${url}`);
 
