@@ -9,14 +9,33 @@ import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 // Voice options - defined outside component to avoid recreation
 // Voice options - defined outside component to avoid recreation
 const VOICE_OPTIONS = [
-    { id: "ar-XA-Neural2-B", name: "Moroccan Darija (Male 1)", lang: "ar-XA", type: "Neural2 (Native)" },
-    { id: "ar-XA-Neural2-A", name: "Moroccan Darija (Female 1)", lang: "ar-XA", type: "Neural2 (Native)" },
-    { id: "ar-XA-Neural2-C", name: "Moroccan Darija (Male 2)", lang: "ar-XA", type: "Neural2 (Deep)" },
-    { id: "ar-XA-Neural2-D", name: "Moroccan Darija (Female 2)", lang: "ar-XA", type: "Neural2 (Soft)" },
-    { id: "en-US-Journey-F", name: "English (Premium Female)", lang: "en-US", type: "Journey" },
-    { id: "en-US-Journey-D", name: "English (Premium Male)", lang: "en-US", type: "Journey" },
-    { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR", type: "Neural" },
-    { id: "fr-FR-Neural2-B", name: "French (Male)", lang: "fr-FR", type: "Neural" },
+    // Moroccan Arabic (Darija) - ar-MA
+    { id: "ar-XA-Neural2-B", name: "Moroccan Arabic (Male 1)", lang: "ar-MA", type: "Neural2 (Native)" },
+    { id: "ar-XA-Neural2-A", name: "Moroccan Arabic (Female 1)", lang: "ar-MA", type: "Neural2 (Native)" },
+    { id: "ar-XA-Neural2-C", name: "Moroccan Arabic (Male 2)", lang: "ar-MA", type: "Neural2 (Deep)" },
+    { id: "ar-XA-Neural2-D", name: "Moroccan Arabic (Female 2)", lang: "ar-MA", type: "Neural2 (Soft)" },
+
+    // English
+    { id: "en-US-Journey-F", name: "English US (Premium Female)", lang: "en-US", type: "Journey" },
+    { id: "en-US-Journey-D", name: "English US (Premium Male)", lang: "en-US", type: "Journey" },
+    { id: "en-GB-Neural2-A", name: "English UK (Female)", lang: "en-GB", type: "Neural2" },
+    { id: "en-GB-Neural2-B", name: "English UK (Male)", lang: "en-GB", type: "Neural2" },
+
+    // French
+    { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR", type: "Neural2" },
+    { id: "fr-FR-Neural2-B", name: "French (Male)", lang: "fr-FR", type: "Neural2" },
+
+    // German
+    { id: "de-DE-Neural2-A", name: "German (Female)", lang: "de-DE", type: "Neural2" },
+    { id: "de-DE-Neural2-B", name: "German (Male)", lang: "de-DE", type: "Neural2" },
+    { id: "de-DE-Neural2-C", name: "German (Male Deep)", lang: "de-DE", type: "Neural2" },
+    { id: "de-DE-Neural2-D", name: "German (Female Soft)", lang: "de-DE", type: "Neural2" },
+
+    // Spanish
+    { id: "es-ES-Neural2-A", name: "Spanish (Female)", lang: "es-ES", type: "Neural2" },
+    { id: "es-ES-Neural2-B", name: "Spanish (Male)", lang: "es-ES", type: "Neural2" },
+    { id: "es-ES-Neural2-C", name: "Spanish (Female Soft)", lang: "es-ES", type: "Neural2" },
+    { id: "es-ES-Neural2-D", name: "Spanish (Male Deep)", lang: "es-ES", type: "Neural2" },
 ];
 
 export default function VoicePage() {
@@ -32,6 +51,7 @@ export default function VoicePage() {
     const [selectedVoice, setSelectedVoice] = useState("ar-XA-Neural2-B");
     const [speakingRate, setSpeakingRate] = useState(1.0);
     const [pitch, setPitch] = useState(0.0);
+    const [useGemini, setUseGemini] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const currentCredits = getUserCredits();
@@ -93,9 +113,10 @@ export default function VoicePage() {
                 body: JSON.stringify({
                     text,
                     voiceId: selectedVoice,
-                    languageCode: VOICE_OPTIONS.find(v => v.id === selectedVoice)?.lang || "ar-XA",
+                    languageCode: VOICE_OPTIONS.find(v => v.id === selectedVoice)?.lang || "ar-MA",
                     speakingRate,
                     pitch,
+                    useGemini,
                     userEmail: JSON.parse(localStorage.getItem('current_user') || '{}').email // Send email for auth
                 }),
                 headers: { "Content-Type": "application/json" }
@@ -184,8 +205,8 @@ export default function VoicePage() {
                         Voice Over API
                     </h1>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
-                        Hawel text l'sout htirafi (Professional TTS). <br />
-                        <span className="text-gray-400 text-sm">Now with <b>Neural2</b> technology for 100% native-sounding Darija.</span>
+                        Transform text to professional voice with Neural2 technology. <br />
+                        <span className="text-gray-400 text-sm">Supports Moroccan Arabic, English, French, German, Spanish & more.</span>
                     </p>
                 </motion.div>
 
@@ -320,10 +341,35 @@ export default function VoicePage() {
                             </div>
                         </div>
 
+                        {/* Gemini Enhancement Toggle */}
+                        <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                                        <Wand2 className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-semibold text-gray-900">Gemini Text Enhancement</h3>
+                                        <p className="text-xs text-gray-500">Improve text quality with AI before voice generation</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setUseGemini(!useGemini)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${useGemini ? 'bg-purple-600' : 'bg-gray-300'
+                                        }`}
+                                >
+                                    <span
+                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useGemini ? 'translate-x-6' : 'translate-x-1'
+                                            }`}
+                                    />
+                                </button>
+                            </div>
+                        </div>
+
                         {/* Text Input */}
                         <label className="text-sm font-semibold text-gray-700 ml-1 mb-2 block">Script</label>
                         <textarea
-                            placeholder="Kteb l'script dyalk hna b'Darija... (Matalan: 'Salam, kif dayrin? Hada test dyal Veo 3.')"
+                            placeholder="Enter your script here... (e.g., 'Hello, how are you? This is a test of Voice Generation.')"
                             value={text}
                             onChange={(e) => setText(e.target.value)}
                             className="w-full h-40 bg-gray-50 rounded-xl p-4 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-xl resize-none leading-relaxed shadow-inner"

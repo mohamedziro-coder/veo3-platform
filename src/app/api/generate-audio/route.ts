@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getGeminiApiKey } from "@/lib/config";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/credits";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req: Request) {
     try {
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { text, voiceId, languageCode, speakingRate, pitch, userEmail } = body;
+        const { text, voiceId, languageCode, speakingRate, pitch, userEmail, useGemini } = body;
 
         if (!text) {
             return NextResponse.json({ error: "Text is required" }, { status: 400 });
@@ -28,13 +29,50 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
         }
 
+        let processedText = text;
+
+        // Optional: Enhance text with Gemini 2.5 Flash
+        if (useGemini) {
+            try {
+                const genAI = new GoogleGenerativeAI(apiKey);
+                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+                const languageMap: Record<string, string> = {
+                    "ar-MA": "Moroccan Arabic (Darija)",
+                    "de-DE": "German",
+                    "en-US": "English (US)",
+                    "en-GB": "English (UK)",
+                    "fr-FR": "French",
+                    "es-ES": "Spanish"
+                };
+
+                const targetLang = languageMap[languageCode] || "the target language";
+
+                const prompt = `Improve the following text for natural ${targetLang} text-to-speech pronunciation. 
+                
+Rules:
+1. Fix grammar and punctuation for better TTS flow
+2. Preserve the original meaning and tone
+3. For Moroccan Arabic (Darija), keep the dialect authentic - do NOT convert to Modern Standard Arabic
+4. Return ONLY the improved text, no explanations
+
+Text: ${text}`;
+
+                const result = await model.generateContent(prompt);
+                processedText = result.response.text().trim();
+                console.log("Gemini Enhanced Text:", processedText);
+            } catch (geminiError) {
+                console.error("Gemini enhancement failed, using original text:", geminiError);
+                // Continue with original text if Gemini fails
+            }
+        }
+
         // Endpoint for Google Cloud Text-to-Speech
-        // Using the API Key authentication method commonly available for these Google APIs
         const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
 
         const payload = {
-            input: { text },
-            voice: { languageCode: languageCode || "ar-XA", name: voiceId || "ar-XA-Standard-A" },
+            input: { text: processedText },
+            voice: { languageCode: languageCode || "ar-MA", name: voiceId || "ar-XA-Standard-A" },
             audioConfig: {
                 audioEncoding: "MP3",
                 speakingRate: speakingRate || 1.0,
@@ -54,9 +92,6 @@ export async function POST(req: Request) {
 
         if (!response.ok) {
             console.error("TTS API Error:", data);
-            // Refund credits if generation fails? 
-            // Ideally yes, but keeping it simple for now as it's a small amount.
-            // Or better: construct a refund logic. But strictly following "fix it" first.
             return NextResponse.json({
                 error: data.error?.message || "TTS Service Error. Ensure 'Cloud Text-to-Speech API' is enabled for this API Key."
             }, { status: 400 });
@@ -64,8 +99,9 @@ export async function POST(req: Request) {
 
         return NextResponse.json({
             success: true,
-            audioContent: data.audioContent, // Base64 encoded MP3
-            credits: newBalance
+            audioContent: data.audioContent,
+            credits: newBalance,
+            enhancedText: useGemini ? processedText : undefined
         });
 
     } catch (error) {
