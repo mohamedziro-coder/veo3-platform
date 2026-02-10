@@ -25,6 +25,8 @@ export default function VideoPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [progressMessage, setProgressMessage] = useState<string>("");
+    const [elapsedTime, setElapsedTime] = useState(0);
 
     // Credit usage state
     const currentCredits = getUserCredits();
@@ -95,6 +97,8 @@ export default function VideoPage() {
         setIsLoading(true);
         setVideoUrl(null);
         setError(null);
+        setProgressMessage("Preparing images...");
+        setElapsedTime(0);
 
         try {
             const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
@@ -115,9 +119,6 @@ export default function VideoPage() {
             if (startImage) {
                 startImageBase64 = await toBase64(startImage);
             } else if (startImageUrl) {
-                // Check if it's already data URI (Nanbanana usually returns base64 data URI sometimes, or URL)
-                // Our API returns base64 usually or a blob URL if handled client side. 
-                // Wait, FrameGenerator sets generatedImage from data.raw.url which is data:image... in our API.
                 if (startImageUrl.startsWith('data:')) {
                     startImageBase64 = startImageUrl;
                 } else {
@@ -140,64 +141,123 @@ export default function VideoPage() {
                 throw new Error("End frame missing");
             }
 
-            // Construct prompt with product context if available (optional)
             const finalPrompt = prompt;
+            const userEmail = JSON.parse(localStorage.getItem('current_user') || '{}').email;
 
+            setProgressMessage("Starting video generation...");
+
+            // Call API to start video generation
             const response = await fetch("/api/generate", {
                 method: "POST",
                 body: JSON.stringify({
                     startImage: startImageBase64,
                     endImage: endImageBase64,
                     prompt: finalPrompt,
-                    userEmail: JSON.parse(localStorage.getItem('current_user') || '{}').email // Send email for auth
+                    userEmail: userEmail
                 }),
                 headers: { "Content-Type": "application/json" }
             });
 
             const data = await response.json();
 
-            if (data.status === "success" && data.videoUrl) {
-                setVideoUrl(data.videoUrl);
-
-                // Update Credits from Server Response
-                if (data.credits !== undefined) {
-                    const user = JSON.parse(localStorage.getItem('current_user') || '{}');
-                    user.credits = data.credits;
-                    localStorage.setItem('current_user', JSON.stringify(user));
-                    window.dispatchEvent(new Event('storage'));
-                    window.dispatchEvent(new Event('credits-updated'));
-                } else {
-                    deductCredits(COSTS.VIDEO);
-                }
-
-                // Log Activity to Database
-                const user = JSON.parse(localStorage.getItem('current_user') || '{}');
-                try {
-                    await fetch('/api/activity', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userEmail: user.email,
-                            userName: user.name,
-                            tool: 'Video',
-                            details: `Generated video: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
-                            resultUrl: data.videoUrl // Save video URL
-                        })
-                    });
-                } catch (activityError) {
-                    console.error('Failed to log activity:', activityError);
-                }
+            if (data.status === "processing" && data.operationId) {
+                // Start polling for status
+                setProgressMessage("Video generation in progress...");
+                await pollForCompletion(data.operationId, userEmail);
+            } else if (data.error) {
+                throw new Error(data.error);
             } else {
-                console.error("API Error Response:", data);
-                setError(data.error || "Failed to generate video. Please checks credits/API.");
+                throw new Error("Unexpected response from server");
             }
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Generation failed", error);
-            setError("Network connection error. Try again.");
-        } finally {
+            setError(error.message || "Network connection error. Try again.");
             setIsLoading(false);
         }
+    };
+
+    // Polling function to check video generation status
+    const pollForCompletion = async (operationId: string, userEmail: string) => {
+        const startTime = Date.now();
+        const MAX_WAIT_TIME = 5 * 60 * 1000; // 5 minutes max
+        const POLL_INTERVAL = 3000; // Poll every 3 seconds
+
+        // Update elapsed time every second
+        const timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            setElapsedTime(elapsed);
+        }, 1000);
+
+        const poll = async (): Promise<void> => {
+            try {
+                const elapsed = Date.now() - startTime;
+
+                if (elapsed > MAX_WAIT_TIME) {
+                    clearInterval(timerInterval);
+                    throw new Error("Video generation timed out. Please try again.");
+                }
+
+                const statusResponse = await fetch(
+                    `/api/generate/status?operationId=${operationId}&userEmail=${encodeURIComponent(userEmail)}`
+                );
+
+                const statusData = await statusResponse.json();
+
+                if (statusData.status === "complete" && statusData.videoUrl) {
+                    clearInterval(timerInterval);
+                    setVideoUrl(statusData.videoUrl);
+                    setProgressMessage("Video ready!");
+                    setIsLoading(false);
+
+                    // Update credits
+                    if (statusData.credits !== undefined) {
+                        const user = JSON.parse(localStorage.getItem('current_user') || '{}');
+                        user.credits = statusData.credits;
+                        localStorage.setItem('current_user', JSON.stringify(user));
+                        window.dispatchEvent(new Event('storage'));
+                        window.dispatchEvent(new Event('credits-updated'));
+                    } else {
+                        deductCredits(COSTS.VIDEO);
+                    }
+
+                    // Log activity
+                    try {
+                        const user = JSON.parse(localStorage.getItem('current_user') || '{}');
+                        await fetch('/api/activity', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                userEmail: user.email,
+                                userName: user.name,
+                                tool: 'Video',
+                                details: `Generated video: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
+                                resultUrl: statusData.videoUrl
+                            })
+                        });
+                    } catch (activityError) {
+                        console.error('Failed to log activity:', activityError);
+                    }
+
+                } else if (statusData.status === "failed") {
+                    clearInterval(timerInterval);
+                    throw new Error(statusData.error || "Video generation failed");
+                } else {
+                    // Still processing, update message and continue polling
+                    setProgressMessage(statusData.message || "Generating video...");
+                    setTimeout(poll, POLL_INTERVAL);
+                }
+
+            } catch (error: any) {
+                clearInterval(timerInterval);
+                console.error("Polling error:", error);
+                setError(error.message || "Failed to check video status");
+                setIsLoading(false);
+            }
+        };
+
+        // Start polling
+        await poll();
     };
 
     return (
@@ -357,9 +417,16 @@ export default function VideoPage() {
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000" />
 
                             {isLoading ? (
-                                <div className="flex items-center gap-3">
-                                    <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                    <span className="tracking-wide">Generating...</span>
+                                <div className="flex flex-col items-center gap-2 w-full">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                        <span className="tracking-wide">{progressMessage || "Generating..."}</span>
+                                    </div>
+                                    {elapsedTime > 0 && (
+                                        <span className="text-sm opacity-70">
+                                            {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')} elapsed
+                                        </span>
+                                    )}
                                 </div>
                             ) : (
                                 <>

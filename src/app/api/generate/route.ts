@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getVeoModel, vertexAI } from "@/lib/vertex";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
+import { storeOperationResult } from "./status/route";
 
 export async function POST(req: NextRequest) {
     try {
@@ -17,17 +18,60 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
         }
 
+        // Generate unique operation ID
+        const operationId = `veo-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+        console.log(`[GENERATE] Created operation ${operationId} for user: ${userEmail}`);
+
+        // Store initial operation status
+        storeOperationResult(operationId, {
+            status: "processing",
+            message: "Starting video generation..."
+        });
+
+        // Spawn async video generation (non-blocking)
+        processVideoGeneration(operationId, startImage, endImage, prompt, gravityIntensity, newBalance)
+            .catch((error) => {
+                console.error(`[GENERATE] Operation ${operationId} failed:`, error);
+                storeOperationResult(operationId, {
+                    status: "failed",
+                    error: error.message || "Video generation failed"
+                });
+            });
+
+        // Return immediately with operation ID
+        return NextResponse.json({
+            status: "processing",
+            operationId: operationId,
+            message: "Video generation started. Poll /api/generate/status for updates."
+        });
+
+    } catch (error: any) {
+        console.error("Vertex AI Error:", error);
+        return NextResponse.json({
+            error: error.message || "Vertex AI Generation Failed",
+            details: error
+        }, { status: 500 });
+    }
+}
+
+// Background video generation function
+async function processVideoGeneration(
+    operationId: string,
+    startImage: string,
+    endImage: string,
+    prompt: string,
+    gravityIntensity: number,
+    credits: number
+) {
+    try {
+        console.log(`[PROCESS] Starting background generation for operation: ${operationId}`);
+
         // Initialize Vertex AI Model
         const modelName = process.env.VEO_MODEL_NAME || "veo-3.1-fast-generate-001";
-        console.log(`Starting Vertex AI Generation (${modelName})...`);
 
         // Helper to process base64/url
         const processImage = async (input: string) => {
             if (input.startsWith("http")) {
-                // Vertex AI often accepts GCS URIs directly (gs://). 
-                // If it's a public URL, we might need to download and base64 it, 
-                // OR passing it as 'fileUri' if supported.
-                // For safety with base64 compatible models, we convert to base64.
                 try {
                     const res = await fetch(input);
                     const buf = await res.arrayBuffer();
@@ -52,15 +96,11 @@ export async function POST(req: NextRequest) {
             parts.push({ inlineData: { mimeType: "image/jpeg", data: endBase64 } });
         }
 
-        // Vertex AI Configuration for Physics
-        // Note: 'motion_physics' parameter structure depends on specific model version.
-        // Assuming Veo 3.1 supports this structure based on user request.
+        // Vertex AI Configuration
         const generationConfig = {
             temperature: 0.2,
-            // Custom parameters often go into 'video_generation_config' or top-level depending on SDK version
-            // For now, we follow user's specified structure
             motion_physics: {
-                gravity_intensity: parseFloat(gravityIntensity),
+                gravity_intensity: parseFloat(gravityIntensity.toString()),
                 motion_fluidity: 0.9,
                 stabilization: true
             }
@@ -68,14 +108,12 @@ export async function POST(req: NextRequest) {
 
         const generativeModel = await getVeoModel(modelName);
 
-        // Execute Generation
-        // Using standard generateContent. If it supports LRO, SDK might handle it or return Op.
-        // If it blocks, Vercel might timeout.
-        // We catch inputs and hope it returns fast or we handle the promise.
+        console.log(`[PROCESS] Calling Vertex AI for operation: ${operationId}`);
 
+        // This is the long-running call that may take 30-120 seconds
         const result = await generativeModel.generateContent({
             contents: [{ role: 'user', parts }],
-            generationConfig: generationConfig as any, // Cast to any to bypass strict type checks if fields are experimental
+            generationConfig: generationConfig as any,
         });
 
         // Parse Response
@@ -92,23 +130,29 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // If videoUrl is a gs:// URI, we need to convert to https://storage.googleapis.com/... 
-        // or signed URL. For public buckets:
+        // Convert gs:// to https://
         if (videoUrl && videoUrl.startsWith("gs://")) {
             videoUrl = videoUrl.replace("gs://", "https://storage.googleapis.com/");
         }
 
-        return NextResponse.json({
-            status: videoUrl ? "success" : "failed",
-            videoUrl: videoUrl,
-            credits: newBalance
-        });
+        if (videoUrl) {
+            console.log(`[PROCESS] Operation ${operationId} completed successfully`);
+            storeOperationResult(operationId, {
+                status: "complete",
+                videoUrl: videoUrl,
+                credits: credits
+            });
+        } else {
+            throw new Error("No video URL in response");
+        }
 
     } catch (error: any) {
-        console.error("Vertex AI Error:", error);
-        return NextResponse.json({
-            error: error.message || "Vertex AI Generation Failed",
-            details: error
-        }, { status: 500 });
+        console.error(`[PROCESS] Operation ${operationId} failed:`, error);
+        storeOperationResult(operationId, {
+            status: "failed",
+            error: error.message || "Video generation failed"
+        });
+        throw error;
     }
 }
+
