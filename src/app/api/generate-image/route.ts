@@ -25,9 +25,27 @@ export async function POST(req: NextRequest) {
         // Deduct credits from database
         const newBalance = await deductUserCredits(userEmail, COSTS.IMAGE);
         if (newBalance === null) {
+            // Diagnostic: Check why it failed
+            const { getUserByEmail } = await import("@/lib/db");
+            const user = await getUserByEmail(userEmail);
+
+            if (!user) {
+                return NextResponse.json(
+                    { error: `User not found: ${userEmail}` },
+                    { status: 401 }
+                );
+            }
+
+            if (user.credits < COSTS.IMAGE) {
+                return NextResponse.json(
+                    { error: `Insufficient credits. You have ${user.credits}, but need ${COSTS.IMAGE}.` },
+                    { status: 402 }
+                );
+            }
+
             return NextResponse.json(
-                { error: "Insufficient credits" },
-                { status: 402 }
+                { error: "Credit deduction failed (System Error)" },
+                { status: 500 }
             );
         }
 
