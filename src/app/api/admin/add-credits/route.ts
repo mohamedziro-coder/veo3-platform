@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/db';
+import { neon } from '@neondatabase/serverless';
 
 export async function POST(req: NextRequest) {
     try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const sql = getDb();
+        const sql = neon(process.env.POSTGRES_URL!);
 
         // Update user credits
         const result = await sql`
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        const sql = getDb();
+        const sql = neon(process.env.POSTGRES_URL!);
         const result = await sql`
             SELECT id, email, name, role, credits
             FROM users
