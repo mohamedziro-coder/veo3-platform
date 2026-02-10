@@ -115,75 +115,54 @@ export async function pollOperationStatus(operationName: string): Promise<{
         }
 
         // Expected operationName format: projects/PROJECT_ID/locations/LOCATION/operations/OP_ID
-        // We use v1beta1 to support GenAI operations (UUIDs) AND normalize the path to remove model reference
 
-        let cleanOperationName = operationName;
-
-        // Remove /publishers/google/models/MODEL_ID if present
-        if (cleanOperationName.includes('/publishers/google/models/')) {
-            cleanOperationName = cleanOperationName.replace(/\/publishers\/google\/models\/[^\/]+/, '');
-            console.log(`[VEO-LRO] Normalized operation name: ${cleanOperationName}`);
-        }
-
+        // Extract UUID from operationName (last part)
+        const opUuid = operationName.split('/').pop();
+        const projectId = config.GOOGLE_PROJECT_ID;
         let location = config.GOOGLE_LOCATION || 'us-central1';
 
-        // Try to extract location from normalized operation name
-        const match = cleanOperationName.match(/locations\/([^\/]+)\/operations/);
+        // Try to extract location from operation name
+        const match = operationName.match(/locations\/([^\/]+)\/operations/);
         if (match && match[1]) {
             location = match[1];
         }
 
-        // STRATEGY: Try multiple path permutations to find the operation
-        // The API is inconsistent: it may return 'gen-lang-client' project or 'publishers/models' paths
-        // We will try:
-        // 1. Exact name returned by API
-        // 2. Name with 'gen-lang-client...' replaced by YOUR project ID
-        // 3. Name with '/publishers/...' stripped (normalized) AND project replaced
+        console.log(`[VEO-LRO] Looking for operation UUID: ${opUuid} in ${location}`);
 
-        let projectId = config.GOOGLE_PROJECT_ID;
-        if (!projectId) {
-            console.warn('[VEO-LRO] No project ID configured! Polling might fail.');
-            projectId = 'veo-demo'; // Fallback
+        // STRATEGY: List operations to find the correct resource path
+        // This avoids guessing "long vs uuid" path issues
+        const listUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/operations`;
+
+        const listRes = await fetch(listUrl, {
+            headers: { 'Authorization': `Bearer ${accessToken.token}` }
+        });
+
+        if (!listRes.ok) {
+            const errText = await listRes.text();
+            console.warn(`[VEO-LRO] Failed to list operations: ${listRes.status} ${errText}`);
+            // Fallback: try polling exact name provided
+            return await executePoll(`https://${location}-aiplatform.googleapis.com/v1beta1/${operationName}`, accessToken.token);
         }
 
-        const exactName = operationName;
+        const listData = await listRes.json();
+        const operations = listData.operations || [];
 
-        // Construct Candidate 2: Force User Project ID
-        let nameWithUserProject = operationName;
-        if (operationName.includes('projects/gen-lang-client')) {
-            nameWithUserProject = operationName.replace(/projects\/[^\/]+/, `projects/${projectId}`);
+        // Find operation by UUID matching
+        const foundOp = operations.find((op: any) => op.name.includes(opUuid));
+
+        let pollingUrl;
+        if (foundOp) {
+            console.log(`[VEO-LRO] Found correct operation path: ${foundOp.name}`);
+            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/${foundOp.name}`;
+        } else {
+            console.warn(`[VEO-LRO] Operation ${opUuid} not found in list. Using original name.`);
+            // If not found in list (maybe improper pagination later?), try original name
+            // Also try stripping "publishers/..." if present as a Hail Mary
+            let cleanName = operationName.replace(/\/publishers\/google\/models\/[^\/]+/, '');
+            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/${cleanName}`;
         }
 
-        // Construct Candidate 3: Normalized + User Project
-        let normalizedName = nameWithUserProject;
-        if (normalizedName.includes('/publishers/google/models/')) {
-            normalizedName = normalizedName.replace(/\/publishers\/google\/models\/[^\/]+/, '');
-        }
-
-        const candidates = [
-            `https://${location}-aiplatform.googleapis.com/v1beta1/${exactName}`,
-            `https://${location}-aiplatform.googleapis.com/v1beta1/${nameWithUserProject}`,
-            `https://${location}-aiplatform.googleapis.com/v1beta1/${normalizedName}`
-        ];
-
-        // Unique URLs only
-        const uniqueUrls = [...new Set(candidates)];
-
-        let lastError = null;
-
-        for (const url of uniqueUrls) {
-            try {
-                return await executePoll(url, accessToken.token);
-            } catch (error: any) {
-                console.warn(`[VEO-LRO] Failed poll on ${url}: ${error.message}`);
-                lastError = error;
-                // If 403 or 404, continue to next candidate. 
-                // If it's a different error (e.g. 500), maybe stop? For now keep trying.
-            }
-        }
-
-        // If all failed, throw the last error
-        throw lastError || new Error('All polling attempts failed.');
+        return await executePoll(pollingUrl, accessToken.token);
 
     } catch (error: any) {
         console.error('[VEO-LRO] Failed to poll operation:', error);
@@ -192,7 +171,7 @@ export async function pollOperationStatus(operationName: string): Promise<{
 }
 
 async function executePoll(url: string, token: string) {
-    console.log(`[VEO-LRO] Polling Attempt: ${url}`);
+    console.log(`[VEO-LRO] Polling: ${url}`);
     const response = await fetch(url, {
         headers: {
             'Authorization': `Bearer ${token}`
@@ -201,6 +180,7 @@ async function executePoll(url: string, token: string) {
 
     if (!response.ok) {
         const errorText = await response.text();
+        // If 404/400, strictly throw so we know
         throw new Error(`${response.status} - ${errorText}`);
     }
 
