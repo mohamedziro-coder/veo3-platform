@@ -100,7 +100,11 @@ export async function startVideoGeneration(params: {
         return { operationName: data.name };
 
     } catch (error: any) {
-        console.error('[VEO-LRO] Failed to start video generation:', error);
+        console.error('[VEO-LRO] Failed to start video generation:', {
+            message: error.message,
+            stack: error.stack,
+            cause: error.cause
+        });
         throw error;
     }
 }
@@ -172,7 +176,11 @@ export async function pollOperationStatus(operationName: string): Promise<{
         return await executePoll(pollingUrl, accessToken.token);
 
     } catch (error: any) {
-        console.error('[VEO-LRO] Failed to poll operation:', error);
+        console.error('[VEO-LRO] Failed to poll operation:', {
+            message: error.message,
+            stack: error.stack,
+            cause: error.cause
+        });
         throw error;
     }
 }
@@ -224,9 +232,14 @@ async function executePoll(url: string, token: string) {
         if (error.message && error.message.includes('fetch failed')) {
             // ADVANCED DIAGNOSTIC: Log string details
             const hex = Array.from(url).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
-            console.error(`[VEO-LRO] FETCH FAILED! URL HEX: ${hex}`);
-            console.error(`[VEO-LRO] URL LENGTH: ${url.length}`);
-            console.error('[VEO-LRO] Network/DNS Error. Check URL construction:', url);
+            console.error(`[VEO-LRO] FETCH FAILED!`, {
+                url,
+                urlHex: hex,
+                urlLength: url.length,
+                message: error.message,
+                stack: error.stack,
+                cause: error.cause
+            });
         }
         throw error;
     }
