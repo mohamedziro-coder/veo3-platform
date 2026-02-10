@@ -96,14 +96,11 @@ async function processVideoGeneration(
             parts.push({ inlineData: { mimeType: "image/jpeg", data: endBase64 } });
         }
 
-        // Vertex AI Configuration
+        // Vertex AI Configuration - using only valid Veo 3.1 parameters
         const generationConfig = {
-            temperature: 0.2,
-            motion_physics: {
-                gravity_intensity: parseFloat(gravityIntensity.toString()),
-                motion_fluidity: 0.9,
-                stabilization: true
-            }
+            temperature: 0.7, // Controls creativity (0.0-2.0, higher = more creative)
+            // Note: aspect_ratio, resolution, duration are not supported in SDK generateContent call
+            // These are typically set at model initialization or via specific video generation endpoints
         };
 
         const generativeModel = await getVeoModel(modelName);
