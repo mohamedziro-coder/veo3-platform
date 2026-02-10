@@ -109,8 +109,13 @@ export async function pollOperationStatus(operationName: string): Promise<{
         if (!projectId) throw new Error('GOOGLE_PROJECT_ID is not configured');
         let location = sanitize(config.GOOGLE_LOCATION || 'us-central1');
 
-        const locMatch = operationName.match(/locations\/(.+?)\/operations/);
-        if (locMatch && locMatch[1]) location = sanitize(locMatch[1]);
+        // IMPROVED: Non-greedy location extraction (don't capture model path)
+        const locMatch = operationName.match(/locations\/([^/]+)/);
+        if (locMatch && locMatch[1]) {
+            location = sanitize(locMatch[1]);
+        } else {
+            console.log(`[VEO-LRO] Could not extract location from ${operationName}, using config fallback: ${location}`);
+        }
 
         const auth = new GoogleAuth({
             credentials: config.GOOGLE_APPLICATION_CREDENTIALS_JSON
