@@ -32,10 +32,11 @@ export interface Activity {
 export async function getUserByEmail(email: string): Promise<User | null> {
     try {
         const sql = getDb();
+        const emailLower = email.toLowerCase();
         const result = await sql`
             SELECT id, email, name, role, credits, created_at 
             FROM users 
-            WHERE email = ${email}
+            WHERE LOWER(email) = ${emailLower}
         `;
         return result[0] as User || null;
     } catch (error) {
@@ -66,9 +67,10 @@ export async function checkIpUsage(ip: string): Promise<boolean> {
 export async function createUser(name: string, email: string, password: string, ip?: string): Promise<User | null> {
     try {
         const sql = getDb();
+        const emailLower = email.toLowerCase();
 
         // Check if user exists
-        const existing = await getUserByEmail(email);
+        const existing = await getUserByEmail(emailLower);
         if (existing) {
             throw new Error('User already exists with this email');
         }
@@ -88,14 +90,14 @@ export async function createUser(name: string, email: string, password: string, 
 
         // Determine role (admin if specific email or matches env var)
         const adminEmail = process.env.ADMIN_EMAIL || 'admin@onlinetools.com';
-        const role = (email === adminEmail || email === 'admin@onlinetools.com') ? 'admin' : 'user';
+        const role = (emailLower === adminEmail.toLowerCase() || emailLower === 'admin@onlinetools.com') ? 'admin' : 'user';
 
         // Insert user
         // Try to insert with signup_ip. If it fails (e.g. column missing), fallback to old insert.
         try {
             const result = await sql`
                 INSERT INTO users (name, email, password_hash, role, credits, signup_ip)
-                VALUES (${name}, ${email}, ${passwordHash}, ${role}, ${initialCredits}, ${ip || null})
+                VALUES (${name}, ${emailLower}, ${passwordHash}, ${role}, ${initialCredits}, ${ip || null})
                 RETURNING id, email, name, role, credits, created_at
             `;
             return result[0] as User;
@@ -104,7 +106,7 @@ export async function createUser(name: string, email: string, password: string, 
             // Fallback: Insert without signup_ip (migration not run yet)
             const result = await sql`
                 INSERT INTO users (name, email, password_hash, role, credits)
-                VALUES (${name}, ${email}, ${passwordHash}, ${role}, ${initialCredits})
+                VALUES (${name}, ${emailLower}, ${passwordHash}, ${role}, ${initialCredits})
                 RETURNING id, email, name, role, credits, created_at
             `;
             return result[0] as User;
@@ -116,15 +118,14 @@ export async function createUser(name: string, email: string, password: string, 
 }
 
 // Verify user login
-export async function verifyUser(email: string, password: string): Promise<User | null> {
+export async function verifyUser(email: string, password: string): Promise<any | null> {
     try {
         const sql = getDb();
-
-        // Get user with password hash
+        const emailLower = email.toLowerCase();
         const result = await sql`
-            SELECT id, email, name, password_hash, role, credits, created_at 
+            SELECT id, email, name, role, credits, password_hash
             FROM users 
-            WHERE email = ${email}
+            WHERE LOWER(email) = ${emailLower}
         `;
 
         if (result.length === 0) {
@@ -286,10 +287,11 @@ export async function deductUserCredits(email: string, amount: number): Promise<
         const sql = getDb();
 
         // Check if user is admin first - admins have unlimited credits
+        const emailLower = email.toLowerCase();
         const userResult = await sql`
             SELECT role, credits
             FROM users
-            WHERE email = ${email}
+            WHERE LOWER(email) = ${emailLower}
         `;
 
         if (userResult.length === 0) {
@@ -307,7 +309,7 @@ export async function deductUserCredits(email: string, amount: number): Promise<
         const result = await sql`
             UPDATE users 
             SET credits = credits - ${amount}
-            WHERE email = ${email} AND credits >= ${amount}
+            WHERE LOWER(email) = ${emailLower} AND credits >= ${amount}
             RETURNING credits
         `;
 
