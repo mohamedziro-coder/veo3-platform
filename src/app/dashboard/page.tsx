@@ -235,50 +235,55 @@ export default function Dashboard() {
                         <span className="text-xs text-gray-500 uppercase tracking-wider">Your Latest Actions</span>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {activities.length > 0 ? (
                             activities.map((act, i) => (
                                 <div
                                     key={i}
                                     onClick={() => setSelectedActivity(act)}
-                                    className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-primary/20 hover:bg-white hover:shadow-md transition-all cursor-pointer group"
+                                    className="group relative aspect-square rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 cursor-pointer hover:shadow-lg transition-all"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        {/* Thumbnail or Icon */}
-                                        {act.resultUrl ? (
-                                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-200 relative">
-                                                {act.tool === 'Video' ? (
-                                                    <video src={act.resultUrl} className="w-full h-full object-cover" muted playsInline />
-                                                ) : (
-                                                    <Image
-                                                        src={act.resultUrl}
-                                                        alt="Thumbnail"
-                                                        fill
-                                                        className="object-cover"
-                                                        sizes="48px"
-                                                    />
-                                                )}
-                                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                                            </div>
+                                    {/* Media Preview */}
+                                    {act.resultUrl ? (
+                                        act.tool === 'Video' ? (
+                                            <video src={act.resultUrl} className="w-full h-full object-cover" muted loop playsInline />
                                         ) : (
-                                            <div className={`w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center ${act.tool === 'Video' ? 'text-purple-500' :
-                                                act.tool === 'Image Generation' ? 'text-yellow-500' : 'text-blue-500'
-                                                }`}>
-                                                <Sparkles className="w-5 h-5" />
-                                            </div>
-                                        )}
+                                            <Image
+                                                src={act.resultUrl}
+                                                alt="Generated Content"
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                sizes="(max-width: 768px) 50vw, 33vw"
+                                            />
+                                        )
+                                    ) : (
+                                        <div className={`w-full h-full flex flex-col items-center justify-center p-4 text-center gap-2 ${act.tool === 'Video' ? 'bg-purple-50 text-purple-500' :
+                                            act.tool === 'Image Generation' ? 'bg-yellow-50 text-yellow-500' : 'bg-blue-50 text-blue-500'
+                                            }`}>
+                                            <Sparkles className="w-8 h-8 opacity-50" />
+                                            <span className="text-xs font-medium opacity-70 line-clamp-2">{act.details}</span>
+                                        </div>
+                                    )}
 
-                                        <div>
-                                            <p className="text-sm font-medium text-gray-900 group-hover:text-primary transition-colors line-clamp-1">{act.details || act.prompt}</p>
-                                            <p className="text-xs text-gray-500">{act.tool} • {new Date(act.timestamp).toLocaleTimeString()}</p>
+                                    {/* Overlay Info */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
+                                        <p className="text-white text-xs font-medium line-clamp-2 mb-1">{act.details}</p>
+                                        <div className="flex items-center justify-between text-white/70 text-[10px]">
+                                            <span>{act.tool}</span>
+                                            <span>{new Date(act.timestamp).toLocaleDateString()}</span>
                                         </div>
                                     </div>
-                                    <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+
+                                    {/* Type Badge */}
+                                    <div className="absolute top-2 right-2 px-2 py-1 rounded-full bg-black/50 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider">
+                                        {act.tool === 'Image Generation' ? 'IMG' : act.tool === 'Video' ? 'VID' : 'AUD'}
+                                    </div>
                                 </div>
                             ))
                         ) : (
-                            <div className="h-32 flex items-center justify-center text-gray-400 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                                No recent generations found. Start creating!
+                            <div className="col-span-full h-40 flex flex-col items-center justify-center text-gray-400 bg-gray-50 rounded-2xl border border-dashed border-gray-200 gap-3">
+                                <Sparkles className="w-8 h-8 opacity-20" />
+                                <p>No creations yet. Start generating!</p>
                             </div>
                         )}
                     </div>

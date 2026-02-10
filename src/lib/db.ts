@@ -196,11 +196,23 @@ export async function logActivity(
             `;
         } catch (e: any) {
             // Fallback if result_url column doesn't exist yet
-            if (e.message?.includes('result_url')) {
-                await sql`
-                    INSERT INTO activity (user_email, user_name, tool, details)
-                    VALUES (${userEmail.toLowerCase()}, ${userName}, ${tool}, ${details})
-                `;
+            if (e.message?.includes('result_url') || e.message?.includes('column "result_url" of relation "activity" does not exist')) {
+                // Auto-migration: Add the column
+                try {
+                    await sql`ALTER TABLE activity ADD COLUMN IF NOT EXISTS result_url TEXT`;
+                    // Retry original insert
+                    await sql`
+                        INSERT INTO activity (user_email, user_name, tool, details, result_url)
+                        VALUES (${userEmail.toLowerCase()}, ${userName}, ${tool}, ${details}, ${resultUrl || null})
+                    `;
+                } catch (retryError) {
+                    console.error('Failed to auto-migrate result_url:', retryError);
+                    // Final Fallback: Insert without result_url
+                    await sql`
+                        INSERT INTO activity (user_email, user_name, tool, details)
+                        VALUES (${userEmail.toLowerCase()}, ${userName}, ${tool}, ${details})
+                    `;
+                }
             } else {
                 throw e;
             }
