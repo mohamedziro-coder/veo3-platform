@@ -310,83 +310,71 @@ export default function AdminPage() {
                         <div className="flex flex-col gap-4">
                             <label className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider flex items-center gap-2">
                                 <Key className="w-4 h-4 text-purple-600" />
-                                Google Gemini API Key
+                                Vertex AI Configuration
                             </label>
 
-                            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                                <input
-                                    type="password"
-                                    placeholder="Enter new API Key (sk-...)"
-                                    className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 md:py-3.5 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm md:text-base min-h-[44px]"
-                                    id="apiKeyInput"
-                                />
-                                <div className="flex gap-2 sm:gap-3">
-                                    <button
-                                        onClick={async () => {
-                                            const input = document.getElementById('apiKeyInput') as HTMLInputElement;
-                                            const key = input.value;
-                                            if (!key) return alert("⚠️ Please enter a key");
+                            <div className="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">Google Cloud Project ID</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. my-genai-project-123"
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm"
+                                        id="projectIdInput"
+                                    />
+                                </div>
 
-                                            try {
-                                                const res = await fetch('/api/settings', {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ apiKey: key })
-                                                });
-                                                if (res.ok) {
-                                                    alert("✅ API Key Saved Successfully! The platform is now using this key.");
-                                                    input.value = "";
-                                                } else {
-                                                    alert("❌ Failed to save key.");
-                                                }
-                                            } catch (e) {
-                                                alert("❌ Error saving key.");
-                                            }
-                                        }}
-                                        className="bg-primary hover:bg-primary/90 text-white font-bold px-4 md:px-6 py-3 md:py-3.5 rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg min-h-[44px] flex items-center justify-center text-sm md:text-base"
-                                    >
-                                        <span className="hidden sm:inline">Save Configuration</span>
-                                        <span className="sm:hidden">Save</span>
-                                    </button>
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">Location (Region)</label>
+                                    <input
+                                        type="text"
+                                        placeholder="us-central1"
+                                        defaultValue="us-central1"
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm"
+                                        id="locationInput"
+                                    />
+                                </div>
 
-                                    <button
-                                        onClick={async () => {
-                                            try {
-                                                const res = await fetch('/api/settings');
-                                                const data = await res.json();
-
-                                                if (data.maskedKey) {
-                                                    // Try to copy the masked key representation
-                                                    navigator.clipboard.writeText(data.maskedKey).then(() => {
-                                                        const btn = document.getElementById('copyBtn');
-                                                        if (btn) {
-                                                            btn.innerHTML = '✓';
-                                                            setTimeout(() => {
-                                                                btn.innerHTML = '📋';
-                                                            }, 2000);
-                                                        }
-                                                    }).catch(() => {
-                                                        alert("⚠️ Unable to copy to clipboard");
-                                                    });
-                                                } else {
-                                                    alert("⚠️ No API key configured yet");
-                                                }
-                                            } catch (e) {
-                                                alert("❌ Error fetching key");
-                                            }
-                                        }}
-                                        id="copyBtn"
-                                        className="bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 font-bold px-4 md:px-5 py-3 md:py-3.5 rounded-xl transition-all active:scale-95 shadow-sm min-h-[44px] flex items-center justify-center text-lg"
-                                        title="Copy masked API key"
-                                    >
-                                        📋
-                                    </button>
+                                <div>
+                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">Service Account JSON (Optional if usage ADC)</label>
+                                    <textarea
+                                        placeholder='Paste contents of service-account.json here...'
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm min-h-[100px] font-mono text-xs"
+                                        id="jsonInput"
+                                    />
                                 </div>
                             </div>
 
+                            <button
+                                onClick={async () => {
+                                    const projectId = (document.getElementById('projectIdInput') as HTMLInputElement).value;
+                                    const location = (document.getElementById('locationInput') as HTMLInputElement).value;
+                                    const serviceAccountJson = (document.getElementById('jsonInput') as HTMLTextAreaElement).value;
+
+                                    if (!projectId) return alert("⚠️ Project ID is required");
+
+                                    try {
+                                        const res = await fetch('/api/settings', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ projectId, location, serviceAccountJson })
+                                        });
+                                        if (res.ok) {
+                                            alert("✅ Vertex AI Config Saved! Platform switched to Vertex AI.");
+                                        } else {
+                                            alert("❌ Failed to save config.");
+                                        }
+                                    } catch (e) {
+                                        alert("❌ Error saving config.");
+                                    }
+                                }}
+                                className="bg-primary hover:bg-primary/90 text-white font-bold px-4 md:px-6 py-3 md:py-3.5 rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg min-h-[44px] flex items-center justify-center text-sm md:text-base mt-2"
+                            >
+                                Save Configuration
+                            </button>
+
                             <p className="text-xs md:text-sm text-gray-500 bg-blue-50 border border-blue-100 rounded-lg p-3">
-                                💡 This key will be used for all AI generation tools (Video, Image, Voice).
-                                It overrides the environment variable.
+                                💡 This configuration enables Veo 3.1, Imagen 3, and Gemini 1.5 Pro via Vertex AI.
                             </p>
                         </div>
                     </div>

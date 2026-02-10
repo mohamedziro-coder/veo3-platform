@@ -1,29 +1,19 @@
 import { NextResponse } from "next/server";
-import { getGeminiApiKey } from "@/lib/config";
+import { getVertexConfig } from "@/lib/config";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getGeminiModel } from "@/lib/vertex"; // Use Vertex for enhancement
+import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 
 export async function POST(req: Request) {
     try {
-        const apiKey = getGeminiApiKey();
-
-        if (!apiKey) {
-            return NextResponse.json({ error: "Server Error: API Key missing. Configure in Admin Panel." }, { status: 500 });
-        }
-
         const body = await req.json();
         const { text, voiceId, languageCode, speakingRate, pitch, userEmail, useGemini } = body;
-
-        if (!text) {
-            return NextResponse.json({ error: "Text is required" }, { status: 400 });
-        }
 
         if (!userEmail) {
             return NextResponse.json({ error: "User authentication required" }, { status: 401 });
         }
 
-        // Deduct Verify Credits
         const newBalance = await deductUserCredits(userEmail, COSTS.VOICE);
         if (newBalance === null) {
             return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
@@ -31,84 +21,76 @@ export async function POST(req: Request) {
 
         let processedText = text;
 
-        // Optional: Enhance text with Gemini 2.5 Flash
+        // 1. Text Enhancement with Vertex AI (Gemini)
         if (useGemini) {
             try {
-                const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-                const languageMap: Record<string, string> = {
-                    "ar-MA": "Moroccan Arabic (Darija)",
-                    "de-DE": "German",
-                    "en-US": "English (US)",
-                    "en-GB": "English (UK)",
-                    "fr-FR": "French",
-                    "es-ES": "Spanish"
-                };
-
-                const targetLang = languageMap[languageCode] || "the target language";
-
-                const prompt = `Improve the following text for natural ${targetLang} text-to-speech pronunciation. 
-                
-Rules:
-1. Fix grammar and punctuation for better TTS flow
-2. Preserve the original meaning and tone
-3. For Moroccan Arabic (Darija), keep the dialect authentic - do NOT convert to Modern Standard Arabic
-4. Return ONLY the improved text, no explanations
-
-Text: ${text}`;
+                const model = getGeminiModel("gemini-1.5-flash-001");
+                const prompt = `Improve for TTS (Natural flow, ${languageCode}): ${text}`;
 
                 const result = await model.generateContent(prompt);
-                processedText = result.response.text().trim();
-                console.log("Gemini Enhanced Text:", processedText);
-            } catch (geminiError) {
-                console.error("Gemini enhancement failed, using original text:", geminiError);
-                // Continue with original text if Gemini fails
+                const response = result.response;
+
+                if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    processedText = response.candidates[0].content.parts[0].text.trim();
+                }
+            } catch (e) {
+                console.error("Gemini Enhancement Failed:", e);
+                // Fallback to original text
             }
         }
 
-        // Endpoint for Google Cloud Text-to-Speech
-        const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
+        // 2. TTS Generation with Google Cloud (Authenticated via Vertex Credentials)
+        const config = getVertexConfig();
 
-        // Map ar-MA to ar-XA for Google TTS (since Google uses ar-XA for Arabic)
+        // Prepare Auth Options
+        const clientOptions: any = {
+            projectId: config.GOOGLE_PROJECT_ID,
+        };
+
+        // If JSON credentials provided directly in Admin Panel config
+        if (config.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+            try {
+                const credentials = JSON.parse(config.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+                clientOptions.credentials = credentials;
+            } catch (e) {
+                console.error("Invalid Service Account JSON in config");
+            }
+        }
+
+        // Initialize Client
+        const ttsClient = new TextToSpeechClient(clientOptions);
+
         const ttsLanguageCode = languageCode === 'ar-MA' ? 'ar-XA' : languageCode;
 
-        const payload = {
+        const request = {
             input: { text: processedText },
             voice: { languageCode: ttsLanguageCode || "ar-XA", name: voiceId || "ar-XA-Wavenet-B" },
             audioConfig: {
-                audioEncoding: "MP3",
+                audioEncoding: "MP3" as const, // Cast to expected enum string
                 speakingRate: speakingRate || 1.0,
                 pitch: pitch || 0.0
             }
         };
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
+        const [response] = await ttsClient.synthesizeSpeech(request);
+        const audioContent = response.audioContent;
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error("TTS API Error:", data);
-            return NextResponse.json({
-                error: data.error?.message || "TTS Service Error. Ensure 'Cloud Text-to-Speech API' is enabled for this API Key."
-            }, { status: 400 });
+        if (!audioContent) {
+            throw new Error("No audio content returned");
         }
+
+        // Convert Buffer to Base64
+        const audioBase64 = Buffer.from(audioContent).toString("base64");
 
         return NextResponse.json({
             success: true,
-            audioContent: data.audioContent,
+            audioContent: audioBase64,
             credits: newBalance,
             enhancedText: useGemini ? processedText : undefined
         });
 
-    } catch (error) {
-        console.error("Server Error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    } catch (error: any) {
+        console.error("TTS Error:", error);
+        return NextResponse.json({ error: error.message || "TTS Failed" }, { status: 500 });
     }
 }

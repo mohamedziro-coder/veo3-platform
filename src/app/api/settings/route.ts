@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGeminiApiKey, saveGeminiApiKey } from "@/lib/config";
+import { getVertexConfig, saveVertexConfig } from "@/lib/config";
 
 // GET /api/settings - Retrieve current configuration status
 export async function GET(req: NextRequest) {
     try {
-        const apiKey = getGeminiApiKey();
+        const config = getVertexConfig();
 
-        // Security: NEVER return the full API Key to the client
-        // just return a status or a masked version
-        const maskedKey = apiKey
-            ? `${apiKey.substring(0, 4)}...${apiKey.substring(apiKey.length - 4)}`
+        // Security: Mask sensitive data
+        const maskedJson = config.GOOGLE_APPLICATION_CREDENTIALS_JSON
+            ? "configured (hidden)"
             : null;
 
         return NextResponse.json({
-            configured: !!apiKey,
-            maskedKey: maskedKey
+            configured: !!config.GOOGLE_PROJECT_ID,
+            projectId: config.GOOGLE_PROJECT_ID || "",
+            location: config.GOOGLE_LOCATION || "us-central1",
+            hasCredentials: !!config.GOOGLE_APPLICATION_CREDENTIALS_JSON
         });
 
     } catch (error) {
@@ -26,21 +27,31 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { apiKey } = body;
+        const { projectId, location, serviceAccountJson } = body;
 
-        if (!apiKey) {
-            return NextResponse.json({ error: "API Key is required" }, { status: 400 });
+        if (!projectId) {
+            return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
         }
 
-        const success = saveGeminiApiKey(apiKey);
+        const newConfig: any = {
+            GOOGLE_PROJECT_ID: projectId,
+            GOOGLE_LOCATION: location || "us-central1"
+        };
+
+        if (serviceAccountJson) {
+            newConfig.GOOGLE_APPLICATION_CREDENTIALS_JSON = serviceAccountJson;
+        }
+
+        const success = saveVertexConfig(newConfig);
 
         if (success) {
-            return NextResponse.json({ success: true, message: "API Key saved successfully" });
+            return NextResponse.json({ success: true, message: "Vertex AI Configuration saved successfully" });
         } else {
-            return NextResponse.json({ error: "Failed to save API Key to config file" }, { status: 500 });
+            return NextResponse.json({ error: "Failed to save configuration" }, { status: 500 });
         }
 
     } catch (error) {
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
