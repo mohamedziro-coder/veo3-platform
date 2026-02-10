@@ -58,7 +58,44 @@ export default function NanbananaPage() {
         }
 
         setIsGenerating(true);
-        // ... (rest of function) ...
+        setError(null);
+        setImageUrl(null);
+
+        try {
+            const response = await fetch("/api/generate-image", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt })
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.raw?.url) {
+                setImageUrl(data.raw.url);
+
+                // Deduct credits
+                deductCredits(COSTS.IMAGE);
+
+                // Log activity
+                const user = JSON.parse(localStorage.getItem('current_user') || '{}');
+                const activities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
+                activities.unshift({
+                    email: user.email,
+                    name: user.name,
+                    tool: "Image",
+                    timestamp: new Date().toISOString(),
+                    details: `Generated image: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`
+                });
+                localStorage.setItem('mock_activity', JSON.stringify(activities.slice(0, 50)));
+            } else {
+                setError(data.error || "Image generation failed. Please try again.");
+            }
+        } catch (err) {
+            console.error("Image generation error:", err);
+            setError("Network error. Please check your connection.");
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     if (isLoading) {
@@ -111,10 +148,10 @@ export default function NanbananaPage() {
 
                 <button
                     onClick={handleGenerate}
-                    disabled={!prompt || isLoading}
+                    disabled={!prompt || isGenerating}
                     className="w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 font-bold text-white text-xl shadow-xl shadow-orange-900/20 hover:shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3"
                 >
-                    {isLoading ? (
+                    {isGenerating ? (
                         "Keyrsem..."
                     ) : (
                         <>
