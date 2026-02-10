@@ -140,22 +140,49 @@ export default function SignupPage() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="text-center space-y-6"
                             >
-                                <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6 border border-green-500/30">
-                                    <Mail className="w-10 h-10 text-green-400" />
+                                <div className="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-6 border border-blue-500/30">
+                                    <Mail className="w-10 h-10 text-blue-400" />
                                 </div>
-                                <h2 className="text-3xl font-bold text-white">Check Your Email</h2>
+                                <h2 className="text-3xl font-bold text-white">Enter Verification Code</h2>
                                 <p className="text-gray-400 text-lg leading-relaxed">
-                                    We've sent a verification link to <span className="text-white font-medium">{email}</span>. Please click the link to activate your account.
+                                    We've sent a 6-digit code to <span className="text-white font-medium">{email}</span>.
                                 </p>
-                                <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-sm text-gray-500">
-                                    Can't find it? Check your spam folder.
+
+                                <div className="space-y-4">
+                                    <input
+                                        type="text"
+                                        placeholder="123456"
+                                        className="w-full text-center text-3xl tracking-[1em] font-bold py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-700 focus:outline-none focus:border-blue-500 transition-all uppercase"
+                                        maxLength={6}
+                                        onChange={async (e) => {
+                                            const code = e.target.value;
+                                            if (code.length === 6) {
+                                                setIsLoading(true);
+                                                try {
+                                                    const res = await fetch('/api/auth/verify', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ email, code })
+                                                    });
+                                                    const data = await res.json();
+                                                    if (data.success) {
+                                                        localStorage.setItem('current_user', JSON.stringify(data.user));
+                                                        window.dispatchEvent(new Event('storage'));
+                                                        router.push('/dashboard');
+                                                    } else {
+                                                        setError(data.error || "Invalid code");
+                                                        setIsLoading(false);
+                                                    }
+                                                } catch (err) {
+                                                    setError("Verification failed");
+                                                    setIsLoading(false);
+                                                }
+                                            }
+                                        }}
+                                    />
+                                    {error && <p className="text-red-400 text-sm">{error}</p>}
+                                    {isLoading && <p className="text-gray-500 text-sm animate-pulse">Verifying...</p>}
                                 </div>
-                                <Link
-                                    href="/login"
-                                    className="block w-full py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all text-center"
-                                >
-                                    Go to Login
-                                </Link>
                             </motion.div>
                         ) : (
                             <form onSubmit={handleVerifyAndSignup} className="space-y-5">

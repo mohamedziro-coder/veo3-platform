@@ -28,13 +28,13 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Generate Verification Token
-        const token = crypto.randomBytes(32).toString('hex');
+        // Generate 6-Digit Verification Code (OTP)
+        const token = Math.floor(100000 + Math.random() * 900000).toString();
         await updateVerificationToken(email, token);
 
         // Send Verification Email
         // Initialize Resend dynamically
-        // Fallback to provided key if env var is missing (User requested fix)
+        // Fallback to provided key if env var is missing
         const apiKey = process.env.RESEND_API_KEY || 're_2VeZePpi_QqupWcvwheBs8P3Se53re7Be';
         const resend = new Resend(apiKey);
 
@@ -43,14 +43,19 @@ export async function POST(req: NextRequest) {
         }
 
         await resend.emails.send({
-            from: 'Veo 3 <onboarding@resend.dev>', // Use default Resend testing domain or configured domain
+            from: 'Veo 3 <onboarding@resend.dev>', // Verified domain
             to: email,
-            subject: 'Verify your Veo 3 Account',
+            subject: 'Your Verification Code - Veo 3',
             html: `
-                <h1>Welcome to Veo 3, ${name}!</h1>
-                <p>Click the link below to verify your email address and activate your 50 credits:</p>
-                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/verify?token=${token}">Verify Email</a>
-                <p>If you didn't create an account, you can ignore this email.</p>
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h1>Welcome to Veo 3, ${name}!</h1>
+                    <p>Use the following code to verify your account:</p>
+                    <div style="background: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+                        <span style="font-size: 32px; letter-spacing: 5px; font-weight: bold; color: #333;">${token}</span>
+                    </div>
+                    <p>Enter this code on the signup page to activate your 50 credits.</p>
+                    <p style="color: #666; font-size: 12px; margin-top: 30px;">If you didn't create an account, please ignore this email.</p>
+                </div>
             `
         });
 
