@@ -36,6 +36,25 @@ export async function uploadBase64ToGCS(
         console.log(`[GCS] Using bucket: "${bucketName}"`);
 
         const bucket = storage.bucket(bucketName);
+
+        // Check if bucket exists, try to create if not
+        try {
+            const [exists] = await bucket.exists();
+            if (!exists) {
+                console.log(`[GCS] Bucket ${bucketName} does not exist. Attempting to create...`);
+                try {
+                    await bucket.create({ location: config.GOOGLE_LOCATION || 'us-central1' });
+                    console.log(`[GCS] Bucket ${bucketName} created successfully.`);
+                } catch (createError: any) {
+                    console.error('[GCS] Failed to create bucket:', createError);
+                    throw new Error(`Bucket "${bucketName}" does not exist and could not be created. Please create it manually in Google Cloud Console.`);
+                }
+            }
+        } catch (error: any) {
+            console.error('[GCS] Error checking bucket existence:', error);
+            // specific handling if we want, or just proceed and let the upload fail if it really doesn't exist
+        }
+
         const timestamp = Date.now();
         const randomId = Math.random().toString(36).substring(7);
         const filePath = `veo-inputs/${timestamp}-${randomId}-${filename}`;
