@@ -133,45 +133,57 @@ export async function pollOperationStatus(operationName: string): Promise<{
             location = match[1];
         }
 
-        // Initial attempt with v1beta1 and normalized path
-        let pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/${operationName}`;
+        // STRATEGY: Try multiple path permutations to find the operation
+        // The API is inconsistent: it may return 'gen-lang-client' project or 'publishers/models' paths
+        // We will try:
+        // 1. Exact name returned by API
+        // 2. Name with 'gen-lang-client...' replaced by YOUR project ID
+        // 3. Name with '/publishers/...' stripped (normalized) AND project replaced
 
-        // Check if we need to normalize (remove publisher model info) 
-        // OR if we should try listing operations to find the real path
-
-        try {
-            return await executePoll(pollingUrl, accessToken.token);
-        } catch (initialError: any) {
-            console.warn(`[VEO-LRO] Direct poll failed: ${initialError.message}. Attempting to find operation in list...`);
-
-            // Fallback: List operations to find the correct path
-            const listUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${config.GOOGLE_PROJECT_ID}/locations/${location}/operations`;
-            console.log(`[VEO-LRO] Listing operations: ${listUrl}`);
-
-            const listRes = await fetch(listUrl, {
-                headers: { 'Authorization': `Bearer ${accessToken.token}` }
-            });
-
-            if (!listRes.ok) {
-                throw new Error(`Failed to list operations: ${listRes.status} ${await listRes.text()}`);
-            }
-
-            const listData = await listRes.json();
-            const operations = listData.operations || [];
-
-            // Find operation by UUID matching
-            const opUuid = operationName.split('/').pop();
-            const foundOp = operations.find((op: any) => op.name.includes(opUuid));
-
-            if (foundOp) {
-                console.log(`[VEO-LRO] Found correct operation path: ${foundOp.name}`);
-                // Use the name from the list response which is guaranteed to be correct
-                pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/${foundOp.name}`;
-                return await executePoll(pollingUrl, accessToken.token);
-            }
-
-            throw new Error(`Operation ${opUuid} not found in ${location} list.`);
+        let projectId = config.GOOGLE_PROJECT_ID;
+        if (!projectId) {
+            console.warn('[VEO-LRO] No project ID configured! Polling might fail.');
+            projectId = 'veo-demo'; // Fallback
         }
+
+        const exactName = operationName;
+
+        // Construct Candidate 2: Force User Project ID
+        let nameWithUserProject = operationName;
+        if (operationName.includes('projects/gen-lang-client')) {
+            nameWithUserProject = operationName.replace(/projects\/[^\/]+/, `projects/${projectId}`);
+        }
+
+        // Construct Candidate 3: Normalized + User Project
+        let normalizedName = nameWithUserProject;
+        if (normalizedName.includes('/publishers/google/models/')) {
+            normalizedName = normalizedName.replace(/\/publishers\/google\/models\/[^\/]+/, '');
+        }
+
+        const candidates = [
+            `https://${location}-aiplatform.googleapis.com/v1beta1/${exactName}`,
+            `https://${location}-aiplatform.googleapis.com/v1beta1/${nameWithUserProject}`,
+            `https://${location}-aiplatform.googleapis.com/v1beta1/${normalizedName}`
+        ];
+
+        // Unique URLs only
+        const uniqueUrls = [...new Set(candidates)];
+
+        let lastError = null;
+
+        for (const url of uniqueUrls) {
+            try {
+                return await executePoll(url, accessToken.token);
+            } catch (error: any) {
+                console.warn(`[VEO-LRO] Failed poll on ${url}: ${error.message}`);
+                lastError = error;
+                // If 403 or 404, continue to next candidate. 
+                // If it's a different error (e.g. 500), maybe stop? For now keep trying.
+            }
+        }
+
+        // If all failed, throw the last error
+        throw lastError || new Error('All polling attempts failed.');
 
     } catch (error: any) {
         console.error('[VEO-LRO] Failed to poll operation:', error);
@@ -180,7 +192,7 @@ export async function pollOperationStatus(operationName: string): Promise<{
 }
 
 async function executePoll(url: string, token: string) {
-    console.log(`[VEO-LRO] Polling: ${url}`);
+    console.log(`[VEO-LRO] Polling Attempt: ${url}`);
     const response = await fetch(url, {
         headers: {
             'Authorization': `Bearer ${token}`
