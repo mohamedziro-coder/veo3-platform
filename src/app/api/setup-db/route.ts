@@ -29,12 +29,22 @@ export async function GET() {
             END $$;
         `;
 
-        // 3. Add signup_ip if missing (good practice since we saw errors about it)
+        // 3. Add signup_ip if missing
         await sql`
             DO $$ 
             BEGIN 
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='signup_ip') THEN 
                     ALTER TABLE users ADD COLUMN signup_ip TEXT; 
+                END IF; 
+            END $$;
+        `;
+
+        // 4. Add result_url to activity table if missing
+        await sql`
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='activity' AND column_name='result_url') THEN 
+                    ALTER TABLE activity ADD COLUMN result_url TEXT; 
                 END IF; 
             END $$;
         `;

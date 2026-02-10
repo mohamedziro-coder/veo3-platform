@@ -192,14 +192,14 @@ export async function logActivity(
         try {
             await sql`
                 INSERT INTO activity (user_email, user_name, tool, details, result_url)
-                VALUES (${userEmail}, ${userName}, ${tool}, ${details}, ${resultUrl || null})
+                VALUES (${userEmail.toLowerCase()}, ${userName}, ${tool}, ${details}, ${resultUrl || null})
             `;
         } catch (e: any) {
             // Fallback if result_url column doesn't exist yet
             if (e.message?.includes('result_url')) {
                 await sql`
                     INSERT INTO activity (user_email, user_name, tool, details)
-                    VALUES (${userEmail}, ${userName}, ${tool}, ${details})
+                    VALUES (${userEmail.toLowerCase()}, ${userName}, ${tool}, ${details})
                 `;
             } else {
                 throw e;
@@ -236,7 +236,7 @@ export async function getUserActivity(email: string): Promise<Activity[]> {
         const result = await sql`
             SELECT id, user_email, user_name, tool, details, result_url, timestamp 
             FROM activity 
-            WHERE user_email = ${email}
+            WHERE LOWER(user_email) = ${email.toLowerCase()}
             ORDER BY timestamp DESC
             LIMIT 50
         `;
