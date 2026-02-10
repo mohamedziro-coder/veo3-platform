@@ -7,13 +7,16 @@ import { Mic, Play, Square, Download, Wand2, Volume2, AlertCircle } from "lucide
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 
 // Voice options - defined outside component to avoid recreation
+// Voice options - defined outside component to avoid recreation
 const VOICE_OPTIONS = [
-    { id: "ar-XA-Standard-A", name: "Arabic (Female)", lang: "ar-XA" },
-    { id: "ar-XA-Standard-B", name: "Arabic (Male)", lang: "ar-XA" },
-    { id: "en-US-Journey-F", name: "English (Premium Female)", lang: "en-US" },
-    { id: "en-US-Journey-D", name: "English (Premium Male)", lang: "en-US" },
-    { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR" },
-    { id: "fr-FR-Neural2-B", name: "French (Male)", lang: "fr-FR" },
+    { id: "ar-XA-Wavenet-B", name: "Moroccan Darija (Male)", lang: "ar-XA", type: "Wavenet" },
+    { id: "ar-XA-Wavenet-A", name: "Moroccan Darija (Female)", lang: "ar-XA", type: "Wavenet" },
+    { id: "ar-XA-Standard-A", name: "Arabic (Female)", lang: "ar-XA", type: "Standard" },
+    { id: "ar-XA-Standard-B", name: "Arabic (Male)", lang: "ar-XA", type: "Standard" },
+    { id: "en-US-Journey-F", name: "English (Premium Female)", lang: "en-US", type: "Journey" },
+    { id: "en-US-Journey-D", name: "English (Premium Male)", lang: "en-US", type: "Journey" },
+    { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR", type: "Neural" },
+    { id: "fr-FR-Neural2-B", name: "French (Male)", lang: "fr-FR", type: "Neural" },
 ];
 
 export default function VoicePage() {
@@ -26,7 +29,9 @@ export default function VoicePage() {
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Standard-A");
+    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Wavenet-B");
+    const [speakingRate, setSpeakingRate] = useState(1.0);
+    const [pitch, setPitch] = useState(0.0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const currentCredits = getUserCredits();
@@ -88,7 +93,9 @@ export default function VoicePage() {
                 body: JSON.stringify({
                     text,
                     voiceId: selectedVoice,
-                    languageCode: VOICE_OPTIONS.find(v => v.id === selectedVoice)?.lang || "ar-XA"
+                    languageCode: VOICE_OPTIONS.find(v => v.id === selectedVoice)?.lang || "ar-XA",
+                    speakingRate,
+                    pitch
                 }),
                 headers: { "Content-Type": "application/json" }
             });
@@ -165,7 +172,7 @@ export default function VoicePage() {
                     </h1>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
                         Hawel text l'sout htirafi (Professional TTS). <br />
-                        <span className="text-gray-400 text-sm">Powered by Google Cloud TTS.</span>
+                        <span className="text-gray-400 text-sm">Create authentic Darija voiceovers for your ads and content.</span>
                     </p>
                 </motion.div>
 
@@ -201,30 +208,114 @@ export default function VoicePage() {
                     <div className="bg-white rounded-[1.8rem] overflow-hidden p-6 md:p-8 space-y-6">
 
                         {/* Voice Selector */}
-                        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                            {VOICE_OPTIONS.map((voice) => (
-                                <button
-                                    key={voice.id}
-                                    onClick={() => setSelectedVoice(voice.id)}
-                                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all ${selectedVoice === voice.id
-                                        ? "bg-primary text-white shadow-md"
-                                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
-                                        }`}
-                                >
-                                    {voice.name}
-                                </button>
-                            ))}
+                        <div className="space-y-3">
+                            <label className="text-sm font-semibold text-gray-700 ml-1">Choose Voice Account</label>
+                            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                                {VOICE_OPTIONS.map((voice) => (
+                                    <button
+                                        key={voice.id}
+                                        onClick={() => setSelectedVoice(voice.id)}
+                                        className={`flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all flex flex-col items-start gap-1 min-w-[140px] border ${selectedVoice === voice.id
+                                            ? "bg-primary text-white border-primary shadow-md"
+                                            : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                                            }`}
+                                    >
+                                        <span>{voice.name}</span>
+                                        <span className={`text-[10px] uppercase tracking-wider ${selectedVoice === voice.id ? 'text-blue-100' : 'text-gray-400'}`}>
+                                            {voice.type}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Voice Controls (Speed & Style) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                            {/* Sliders */}
+                            <div className="space-y-6">
+                                {/* Speed */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center text-sm">
+                                        <label className="font-semibold text-gray-700">Speed (Zrba)</label>
+                                        <span className="text-gray-500 font-mono">{speakingRate.toFixed(1)}x</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0.5"
+                                        max="2.0"
+                                        step="0.1"
+                                        value={speakingRate}
+                                        onChange={(e) => setSpeakingRate(parseFloat(e.target.value))}
+                                        className="w-full accent-primary h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <div className="flex justify-between text-[10px] text-gray-400 font-medium uppercase">
+                                        <span>Slow</span>
+                                        <span>Normal</span>
+                                        <span>Fast</span>
+                                    </div>
+                                </div>
+
+                                {/* Pitch */}
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-center text-sm">
+                                        <label className="font-semibold text-gray-700">Tone (Naghma)</label>
+                                        <span className="text-gray-500 font-mono">{pitch}</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="-5"
+                                        max="5"
+                                        step="1"
+                                        value={pitch}
+                                        onChange={(e) => setPitch(parseFloat(e.target.value))}
+                                        className="w-full accent-primary h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <div className="flex justify-between text-[10px] text-gray-400 font-medium uppercase">
+                                        <span>Deep</span>
+                                        <span>Normal</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Style Presets */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-semibold text-gray-700 block">Quick Styles</label>
+                                <div className="grid grid-cols-1 gap-2">
+                                    <button
+                                        onClick={() => { setSpeakingRate(1.0); setPitch(0.0); }}
+                                        className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-primary/50 hover:bg-blue-50/50 transition-all group"
+                                    >
+                                        <span className="text-sm font-medium text-gray-700 group-hover:text-primary">Neutral (Tabi3i)</span>
+                                        <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-primary" />
+                                    </button>
+                                    <button
+                                        onClick={() => { setSpeakingRate(1.2); setPitch(2.0); }}
+                                        className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-green-400/50 hover:bg-green-50/50 transition-all group"
+                                    >
+                                        <span className="text-sm font-medium text-gray-700 group-hover:text-green-600">Energetic (Nachat)</span>
+                                        <span className="text-xs text-green-500 font-bold">⚡</span>
+                                    </button>
+                                    <button
+                                        onClick={() => { setSpeakingRate(0.9); setPitch(-2.0); }}
+                                        className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-purple-400/50 hover:bg-purple-50/50 transition-all group"
+                                    >
+                                        <span className="text-sm font-medium text-gray-700 group-hover:text-purple-600">Serious (Ma39ol)</span>
+                                        <span className="text-xs text-purple-500 font-bold">💼</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Text Input */}
-                        <div className="relative group/input">
-                            <textarea
-                                placeholder="Kteb l'script hna... (Arabic, French, or English)"
-                                value={text}
-                                onChange={(e) => setText(e.target.value)}
-                                className="w-full h-40 bg-gray-50 rounded-xl p-4 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-xl resize-none leading-relaxed shadow-inner"
-                            />
-                        </div>
+                        <label className="text-sm font-semibold text-gray-700 ml-1 mb-2 block">Script</label>
+                        <textarea
+                            placeholder="Kteb l'script dyalk hna b'Darija... (Matalan: 'Salam, kif dayrin? Hada test dyal Veo 3.')"
+                            value={text}
+                            onChange={(e) => setText(e.target.value)}
+                            className="w-full h-40 bg-gray-50 rounded-xl p-4 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-xl resize-none leading-relaxed shadow-inner"
+                        />
+
 
                         {/* Controls */}
                         <div className="flex justify-between items-center border-t border-gray-100 pt-6">

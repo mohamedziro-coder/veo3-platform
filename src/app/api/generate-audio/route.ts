@@ -10,7 +10,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { text, voiceId, languageCode } = body;
+        const { text, voiceId, languageCode, speakingRate, pitch } = body;
 
         if (!text) {
             return NextResponse.json({ error: "Text is required" }, { status: 400 });
@@ -23,7 +23,11 @@ export async function POST(req: Request) {
         const payload = {
             input: { text },
             voice: { languageCode: languageCode || "ar-XA", name: voiceId || "ar-XA-Standard-A" },
-            audioConfig: { audioEncoding: "MP3" }
+            audioConfig: {
+                audioEncoding: "MP3",
+                speakingRate: speakingRate || 1.0,
+                pitch: pitch || 0.0
+            }
         };
 
         const response = await fetch(url, {
