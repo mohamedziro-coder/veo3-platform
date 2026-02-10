@@ -73,8 +73,8 @@ export default function NanbananaPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    prompt,
-                    userEmail: user.email // Pass user email for auth and credit deduction
+                    prompt: prompt,
+                    userEmail: user.email // Send email for credit deduction
                 })
             });
 

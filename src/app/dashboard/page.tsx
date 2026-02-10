@@ -38,8 +38,14 @@ export default function Dashboard() {
             window.URL.revokeObjectURL(blobUrl);
         } catch (error) {
             console.error('Download failed:', error);
-            // Fallback: open in new tab
-            window.open(url, '_blank');
+            // Fallback: create direct link click (better than window.open for downloads)
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     };
 
