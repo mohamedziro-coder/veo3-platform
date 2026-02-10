@@ -168,19 +168,22 @@ export default function VideoPage() {
                     deductCredits(COSTS.VIDEO);
                 }
 
-                // Log Activity
+                // Log Activity to Database
                 const user = JSON.parse(localStorage.getItem('current_user') || '{}');
-                const activities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
-                activities.unshift({
-                    email: user.email,
-                    name: user.name,
-                    tool: "Video",
-                    timestamp: new Date().toISOString(),
-                    details: `Generated product video: "${prompt.substring(0, 30)}${prompt.length > 30 ? '...' : ''}"`,
-                    resultUrl: data.videoUrl, // Save the video URL
-                    prompt: prompt // Save the full prompt
-                });
-                localStorage.setItem('mock_activity', JSON.stringify(activities.slice(0, 50)));
+                try {
+                    await fetch('/api/activity', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userEmail: user.email,
+                            userName: user.name,
+                            tool: 'Video',
+                            details: `Generated video: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`
+                        })
+                    });
+                } catch (activityError) {
+                    console.error('Failed to log activity:', activityError);
+                }
             } else {
                 setError(data.error || "Failed to generate video. Please checks credits/API.");
             }

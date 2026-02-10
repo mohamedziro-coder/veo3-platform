@@ -150,17 +150,23 @@ export default function VoicePage() {
                     deductCredits(COSTS.VOICE);
                 }
 
-                // Log Activity
+                // Log Activity to Database
                 const user = JSON.parse(localStorage.getItem('current_user') || '{}');
-                const activities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
-                activities.unshift({
-                    email: user.email,
-                    name: user.name,
-                    tool: "Voice",
-                    timestamp: new Date().toISOString(),
-                    details: `Generated voice over (${selectedVoice}): "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`
-                });
-                localStorage.setItem('mock_activity', JSON.stringify(activities.slice(0, 50)));
+                try {
+                    await fetch('/api/activity', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userEmail: user.email,
+                            userName: user.name,
+                            tool: 'Voice',
+                            details: `Generated voice: "${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`
+                        })
+                    });
+                } catch (activityError) {
+                    console.error('Failed to log activity:', activityError);
+                    // Don't fail the whole operation if activity logging fails
+                }
             } else {
                 setError(data.error || "Failed to generate audio. Ensure Text-to-Speech API is enabled.");
             }

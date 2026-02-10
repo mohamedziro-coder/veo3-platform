@@ -21,7 +21,7 @@ export default function Dashboard() {
     const [selectedActivity, setSelectedActivity] = useState<any>(null);
 
     useEffect(() => {
-        const loadUserData = () => {
+        const loadUserData = async () => {
             const userStr = localStorage.getItem('current_user');
             if (!userStr) {
                 router.push('/login');
@@ -33,36 +33,23 @@ export default function Dashboard() {
                 setUserName(user.name || "Creator");
                 setIsAdmin(user.role === 'admin');
 
-                // Fetch User Activity
-                let allActivities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
+                // Fetch User Activity from Database
+                const activityResponse = await fetch(`/api/activity?email=${encodeURIComponent(user.email)}`);
+                const activityData = await activityResponse.json();
 
-                // Seed Demo Activity if empty
-                if (allActivities.length === 0) {
-                    // ... (keep existing seed logic if any, or just empty) ...
-                    // Shortened for brevity in this replace block, assuming original logic is preserved if not matched
-                    // Actually, better to just keep the original logic inside this function
+                if (activityData.success && activityData.activities) {
+                    const userActivities = activityData.activities;
+                    setActivities(userActivities.slice(0, 5));
+                    setGenerationCount(userActivities.length);
+                } else {
+                    // Fallback to empty if API fails
+                    setActivities([]);
+                    setGenerationCount(0);
                 }
-
-                // Re-implement the seed logic efficiently or just read what's there
-                if (allActivities.length === 0 && user.email) {
-                    const demoActivity = {
-                        email: user.email,
-                        name: user.name,
-                        tool: 'Image Generation',
-                        timestamp: new Date().toISOString(),
-                        details: 'Cyberpunk Moroccan Market (Demo)',
-                        prompt: 'A futuristic cyberpunk market in Marrakech, neon lights, flying carpets, 8k resolution',
-                        resultUrl: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?q=80&w=1000&auto=format&fit=crop'
-                    };
-                    allActivities = [demoActivity];
-                    localStorage.setItem('mock_activity', JSON.stringify(allActivities));
-                }
-
-                const userActivities = allActivities.filter((a: any) => a.email === user.email);
-                setActivities(userActivities.slice(0, 5));
-                setGenerationCount(userActivities.length);
             } catch (e) {
-                console.error("Error parsing user data", e);
+                console.error("Error loading user data", e);
+                setActivities([]);
+                setGenerationCount(0);
             }
             setIsLoading(false);
         };
@@ -73,10 +60,12 @@ export default function Dashboard() {
         window.addEventListener('storage', loadUserData);
         // Custom event if we want to force update
         window.addEventListener('user-updated', loadUserData);
+        window.addEventListener('activity-updated', loadUserData);
 
         return () => {
             window.removeEventListener('storage', loadUserData);
             window.removeEventListener('user-updated', loadUserData);
+            window.removeEventListener('activity-updated', loadUserData);
         };
     }, [router]);
 

@@ -76,17 +76,22 @@ export default function NanbananaPage() {
                 // Deduct credits
                 deductCredits(COSTS.IMAGE);
 
-                // Log activity
+                // Log Activity to Database
                 const user = JSON.parse(localStorage.getItem('current_user') || '{}');
-                const activities = JSON.parse(localStorage.getItem('mock_activity') || '[]');
-                activities.unshift({
-                    email: user.email,
-                    name: user.name,
-                    tool: "Image",
-                    timestamp: new Date().toISOString(),
-                    details: `Generated image: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`
-                });
-                localStorage.setItem('mock_activity', JSON.stringify(activities.slice(0, 50)));
+                try {
+                    await fetch('/api/activity', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userEmail: user.email,
+                            userName: user.name,
+                            tool: 'Image',
+                            details: `Generated image: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`
+                        })
+                    });
+                } catch (activityError) {
+                    console.error('Failed to log activity:', activityError);
+                }
             } else {
                 setError(data.error || "Image generation failed. Please try again.");
             }
