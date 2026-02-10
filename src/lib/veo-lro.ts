@@ -133,33 +133,69 @@ export async function pollOperationStatus(operationName: string): Promise<{
             location = match[1];
         }
 
-        const url = `https://${location}-aiplatform.googleapis.com/v1beta1/${cleanOperationName}`;
+        // Initial attempt with v1beta1 and normalized path
+        let pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/${operationName}`;
 
-        console.log(`[VEO-LRO] Polling URL: ${url}`);
+        // Check if we need to normalize (remove publisher model info) 
+        // OR if we should try listing operations to find the real path
 
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken.token}`
+        try {
+            return await executePoll(pollingUrl, accessToken.token);
+        } catch (initialError: any) {
+            console.warn(`[VEO-LRO] Direct poll failed: ${initialError.message}. Attempting to find operation in list...`);
+
+            // Fallback: List operations to find the correct path
+            const listUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${config.GOOGLE_PROJECT_ID}/locations/${location}/operations`;
+            console.log(`[VEO-LRO] Listing operations: ${listUrl}`);
+
+            const listRes = await fetch(listUrl, {
+                headers: { 'Authorization': `Bearer ${accessToken.token}` }
+            });
+
+            if (!listRes.ok) {
+                throw new Error(`Failed to list operations: ${listRes.status} ${await listRes.text()}`);
             }
-        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            // If 404, it might mean the operation is not found in this region or API version issue
-            console.error(`[VEO-LRO] Poll Error (${response.status}) for ${url}:`, errorText);
-            throw new Error(`Failed to poll operation: ${response.status} - ${errorText}`);
+            const listData = await listRes.json();
+            const operations = listData.operations || [];
+
+            // Find operation by UUID matching
+            const opUuid = operationName.split('/').pop();
+            const foundOp = operations.find((op: any) => op.name.includes(opUuid));
+
+            if (foundOp) {
+                console.log(`[VEO-LRO] Found correct operation path: ${foundOp.name}`);
+                // Use the name from the list response which is guaranteed to be correct
+                pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/${foundOp.name}`;
+                return await executePoll(pollingUrl, accessToken.token);
+            }
+
+            throw new Error(`Operation ${opUuid} not found in ${location} list.`);
         }
-
-        const data = await response.json();
-
-        return {
-            done: data.done || false,
-            error: data.error,
-            response: data.response
-        };
 
     } catch (error: any) {
         console.error('[VEO-LRO] Failed to poll operation:', error);
         throw error;
     }
+}
+
+async function executePoll(url: string, token: string) {
+    console.log(`[VEO-LRO] Polling: ${url}`);
+    const response = await fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    return {
+        done: data.done || false,
+        error: data.error,
+        response: data.response
+    };
 }
