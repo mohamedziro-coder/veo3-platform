@@ -20,6 +20,29 @@ export default function Dashboard() {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedActivity, setSelectedActivity] = useState<any>(null);
 
+    // Download handler function
+    const handleDownload = async (url: string, filename: string) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Clean up
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error('Download failed:', error);
+            // Fallback: open in new tab
+            window.open(url, '_blank');
+        }
+    };
+
     useEffect(() => {
         const loadUserData = async () => {
             const userStr = localStorage.getItem('current_user');
@@ -38,7 +61,11 @@ export default function Dashboard() {
                 const activityData = await activityResponse.json();
 
                 if (activityData.success && activityData.activities) {
-                    const userActivities = activityData.activities;
+                    // Normalize field names (database returns result_url, we want resultUrl)
+                    const userActivities = activityData.activities.map((act: any) => ({
+                        ...act,
+                        resultUrl: act.result_url || act.resultUrl
+                    }));
                     setActivities(userActivities.slice(0, 5));
                     setGenerationCount(userActivities.length);
                 } else {
@@ -261,11 +288,11 @@ export default function Dashboard() {
                 {selectedActivity && (
                     <div className="space-y-4">
                         {/* Media Preview */}
-                        {selectedActivity.result_url && (
+                        {(selectedActivity.resultUrl || selectedActivity.result_url) && (
                             <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
                                 {selectedActivity.tool === 'Video' ? (
                                     <video
-                                        src={selectedActivity.result_url}
+                                        src={selectedActivity.resultUrl || selectedActivity.result_url}
                                         controls
                                         className="w-full"
                                         playsInline
@@ -273,7 +300,7 @@ export default function Dashboard() {
                                 ) : (
                                     <div className="relative w-full aspect-video">
                                         <Image
-                                            src={selectedActivity.result_url}
+                                            src={selectedActivity.resultUrl || selectedActivity.result_url}
                                             alt="Generated content"
                                             fill
                                             className="object-contain"
@@ -288,8 +315,8 @@ export default function Dashboard() {
                         <div className="bg-gray-50 rounded-xl p-4 space-y-3">
                             <div className="flex items-center gap-2">
                                 <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-lg ${selectedActivity.tool === 'Video' ? 'bg-purple-100 text-purple-700' :
-                                        selectedActivity.tool === 'Image' ? 'bg-yellow-100 text-yellow-700' :
-                                            'bg-blue-100 text-blue-700'
+                                    selectedActivity.tool === 'Image' ? 'bg-yellow-100 text-yellow-700' :
+                                        'bg-blue-100 text-blue-700'
                                     }`}>
                                     {selectedActivity.tool}
                                 </span>
@@ -305,16 +332,18 @@ export default function Dashboard() {
                         </div>
 
                         {/* Download Button */}
-                        {selectedActivity.result_url && (
-                            <a
-                                href={selectedActivity.result_url}
-                                download
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block w-full bg-primary text-white font-bold py-3 rounded-xl text-center hover:bg-primary/90 transition-colors"
+                        {(selectedActivity.resultUrl || selectedActivity.result_url) && (
+                            <button
+                                onClick={() => {
+                                    const url = selectedActivity.resultUrl || selectedActivity.result_url;
+                                    const ext = selectedActivity.tool === 'Video' ? 'mp4' : 'jpg';
+                                    const filename = `${selectedActivity.tool.toLowerCase()}_${Date.now()}.${ext}`;
+                                    handleDownload(url, filename);
+                                }}
+                                className="block w-full bg-primary text-white font-bold py-3 rounded-xl text-center hover:bg-primary/90 transition-colors cursor-pointer"
                             >
                                 Download {selectedActivity.tool}
-                            </a>
+                            </button>
                         )}
                     </div>
                 )}
