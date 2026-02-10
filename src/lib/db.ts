@@ -213,6 +213,29 @@ export async function logActivity(
                         VALUES (${userEmail.toLowerCase()}, ${userName}, ${tool}, ${details})
                     `;
                 }
+            } else if (e.message?.includes('relation "activity" does not exist')) {
+                // Auto-migration: Create the table
+                try {
+                    await sql`
+                        CREATE TABLE IF NOT EXISTS activity (
+                            id SERIAL PRIMARY KEY,
+                            user_email TEXT NOT NULL,
+                            user_name TEXT,
+                            tool TEXT NOT NULL,
+                            details TEXT,
+                            result_url TEXT,
+                            timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                        );
+                     `;
+                    // Retry original insert
+                    await sql`
+                        INSERT INTO activity (user_email, user_name, tool, details, result_url)
+                        VALUES (${userEmail.toLowerCase()}, ${userName}, ${tool}, ${details}, ${resultUrl || null})
+                    `;
+                } catch (createError) {
+                    console.error('Failed to auto-create activity table:', createError);
+                    throw e;
+                }
             } else {
                 throw e;
             }

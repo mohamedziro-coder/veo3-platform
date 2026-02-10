@@ -39,6 +39,19 @@ export async function GET() {
             END $$;
         `;
 
+        // 3.5 Create activity table if missing
+        await sql`
+            CREATE TABLE IF NOT EXISTS activity (
+                id SERIAL PRIMARY KEY,
+                user_email TEXT NOT NULL,
+                user_name TEXT,
+                tool TEXT NOT NULL,
+                details TEXT,
+                result_url TEXT,
+                timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        `;
+
         // 4. Add result_url to activity table if missing
         await sql`
             DO $$ 
