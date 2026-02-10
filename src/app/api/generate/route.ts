@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getGeminiApiKey } from "@/lib/config";
+import { deductUserCredits } from "@/lib/db";
+import { COSTS } from "@/lib/credits";
 
 // Helper to get GenAI instance dynamically
 const getGenAI = () => {
@@ -11,13 +13,23 @@ const getGenAI = () => {
 
 export async function POST(req: NextRequest) {
     try {
-        const { startImage, endImage, prompt } = await req.json();
+        const { startImage, endImage, prompt, userEmail } = await req.json();
 
         if (!startImage || !endImage) {
             return NextResponse.json(
                 { error: "Both start and end images are required" },
                 { status: 400 }
             );
+        }
+
+        if (!userEmail) {
+            return NextResponse.json({ error: "User authentication required" }, { status: 401 });
+        }
+
+        // Deduct Credits First
+        const newBalance = await deductUserCredits(userEmail, COSTS.VIDEO);
+        if (newBalance === null) {
+            return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
         }
 
         let finalPrompt = prompt;
@@ -97,7 +109,8 @@ export async function POST(req: NextRequest) {
                     videoUrl: videoUrl,
                     status: generationStatus,
                     error: generationStatus === "success" ? null : errorMessage,
-                    usedPrompt: finalPrompt
+                    usedPrompt: finalPrompt,
+                    credits: newBalance // Return new balance
                 });
 
             } catch (geminiError) {

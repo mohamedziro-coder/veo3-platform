@@ -147,7 +147,8 @@ export default function VideoPage() {
                 body: JSON.stringify({
                     startImage: startImageBase64,
                     endImage: endImageBase64,
-                    prompt: finalPrompt
+                    prompt: finalPrompt,
+                    userEmail: JSON.parse(localStorage.getItem('current_user') || '{}').email // Send email for auth
                 }),
                 headers: { "Content-Type": "application/json" }
             });
@@ -157,8 +158,15 @@ export default function VideoPage() {
             if (data.status === "success" && data.videoUrl) {
                 setVideoUrl(data.videoUrl);
 
-                // Deduct Credits
-                deductCredits(COSTS.VIDEO);
+                // Update Credits from Server Response
+                if (data.credits !== undefined) {
+                    const user = JSON.parse(localStorage.getItem('current_user') || '{}');
+                    user.credits = data.credits;
+                    localStorage.setItem('current_user', JSON.stringify(user));
+                    window.dispatchEvent(new Event('storage'));
+                } else {
+                    deductCredits(COSTS.VIDEO);
+                }
 
                 // Log Activity
                 const user = JSON.parse(localStorage.getItem('current_user') || '{}');

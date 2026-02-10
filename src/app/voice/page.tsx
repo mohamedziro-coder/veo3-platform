@@ -95,7 +95,8 @@ export default function VoicePage() {
                     voiceId: selectedVoice,
                     languageCode: VOICE_OPTIONS.find(v => v.id === selectedVoice)?.lang || "ar-XA",
                     speakingRate,
-                    pitch
+                    pitch,
+                    userEmail: JSON.parse(localStorage.getItem('current_user') || '{}').email // Send email for auth
                 }),
                 headers: { "Content-Type": "application/json" }
             });
@@ -108,7 +109,19 @@ export default function VoicePage() {
                 const url = URL.createObjectURL(audioBlob);
                 setAudioUrl(url);
 
-                deductCredits(COSTS.VOICE);
+                // Deduct Credits & Update Local State
+                if (data.credits !== undefined) {
+                    // Update user object in localStorage
+                    const user = JSON.parse(localStorage.getItem('current_user') || '{}');
+                    user.credits = data.credits;
+                    localStorage.setItem('current_user', JSON.stringify(user));
+
+                    // Trigger storage event for other components
+                    window.dispatchEvent(new Event('storage'));
+                } else {
+                    // Fallback to client-side deduction if server doesn't return credits (shouldn't happen now)
+                    deductCredits(COSTS.VOICE);
+                }
 
                 // Log Activity
                 const user = JSON.parse(localStorage.getItem('current_user') || '{}');

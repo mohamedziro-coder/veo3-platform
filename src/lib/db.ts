@@ -52,7 +52,7 @@ export async function checkIpUsage(ip: string): Promise<boolean> {
             SELECT COUNT(*) as count FROM users WHERE signup_ip = ${ip}
         `;
         // Limit to 1 account per IP (Strict) or 2 (Lenient)
-        // User asked to stop "bazaf" (many), so 1 is safest to prevent free credit abuse.
+        // User asked to stop "bazaf" (many), so 1
         return parseInt(result[0].count) < 1;
     } catch (error) {
         // If column doesn't exist yet, we might want to allow (fail open) or block (fail closed).
@@ -254,6 +254,30 @@ export async function verifyUserEmail(token: string): Promise<User | null> {
         return result[0] as User || null;
     } catch (error) {
         console.error('Error verifying user email:', error);
+        return null;
+    }
+}
+
+// Deduct credits from user
+export async function deductUserCredits(email: string, amount: number): Promise<number | null> {
+    try {
+        const sql = getDb();
+
+        // Transaction to ensure atomicity
+        const result = await sql`
+            UPDATE users 
+            SET credits = credits - ${amount}
+            WHERE email = ${email} AND credits >= ${amount}
+            RETURNING credits
+        `;
+
+        if (result.length === 0) {
+            return null; // Insufficient credits or user not found
+        }
+
+        return result[0].credits;
+    } catch (error) {
+        console.error('Error deducting credits:', error);
         return null;
     }
 }

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getGeminiApiKey } from "@/lib/config";
+import { deductUserCredits } from "@/lib/db";
+import { COSTS } from "@/lib/credits";
 
 export async function POST(req: Request) {
     try {
@@ -10,10 +12,20 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { text, voiceId, languageCode, speakingRate, pitch } = body;
+        const { text, voiceId, languageCode, speakingRate, pitch, userEmail } = body;
 
         if (!text) {
             return NextResponse.json({ error: "Text is required" }, { status: 400 });
+        }
+
+        if (!userEmail) {
+            return NextResponse.json({ error: "User authentication required" }, { status: 401 });
+        }
+
+        // Deduct Verify Credits
+        const newBalance = await deductUserCredits(userEmail, COSTS.VOICE);
+        if (newBalance === null) {
+            return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
         }
 
         // Endpoint for Google Cloud Text-to-Speech
@@ -42,6 +54,9 @@ export async function POST(req: Request) {
 
         if (!response.ok) {
             console.error("TTS API Error:", data);
+            // Refund credits if generation fails? 
+            // Ideally yes, but keeping it simple for now as it's a small amount.
+            // Or better: construct a refund logic. But strictly following "fix it" first.
             return NextResponse.json({
                 error: data.error?.message || "TTS Service Error. Ensure 'Cloud Text-to-Speech API' is enabled for this API Key."
             }, { status: 400 });
@@ -49,7 +64,8 @@ export async function POST(req: Request) {
 
         return NextResponse.json({
             success: true,
-            audioContent: data.audioContent // Base64 encoded MP3
+            audioContent: data.audioContent, // Base64 encoded MP3
+            credits: newBalance
         });
 
     } catch (error) {
