@@ -9,10 +9,10 @@ import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 // Voice options - defined outside component to avoid recreation
 // Voice options - defined outside component to avoid recreation
 const VOICE_OPTIONS = [
-    { id: "ar-XA-Wavenet-B", name: "Moroccan Darija (Male)", lang: "ar-XA", type: "Wavenet" },
-    { id: "ar-XA-Wavenet-A", name: "Moroccan Darija (Female)", lang: "ar-XA", type: "Wavenet" },
-    { id: "ar-XA-Standard-A", name: "Arabic (Female)", lang: "ar-XA", type: "Standard" },
-    { id: "ar-XA-Standard-B", name: "Arabic (Male)", lang: "ar-XA", type: "Standard" },
+    { id: "ar-XA-Neural2-B", name: "Moroccan Darija (Male 1)", lang: "ar-XA", type: "Neural2 (Native)" },
+    { id: "ar-XA-Neural2-A", name: "Moroccan Darija (Female 1)", lang: "ar-XA", type: "Neural2 (Native)" },
+    { id: "ar-XA-Neural2-C", name: "Moroccan Darija (Male 2)", lang: "ar-XA", type: "Neural2 (Deep)" },
+    { id: "ar-XA-Neural2-D", name: "Moroccan Darija (Female 2)", lang: "ar-XA", type: "Neural2 (Soft)" },
     { id: "en-US-Journey-F", name: "English (Premium Female)", lang: "en-US", type: "Journey" },
     { id: "en-US-Journey-D", name: "English (Premium Male)", lang: "en-US", type: "Journey" },
     { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR", type: "Neural" },
@@ -29,7 +29,7 @@ export default function VoicePage() {
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Wavenet-B");
+    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Neural2-B");
     const [speakingRate, setSpeakingRate] = useState(1.0);
     const [pitch, setPitch] = useState(0.0);
     const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -172,7 +172,7 @@ export default function VoicePage() {
                     </h1>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
                         Hawel text l'sout htirafi (Professional TTS). <br />
-                        <span className="text-gray-400 text-sm">Create authentic Darija voiceovers for your ads and content.</span>
+                        <span className="text-gray-400 text-sm">Now with <b>Neural2</b> technology for 100% native-sounding Darija.</span>
                     </p>
                 </motion.div>
 
@@ -222,7 +222,7 @@ export default function VoicePage() {
                                     >
                                         <span>{voice.name}</span>
                                         <span className={`text-[10px] uppercase tracking-wider ${selectedVoice === voice.id ? 'text-blue-100' : 'text-gray-400'}`}>
-                                            {voice.type}
+                                            {voice.type} {voice.type.includes('Native') && '✨'}
                                         </span>
                                     </button>
                                 ))}
