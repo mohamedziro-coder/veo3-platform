@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         }
 
         await resend.emails.send({
-            from: 'Veo 3 <onboarding@resend.dev>', // Verified domain
+            from: 'Veo 3 <noreply@onlinetooladvisor.com>', // Verified domain
             to: email,
             subject: 'Your Verification Code - Veo 3',
             html: `
