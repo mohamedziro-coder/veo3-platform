@@ -142,6 +142,7 @@ export async function pollOperationStatus(operationName: string): Promise<{
                     modelId = modelMatch[1];
                 }
             }
+            if (!modelId) throw new Error('Model ID could not be determined for UUID operation');
 
             // Construct Publisher Proxy URL for UUID operations
             pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${modelId}/operations/${opId}`;
@@ -152,27 +153,7 @@ export async function pollOperationStatus(operationName: string): Promise<{
             console.log(`[VEO-LRO] Using Standard Operations Endpoint (Long): ${pollingUrl}`);
         }
 
-        const response = await fetch(pollingUrl, {
-            headers: {
-                'Authorization': `Bearer ${accessToken.token}`
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`[VEO-LRO] API Error (${response.status}): ${errorText}`);
-
-            // If 404/400 (e.g. invalid arguments or not found), throw specific error
-            // The main caller catches and logs heavily
-            throw new Error(`${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-        return {
-            done: data.done || false,
-            error: data.error,
-            response: data.response
-        };
+        return await executePoll(pollingUrl, accessToken.token);
 
     } catch (error: any) {
         console.error('[VEO-LRO] Failed to poll operation:', error);
@@ -181,23 +162,43 @@ export async function pollOperationStatus(operationName: string): Promise<{
 }
 
 async function executePoll(url: string, token: string) {
-    console.log(`[VEO-LRO] Polling: ${url}`);
-    const response = await fetch(url, {
-        headers: {
-            'Authorization': `Bearer ${token}`
+    console.log(`[VEO-LRO] Polling URL: ${url}`);
+
+    // Create AbortController with 10s timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[VEO-LRO] HTTP Error ${response.status}: ${errorText}`);
+            throw new Error(`API Error ${response.status}: ${errorText}`);
         }
-    });
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        // If 404/400, strictly throw so we know
-        throw new Error(`${response.status} - ${errorText}`);
+        const data = await response.json();
+        return {
+            done: data.done || false,
+            error: data.error,
+            response: data.response
+        };
+    } catch (error: any) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            throw new Error('Polling request timed out after 10s');
+        }
+        if (error.message && error.message.includes('fetch failed')) {
+            console.error('[VEO-LRO] Network/DNS Error. Check URL construction:', url);
+        }
+        throw error;
     }
-
-    const data = await response.json();
-    return {
-        done: data.done || false,
-        error: data.error,
-        response: data.response
-    };
 }
