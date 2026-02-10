@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getGeminiApiKey } from "@/lib/config";
 import { deductUserCredits } from "@/lib/db";
-import { COSTS } from "@/lib/credits";
+import { COSTS } from "@/lib/costs";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req: Request) {

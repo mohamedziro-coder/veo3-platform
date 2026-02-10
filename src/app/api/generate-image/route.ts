@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getGeminiApiKey } from "@/lib/config";
 import { deductUserCredits } from "@/lib/db";
-import { COSTS } from "@/lib/credits";
+import { COSTS } from "@/lib/costs";
 
 export async function POST(req: NextRequest) {
     try {

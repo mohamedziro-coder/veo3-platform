@@ -1,14 +1,8 @@
 "use client";
 
-// Credit Costs
-export const COSTS = {
-    VIDEO: 100,
-    IMAGE: 5,
-    VOICE: 2
-};
+import { COSTS, INITIAL_CREDITS, ADMIN_CREDITS } from "@/lib/costs";
+export { COSTS, INITIAL_CREDITS, ADMIN_CREDITS };
 
-export const INITIAL_CREDITS = 50;
-export const ADMIN_CREDITS = 100;
 
 export function getUserCredits(): number {
     if (typeof window === 'undefined') return 0;
