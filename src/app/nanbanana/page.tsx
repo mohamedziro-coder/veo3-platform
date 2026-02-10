@@ -86,7 +86,8 @@ export default function NanbananaPage() {
                             userEmail: user.email,
                             userName: user.name,
                             tool: 'Image',
-                            details: `Generated image: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`
+                            details: `Generated image: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
+                            resultUrl: data.raw.url // Save image URL
                         })
                     });
                 } catch (activityError) {

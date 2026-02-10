@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 // POST log new activity
 export async function POST(req: NextRequest) {
     try {
-        const { userEmail, userName, tool, details } = await req.json();
+        const { userEmail, userName, tool, details, resultUrl } = await req.json();
 
         if (!userEmail || !userName || !tool || !details) {
             return NextResponse.json(
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const success = await logActivity(userEmail, userName, tool, details);
+        const success = await logActivity(userEmail, userName, tool, details, resultUrl);
 
         if (!success) {
             return NextResponse.json(

@@ -176,13 +176,33 @@ export async function deleteUser(email: string): Promise<boolean> {
 }
 
 // Log activity
-export async function logActivity(userEmail: string, userName: string, tool: string, details: string): Promise<boolean> {
+export async function logActivity(
+    userEmail: string,
+    userName: string,
+    tool: string,
+    details: string,
+    resultUrl?: string
+): Promise<boolean> {
     try {
         const sql = getDb();
-        await sql`
-            INSERT INTO activity (user_email, user_name, tool, details)
-            VALUES (${userEmail}, ${userName}, ${tool}, ${details})
-        `;
+
+        // Try with result_url column first (new schema)
+        try {
+            await sql`
+                INSERT INTO activity (user_email, user_name, tool, details, result_url)
+                VALUES (${userEmail}, ${userName}, ${tool}, ${details}, ${resultUrl || null})
+            `;
+        } catch (e: any) {
+            // Fallback if result_url column doesn't exist yet
+            if (e.message?.includes('result_url')) {
+                await sql`
+                    INSERT INTO activity (user_email, user_name, tool, details)
+                    VALUES (${userEmail}, ${userName}, ${tool}, ${details})
+                `;
+            } else {
+                throw e;
+            }
+        }
         return true;
     } catch (error) {
         console.error('Error logging activity:', error);
@@ -195,7 +215,7 @@ export async function getAllActivity(): Promise<Activity[]> {
     try {
         const sql = getDb();
         const result = await sql`
-            SELECT id, user_email, user_name, tool, details, timestamp 
+            SELECT id, user_email, user_name, tool, details, result_url, timestamp 
             FROM activity 
             ORDER BY timestamp DESC
             LIMIT 100
@@ -212,7 +232,7 @@ export async function getUserActivity(email: string): Promise<Activity[]> {
     try {
         const sql = getDb();
         const result = await sql`
-            SELECT id, user_email, user_name, tool, details, timestamp 
+            SELECT id, user_email, user_name, tool, details, result_url, timestamp 
             FROM activity 
             WHERE user_email = ${email}
             ORDER BY timestamp DESC

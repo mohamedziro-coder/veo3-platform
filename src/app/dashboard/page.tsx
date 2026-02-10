@@ -260,12 +260,36 @@ export default function Dashboard() {
             >
                 {selectedActivity && (
                     <div className="space-y-4">
+                        {/* Media Preview */}
+                        {selectedActivity.result_url && (
+                            <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+                                {selectedActivity.tool === 'Video' ? (
+                                    <video
+                                        src={selectedActivity.result_url}
+                                        controls
+                                        className="w-full"
+                                        playsInline
+                                    />
+                                ) : (
+                                    <div className="relative w-full aspect-video">
+                                        <Image
+                                            src={selectedActivity.result_url}
+                                            alt="Generated content"
+                                            fill
+                                            className="object-contain"
+                                            sizes="(max-width: 768px) 100vw, 700px"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {/* Activity Info */}
                         <div className="bg-gray-50 rounded-xl p-4 space-y-3">
                             <div className="flex items-center gap-2">
                                 <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-lg ${selectedActivity.tool === 'Video' ? 'bg-purple-100 text-purple-700' :
-                                    selectedActivity.tool === 'Image' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-blue-100 text-blue-700'
+                                        selectedActivity.tool === 'Image' ? 'bg-yellow-100 text-yellow-700' :
+                                            'bg-blue-100 text-blue-700'
                                     }`}>
                                     {selectedActivity.tool}
                                 </span>
@@ -279,6 +303,19 @@ export default function Dashboard() {
                                 <p className="text-sm text-gray-900">{selectedActivity.details}</p>
                             </div>
                         </div>
+
+                        {/* Download Button */}
+                        {selectedActivity.result_url && (
+                            <a
+                                href={selectedActivity.result_url}
+                                download
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block w-full bg-primary text-white font-bold py-3 rounded-xl text-center hover:bg-primary/90 transition-colors"
+                            >
+                                Download {selectedActivity.tool}
+                            </a>
+                        )}
                     </div>
                 )}
             </Modal>

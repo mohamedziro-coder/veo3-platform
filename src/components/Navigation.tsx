@@ -45,30 +45,43 @@ export default function Navigation() {
                 setIsAdmin(localUser.role === 'admin');
                 setCredits(typeof localUser.credits === 'number' ? localUser.credits : 0);
 
-                // Fetch fresh data from API
-                try {
-                    const res = await fetch('/api/auth/me', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: localUser.email })
-                    });
+                // REMOVED: Automatic API sync on page load
+                // This was causing credit resets because DB might not have latest value yet
+                // Credits are now updated via credits-updated event after generation
 
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data.user) {
-                            setCredits(data.user.credits);
-                            setIsAdmin(data.user.role === 'admin');
-                            // Update local storage to keep it in sync
-                            const updatedUser = { ...localUser, ...data.user };
-                            localStorage.setItem('current_user', JSON.stringify(updatedUser));
-                        }
-                    }
-                } catch (err) {
-                    console.error("Failed to sync user data", err);
-                }
+                // Only sync from API when explicitly needed (credits-updated event)
 
             } catch (e) {
                 console.error("Failed to parse user", e);
+            }
+        }
+    };
+
+    const syncFromDatabase = async () => {
+        const userStr = localStorage.getItem('current_user');
+        if (userStr) {
+            try {
+                const localUser = JSON.parse(userStr);
+
+                // Fetch fresh data from API
+                const res = await fetch('/api/auth/me', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: localUser.email })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.user) {
+                        setCredits(data.user.credits);
+                        setIsAdmin(data.user.role === 'admin');
+                        // Update local storage to keep it in sync
+                        const updatedUser = { ...localUser, ...data.user };
+                        localStorage.setItem('current_user', JSON.stringify(updatedUser));
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to sync user data", err);
             }
         }
     };
@@ -81,13 +94,13 @@ export default function Navigation() {
         window.addEventListener('credits-updated', updateAuthStatus);
         // Also refresh on visibility change (tab switch)
         document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') updateAuthStatus();
+            if (document.visibilityState === 'visible') syncFromDatabase();
         });
 
         return () => {
             window.removeEventListener('storage', updateAuthStatus);
             window.removeEventListener('credits-updated', updateAuthStatus);
-            document.removeEventListener('visibilitychange', updateAuthStatus);
+            document.removeEventListener('visibilitychange', syncFromDatabase);
         };
     }, [pathname]);
 

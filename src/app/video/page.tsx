@@ -179,7 +179,8 @@ export default function VideoPage() {
                             userEmail: user.email,
                             userName: user.name,
                             tool: 'Video',
-                            details: `Generated video: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`
+                            details: `Generated video: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
+                            resultUrl: data.videoUrl // Save video URL
                         })
                     });
                 } catch (activityError) {
