@@ -127,11 +127,11 @@ export async function pollOperationStatus(operationName: string): Promise<{
 
         const opId = sanitize(operationName.split('/').pop() || '');
 
-        // Use STANDARD operations endpoint for ALL types (UUID and Numeric)
-        // This is the most robust way to poll LROs in Vertex AI
-        const pollingUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/operations/${opId}`;
+        // CRITICAL FIX: Use v1beta1 instead of v1 to support UUID Operation IDs
+        // "must be a Long" error happens because v1 only accepts numeric IDs
+        const pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/operations/${opId}`;
 
-        console.log(`[VEO-LRO] Polling via Gaxios (Standard Path): ${pollingUrl}`);
+        console.log(`[VEO-LRO] Polling via Gaxios (v1beta1 Standard): ${pollingUrl}`);
 
         const response = await client.request({
             url: pollingUrl,
