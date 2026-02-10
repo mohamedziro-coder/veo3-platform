@@ -6,15 +6,11 @@ export async function GET(req: NextRequest) {
     try {
         const config = await getVertexConfigAsync();
 
-        // Security: Mask sensitive data
-        const maskedJson = config.GOOGLE_APPLICATION_CREDENTIALS_JSON
-            ? "configured (hidden)"
-            : null;
-
         return NextResponse.json({
             configured: !!config.GOOGLE_PROJECT_ID,
             projectId: config.GOOGLE_PROJECT_ID || "",
             location: config.GOOGLE_LOCATION || "us-central1",
+            bucketName: config.GCS_BUCKET_NAME || "",
             hasCredentials: !!config.GOOGLE_APPLICATION_CREDENTIALS_JSON
         });
 
@@ -27,7 +23,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { projectId, location, serviceAccountJson } = body;
+        const { projectId, location, serviceAccountJson, bucketName } = body;
 
         if (!projectId) {
             return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
@@ -35,7 +31,8 @@ export async function POST(req: NextRequest) {
 
         const newConfig: any = {
             GOOGLE_PROJECT_ID: projectId,
-            GOOGLE_LOCATION: location || "us-central1"
+            GOOGLE_LOCATION: location || "us-central1",
+            GCS_BUCKET_NAME: bucketName || ""
         };
 
         if (serviceAccountJson) {
@@ -51,6 +48,7 @@ export async function POST(req: NextRequest) {
         }
 
     } catch (error) {
+        console.error("Settings save error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

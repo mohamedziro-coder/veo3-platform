@@ -58,6 +58,19 @@ export default function AdminPage() {
                     });
                 }
 
+                // Fetch Settings to populate form
+                const settingsRes = await fetch('/api/settings');
+                const settings = await settingsRes.json();
+                if (settings && !settings.error) {
+                    const projectIdInput = document.getElementById('projectIdInput') as HTMLInputElement;
+                    const locationInput = document.getElementById('locationInput') as HTMLInputElement;
+                    const bucketNameInput = document.getElementById('bucketNameInput') as HTMLInputElement; // NEW
+
+                    if (projectIdInput && settings.projectId) projectIdInput.value = settings.projectId;
+                    if (locationInput && settings.location) locationInput.value = settings.location;
+                    if (bucketNameInput && settings.bucketName) bucketNameInput.value = settings.bucketName;
+                }
+
                 setIsLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -313,7 +326,7 @@ export default function AdminPage() {
                                 Vertex AI Configuration
                             </label>
 
-                            <div className="grid grid-cols-1 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="text-xs font-semibold text-gray-700 mb-1 block">Google Cloud Project ID</label>
                                     <input
@@ -335,8 +348,23 @@ export default function AdminPage() {
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">Service Account JSON (Optional if usage ADC)</label>
+                                <div className="md:col-span-2">
+                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">
+                                        GCS Bucket Name (Required for Veo)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. veo3-videos-prod"
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm"
+                                        id="bucketNameInput"
+                                    />
+                                    <p className="text-[10px] text-gray-500 mt-1">
+                                        Create a bucket: <code>gsutil mb -p PROJECT_ID gs://YOUR_BUCKET_NAME</code>
+                                    </p>
+                                </div>
+
+                                <div className="md:col-span-2">
+                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">Service Account JSON (Optional if using ADC)</label>
                                     <textarea
                                         placeholder='Paste contents of service-account.json here...'
                                         className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm min-h-[100px] font-mono text-xs"
@@ -349,18 +377,20 @@ export default function AdminPage() {
                                 onClick={async () => {
                                     const projectId = (document.getElementById('projectIdInput') as HTMLInputElement).value;
                                     const location = (document.getElementById('locationInput') as HTMLInputElement).value;
+                                    const bucketName = (document.getElementById('bucketNameInput') as HTMLInputElement).value;
                                     const serviceAccountJson = (document.getElementById('jsonInput') as HTMLTextAreaElement).value;
 
                                     if (!projectId) return alert("⚠️ Project ID is required");
+                                    if (!bucketName) return alert("⚠️ GCS Bucket Name is required for Veo");
 
                                     try {
                                         const res = await fetch('/api/settings', {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ projectId, location, serviceAccountJson })
+                                            body: JSON.stringify({ projectId, location, bucketName, serviceAccountJson })
                                         });
                                         if (res.ok) {
-                                            alert("✅ Vertex AI Config Saved! Platform switched to Vertex AI.");
+                                            alert("✅ Vertex AI Configuration Saved!");
                                         } else {
                                             const errData = await res.json();
                                             alert(`❌ Failed to save config: ${errData.error || "Unknown error"}`);
