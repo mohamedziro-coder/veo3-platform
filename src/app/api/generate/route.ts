@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
             }
         };
 
-        const generativeModel = getVeoModel(modelName);
+        const generativeModel = await getVeoModel(modelName);
 
         // Execute Generation
         // Using standard generateContent. If it supports LRO, SDK might handle it or return Op.

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVertexConfig, saveVertexConfig } from "@/lib/config";
+import { getVertexConfigAsync, saveVertexConfigAsync } from "@/lib/config";
 
 // GET /api/settings - Retrieve current configuration status
 export async function GET(req: NextRequest) {
     try {
-        const config = getVertexConfig();
+        const config = await getVertexConfigAsync();
 
         // Security: Mask sensitive data
         const maskedJson = config.GOOGLE_APPLICATION_CREDENTIALS_JSON
@@ -42,12 +42,12 @@ export async function POST(req: NextRequest) {
             newConfig.GOOGLE_APPLICATION_CREDENTIALS_JSON = serviceAccountJson;
         }
 
-        const success = saveVertexConfig(newConfig);
+        const result = await saveVertexConfigAsync(newConfig);
 
-        if (success) {
+        if (result.success) {
             return NextResponse.json({ success: true, message: "Vertex AI Configuration saved successfully" });
         } else {
-            return NextResponse.json({ error: "Failed to save configuration" }, { status: 500 });
+            return NextResponse.json({ error: `Failed to save configuration: ${result.error}` }, { status: 500 });
         }
 
     } catch (error) {

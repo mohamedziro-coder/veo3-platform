@@ -34,34 +34,74 @@ export function getVertexConfig(): VertexConfig {
     };
 }
 
-export function saveVertexConfig(config: VertexConfig): boolean {
+import { saveSystemConfig, getSystemConfig } from './db';
+
+export async function getVertexConfigAsync(): Promise<VertexConfig> {
+    // 1. Try DB first
+    const dbConfig = await getSystemConfig('vertex_config');
+    if (dbConfig) {
+        return {
+            GOOGLE_PROJECT_ID: dbConfig.GOOGLE_PROJECT_ID || process.env.GOOGLE_PROJECT_ID,
+            GOOGLE_LOCATION: dbConfig.GOOGLE_LOCATION || process.env.GOOGLE_LOCATION || 'us-central1',
+            GOOGLE_APPLICATION_CREDENTIALS_JSON: dbConfig.GOOGLE_APPLICATION_CREDENTIALS_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+        };
+    }
+
+    // 2. Fallback to File (Dev) or Env (Prod)
+    // (Reusing synchronous logic wrapper or just duplicating for safety)
+    return getVertexConfig();
+}
+
+export async function saveVertexConfigAsync(config: VertexConfig): Promise<{ success: boolean; error?: string }> {
     try {
+        // Save to DB
+        const saved = await saveSystemConfig('vertex_config', config);
+        if (!saved) throw new Error("Database save failed");
+
+        // Also try to save to file for local dev cache (optional, best effort)
+        try {
+            saveVertexConfig(config);
+        } catch (e) {
+            // Ignore file write error in prod
+        }
+
+        return { success: true };
+    } catch (e: any) {
+        console.error("Error saving vertex config:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export function saveVertexConfig(config: VertexConfig): { success: boolean; error?: string } {
+    // Legacy File Sync Save
+    try {
+        // ... (keep existing implementation for local dev)
+        console.log("Saving config to:", CONFIG_PATH);
         let currentConfig = {};
 
-        // Read existing config to preserve other potential keys
         if (fs.existsSync(CONFIG_PATH)) {
             try {
                 currentConfig = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+            } catch (e) { }
+        }
+
+        const newConfig = { ...currentConfig, ...config };
+        const dir = path.dirname(CONFIG_PATH);
+
+        if (!fs.existsSync(dir)) {
+            try {
+                fs.mkdirSync(dir, { recursive: true });
             } catch (e) {
-                // Ignore parsing error, start fresh
+                // Return simple error if we can't create dir (likely Vercel)
+                return { success: false, error: "Cannot create directory (Read-only System)" };
             }
         }
 
-        const newConfig = {
-            ...currentConfig,
-            ...config
-        };
-
-        const dir = path.dirname(CONFIG_PATH);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-        }
-
         fs.writeFileSync(CONFIG_PATH, JSON.stringify(newConfig, null, 2));
-        return true;
-    } catch (e) {
+        return { success: true };
+    } catch (e: any) {
         console.error("Error writing config.json:", e);
-        return false;
+        return { success: false, error: e.message || "File write failed" };
     }
 }
 

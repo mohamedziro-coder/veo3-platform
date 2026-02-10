@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getVertexConfig } from "@/lib/config";
+import { getVertexConfigAsync } from "@/lib/config";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
 import { getGeminiModel } from "@/lib/vertex"; // Use Vertex for enhancement
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
         // 1. Text Enhancement with Vertex AI (Gemini)
         if (useGemini) {
             try {
-                const model = getGeminiModel("gemini-1.5-flash-001");
+                const model = await getGeminiModel("gemini-1.5-flash-001");
                 const prompt = `Improve for TTS (Natural flow, ${languageCode}): ${text}`;
 
                 const result = await model.generateContent(prompt);
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         }
 
         // 2. TTS Generation with Google Cloud (Authenticated via Vertex Credentials)
-        const config = getVertexConfig();
+        const config = await getVertexConfigAsync();
 
         // Prepare Auth Options
         const clientOptions: any = {

@@ -359,3 +359,61 @@ export async function deductUserCredits(email: string, amount: number): Promise<
     }
 }
 
+// System Settings (DB-based Config)
+export async function saveSystemConfig(key: string, value: any): Promise<boolean> {
+    try {
+        const sql = getDb();
+        const valueJson = JSON.stringify(value);
+
+        // Try insert/update
+        try {
+            await sql`
+                INSERT INTO system_settings (key, value)
+                VALUES (${key}, ${valueJson})
+                ON CONFLICT (key) DO UPDATE SET value = ${valueJson}
+            `;
+        } catch (e: any) {
+            if (e.message?.includes('relation "system_settings" does not exist')) {
+                // Auto-create table
+                await sql`
+                    CREATE TABLE IF NOT EXISTS system_settings (
+                        key TEXT PRIMARY KEY,
+                        value TEXT NOT NULL
+                    );
+                `;
+                // Retry
+                await sql`
+                    INSERT INTO system_settings (key, value)
+                    VALUES (${key}, ${valueJson})
+                    ON CONFLICT (key) DO UPDATE SET value = ${valueJson}
+                `;
+            } else {
+                throw e;
+            }
+        }
+        return true;
+    } catch (error) {
+        console.error('Error saving system config:', error);
+        return false;
+    }
+}
+
+export async function getSystemConfig(key: string): Promise<any | null> {
+    try {
+        const sql = getDb();
+        try {
+            const result = await sql`SELECT value FROM system_settings WHERE key = ${key}`;
+            if (result.length > 0) {
+                return JSON.parse(result[0].value);
+            }
+        } catch (e: any) {
+            // Include explicit check for missing table to avoid noise
+            if (!e.message?.includes('does not exist')) {
+                console.error('Error reading system config:', e);
+            }
+        }
+        return null;
+    } catch (error) {
+        return null; // Fail gracefully (fallback to env)
+    }
+}

@@ -362,7 +362,8 @@ export default function AdminPage() {
                                         if (res.ok) {
                                             alert("✅ Vertex AI Config Saved! Platform switched to Vertex AI.");
                                         } else {
-                                            alert("❌ Failed to save config.");
+                                            const errData = await res.json();
+                                            alert(`❌ Failed to save config: ${errData.error || "Unknown error"}`);
                                         }
                                     } catch (e) {
                                         alert("❌ Error saving config.");

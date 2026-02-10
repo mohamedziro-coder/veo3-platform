@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, Download, Wand2 } from "lucide-react";
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
+const GENERATION_COST = 0; // Free for now or updated later
 
 export default function NanbananaPage() {
     const router = useRouter();
@@ -149,7 +150,7 @@ export default function NanbananaPage() {
                 <p className="text-gray-500 max-w-lg mx-auto text-base md:text-lg">
                     Sawb tsawar khayaliya b jowda 3aliya.
                     <br />
-                    <span className="text-sm opacity-60">(Powered by Gemini 2.0 Flash)</span>
+                    <span className="text-sm opacity-60">(Powered by Imagen 3 - Vertex AI)</span>
                 </p>
             </motion.div>
 

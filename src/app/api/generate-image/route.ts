@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
         try {
             // Initialize Imagen Model
-            const model = getImagenModel("imagen-3.0-generate-001");
+            const model = await getImagenModel("imagen-3.0-generate-001");
 
             // Prepare content parts
             const parts: any[] = [{ text: prompt }];
