@@ -10,10 +10,10 @@ import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 // Voice options - defined outside component to avoid recreation
 const VOICE_OPTIONS = [
     // Moroccan Arabic (Darija) - ar-MA
-    { id: "ar-XA-Neural2-B", name: "Moroccan Arabic (Male 1)", lang: "ar-MA", type: "Neural2 (Native)" },
-    { id: "ar-XA-Neural2-A", name: "Moroccan Arabic (Female 1)", lang: "ar-MA", type: "Neural2 (Native)" },
-    { id: "ar-XA-Neural2-C", name: "Moroccan Arabic (Male 2)", lang: "ar-MA", type: "Neural2 (Deep)" },
-    { id: "ar-XA-Neural2-D", name: "Moroccan Arabic (Female 2)", lang: "ar-MA", type: "Neural2 (Soft)" },
+    { id: "ar-XA-Wavenet-B", name: "Moroccan Arabic (Male 1)", lang: "ar-MA", type: "Wavenet (Native)" },
+    { id: "ar-XA-Wavenet-A", name: "Moroccan Arabic (Female 1)", lang: "ar-MA", type: "Wavenet (Native)" },
+    { id: "ar-XA-Wavenet-C", name: "Moroccan Arabic (Male 2)", lang: "ar-MA", type: "Wavenet (Deep)" },
+    { id: "ar-XA-Wavenet-D", name: "Moroccan Arabic (Female 2)", lang: "ar-MA", type: "Wavenet (Soft)" },
 
     // English
     { id: "en-US-Journey-F", name: "English US (Premium Female)", lang: "en-US", type: "Journey" },
@@ -48,7 +48,7 @@ export default function VoicePage() {
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Neural2-B");
+    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Wavenet-B");
     const [speakingRate, setSpeakingRate] = useState(1.0);
     const [pitch, setPitch] = useState(0.0);
     const [useGemini, setUseGemini] = useState(false);

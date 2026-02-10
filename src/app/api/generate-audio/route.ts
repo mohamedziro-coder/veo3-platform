@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         if (useGemini) {
             try {
                 const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
                 const languageMap: Record<string, string> = {
                     "ar-MA": "Moroccan Arabic (Darija)",
@@ -70,9 +70,12 @@ Text: ${text}`;
         // Endpoint for Google Cloud Text-to-Speech
         const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
 
+        // Map ar-MA to ar-XA for Google TTS (since Google uses ar-XA for Arabic)
+        const ttsLanguageCode = languageCode === 'ar-MA' ? 'ar-XA' : languageCode;
+
         const payload = {
             input: { text: processedText },
-            voice: { languageCode: languageCode || "ar-MA", name: voiceId || "ar-XA-Standard-A" },
+            voice: { languageCode: ttsLanguageCode || "ar-XA", name: voiceId || "ar-XA-Wavenet-B" },
             audioConfig: {
                 audioEncoding: "MP3",
                 speakingRate: speakingRate || 1.0,
