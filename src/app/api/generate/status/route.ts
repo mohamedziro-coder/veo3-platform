@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// In-memory storage for operation tracking (replace with Redis/DB in production)
-// This is a simple solution that works for single-instance deployments
-const operations = new Map<string, any>();
+import { getOperationResult, deleteOperationResult } from "@/lib/operations";
 
 export async function GET(req: NextRequest) {
     try {
@@ -16,8 +13,8 @@ export async function GET(req: NextRequest) {
 
         console.log(`[STATUS-CHECK] Polling operation: ${operationId} for user: ${userEmail}`);
 
-        // Check if operation is stored locally
-        const storedOp = operations.get(operationId);
+        // Check if operation is stored
+        const storedOp = getOperationResult(operationId);
 
         if (!storedOp) {
             console.log(`[STATUS-CHECK] Operation not found, assuming processing: ${operationId}`);
@@ -29,7 +26,7 @@ export async function GET(req: NextRequest) {
 
         if (storedOp.status === "complete") {
             console.log(`[STATUS-CHECK] Operation complete: ${operationId}`);
-            operations.delete(operationId); // Clean up
+            deleteOperationResult(operationId); // Clean up
             return NextResponse.json({
                 status: "complete",
                 videoUrl: storedOp.videoUrl,
@@ -37,7 +34,7 @@ export async function GET(req: NextRequest) {
             });
         } else if (storedOp.status === "failed") {
             console.log(`[STATUS-CHECK] Operation failed: ${operationId}`);
-            operations.delete(operationId);
+            deleteOperationResult(operationId);
             return NextResponse.json({
                 status: "failed",
                 error: storedOp.error
@@ -57,16 +54,3 @@ export async function GET(req: NextRequest) {
         }, { status: 500 });
     }
 }
-
-// Helper function to store operation results (called by generate route)
-export function storeOperationResult(operationId: string, result: any) {
-    operations.set(operationId, result);
-    console.log(`[STATUS-CHECK] Stored operation result: ${operationId}, status: ${result.status}`);
-
-    // Automatically clean up after 10 minutes
-    setTimeout(() => {
-        operations.delete(operationId);
-        console.log(`[STATUS-CHECK] Cleaned up operation: ${operationId}`);
-    }, 10 * 60 * 1000);
-}
-

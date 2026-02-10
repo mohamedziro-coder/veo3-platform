@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getVeoModel, vertexAI } from "@/lib/vertex";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
-import { storeOperationResult } from "./status/route";
+import { storeOperationResult } from "@/lib/operations";
 
 export async function POST(req: NextRequest) {
     try {
