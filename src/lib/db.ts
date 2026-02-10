@@ -278,12 +278,31 @@ export async function verifyUserEmail(token: string): Promise<User | null> {
     }
 }
 
+
 // Deduct credits from user
 export async function deductUserCredits(email: string, amount: number): Promise<number | null> {
     try {
         const sql = getDb();
 
-        // Transaction to ensure atomicity
+        // Check if user is admin first - admins have unlimited credits
+        const userResult = await sql`
+            SELECT role, credits
+            FROM users
+            WHERE email = ${email}
+        `;
+
+        if (userResult.length === 0) {
+            return null; // User not found
+        }
+
+        const user = userResult[0];
+
+        // Admin users have unlimited credits - don't deduct
+        if (user.role === 'admin') {
+            return user.credits; // Return current credits without deduction
+        }
+
+        // For regular users, deduct credits as normal
         const result = await sql`
             UPDATE users 
             SET credits = credits - ${amount}
@@ -292,7 +311,7 @@ export async function deductUserCredits(email: string, amount: number): Promise<
         `;
 
         if (result.length === 0) {
-            return null; // Insufficient credits or user not found
+            return null; // Insufficient credits
         }
 
         return result[0].credits;
@@ -301,3 +320,4 @@ export async function deductUserCredits(email: string, amount: number): Promise<
         return null;
     }
 }
+

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Users, Trash2, ArrowLeft, ShieldAlert, Zap, BarChart3, Clock, Settings, Key } from "lucide-react";
+import { Users, Trash2, ArrowLeft, ShieldAlert, Zap, BarChart3, Clock, Settings, Key, Gift, Plus, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminPage() {
@@ -11,6 +11,8 @@ export default function AdminPage() {
     const [activities, setActivities] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [stats, setStats] = useState({ totalGenerations: 0, mostUsed: "-" });
+    const [creditAmount, setCreditAmount] = useState(50);
+    const [creditMessage, setCreditMessage] = useState("");
 
     useEffect(() => {
         const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
@@ -153,6 +155,147 @@ export default function AdminPage() {
                             <span className="text-gray-600 text-sm md:text-base font-medium">Most Popular Tool</span>
                         </div>
                         <p className="text-3xl md:text-4xl font-bold text-gray-900 truncate">{stats.mostUsed}</p>
+                    </div>
+                </div>
+
+                {/* Credit Management */}
+                <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 mb-8 shadow-sm">
+                    <h2 className="text-xl md:text-2xl font-bold mb-6 flex items-center gap-3">
+                        <Gift className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
+                        Credit Management
+                    </h2>
+
+                    {/* Give Credits to All */}
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6 mb-6">
+                        <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                            <Gift className="w-5 h-5 text-green-600" />
+                            Give Credits to All Users
+                        </h3>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <input
+                                type="number"
+                                value={creditAmount}
+                                onChange={(e) => setCreditAmount(Number(e.target.value))}
+                                className="flex-1 bg-white border border-green-300 rounded-xl px-4 py-3 text-gray-900 focus:border-green-500 focus:ring-2 focus:ring-green-500/10 focus:outline-none text-center font-bold text-lg min-h-[44px]"
+                                min="1"
+                            />
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        setCreditMessage("Processing...");
+                                        const res = await fetch('/api/admin/give-all-credits', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ amount: creditAmount })
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) {
+                                            setCreditMessage(`✅ ${data.message}`);
+                                            // Refresh users list
+                                            const usersRes = await fetch('/api/users');
+                                            const usersData = await usersRes.json();
+                                            if (usersData.success) setUsers(usersData.users || []);
+                                        } else {
+                                            setCreditMessage(`❌ ${data.error || 'Failed'}`);
+                                        }
+                                    } catch (e) {
+                                        setCreditMessage("❌ Error giving credits");
+                                    }
+                                    setTimeout(() => setCreditMessage(""), 3000);
+                                }}
+                                className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg min-h-[44px] whitespace-nowrap"
+                            >
+                                🎁 Give to Everyone
+                            </button>
+                        </div>
+                        {creditMessage && (
+                            <p className="mt-3 text-sm font-medium text-gray-700">{creditMessage}</p>
+                        )}
+                    </div>
+
+                    {/* User Credit Management Table */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
+                        <h3 className="font-bold text-lg mb-4">User Credits Overview</h3>
+                        <div className="overflow-x-auto -mx-6 sm:mx-0">
+                            <table className="w-full min-w-[600px]">
+                                <thead>
+                                    <tr className="border-b border-gray-200">
+                                        <th className="text-left py-3 px-4 text-sm font-bold text-gray-600">Email</th>
+                                        <th className="text-left py-3 px-4 text-sm font-bold text-gray-600">Name</th>
+                                        <th className="text-center py-3 px-4 text-sm font-bold text-gray-600">Credits</th>
+                                        <th className="text-center py-3 px-4 text-sm font-bold text-gray-600">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {users.map((user) => (
+                                        <tr key={user.id} className="border-b border-gray-100 hover:bg-white transition-colors">
+                                            <td className="py-4 px-4 text-sm">{user.email}</td>
+                                            <td className="py-4 px-4 text-sm">{user.name}</td>
+                                            <td className="py-4 px-4 text-center font-bold text-lg">
+                                                {user.role === 'admin' ? '∞' : user.credits}
+                                            </td>
+                                            <td className="py-4 px-4">
+                                                {user.role !== 'admin' && (
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button
+                                                            onClick={async () => {
+                                                                const res = await fetch('/api/admin/add-credits', {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ email: user.email, credits: 100 })
+                                                                });
+                                                                if (res.ok) {
+                                                                    const usersRes = await fetch('/api/users');
+                                                                    const usersData = await usersRes.json();
+                                                                    if (usersData.success) setUsers(usersData.users || []);
+                                                                }
+                                                            }}
+                                                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95 min-h-[36px] flex items-center gap-1"
+                                                        >
+                                                            <Plus className="w-3 h-3" /> 100
+                                                        </button>
+                                                        <button
+                                                            onClick={async () => {
+                                                                const res = await fetch('/api/admin/add-credits', {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ email: user.email, credits: 50 })
+                                                                });
+                                                                if (res.ok) {
+                                                                    const usersRes = await fetch('/api/users');
+                                                                    const usersData = await usersRes.json();
+                                                                    if (usersData.success) setUsers(usersData.users || []);
+                                                                }
+                                                            }}
+                                                            className="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95 min-h-[36px] flex items-center gap-1"
+                                                        >
+                                                            <Plus className="w-3 h-3" /> 50
+                                                        </button>
+                                                        <button
+                                                            onClick={async () => {
+                                                                const res = await fetch('/api/admin/add-credits', {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ email: user.email, credits: -50 })
+                                                                });
+                                                                if (res.ok) {
+                                                                    const usersRes = await fetch('/api/users');
+                                                                    const usersData = await usersRes.json();
+                                                                    if (usersData.success) setUsers(usersData.users || []);
+                                                                }
+                                                            }}
+                                                            className="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95 min-h-[36px] flex items-center gap-1"
+                                                        >
+                                                            <Minus className="w-3 h-3" /> 50
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
