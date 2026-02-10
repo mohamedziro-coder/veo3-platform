@@ -3,13 +3,34 @@ import { getImagenModel } from "@/lib/vertex";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
 
+// Simple in-memory cooldown tracker (for debugging quota issues)
+const lastRequestTime = new Map<string, number>();
+const COOLDOWN_MS = 10000; // 10 seconds between requests per user
+
 export async function POST(req: NextRequest) {
     try {
         const { prompt, image, userEmail } = await req.json();
 
+        // Log all image generation requests to track usage
+        const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+        console.log(`[IMAGE-GEN] User: ${userEmail}, IP: ${ip}, Time: ${new Date().toISOString()}`);
+        console.log(`[IMAGE-GEN] Prompt: "${prompt?.substring(0, 100)}"`);
+
         if (!userEmail) {
             return NextResponse.json({ error: "User authentication required" }, { status: 401 });
         }
+
+        // Check cooldown to prevent spam/quota abuse
+        const now = Date.now();
+        const lastTime = lastRequestTime.get(userEmail);
+        if (lastTime && (now - lastTime) < COOLDOWN_MS) {
+            const waitSeconds = Math.ceil((COOLDOWN_MS - (now - lastTime)) / 1000);
+            console.log(`[IMAGE-GEN] COOLDOWN: User ${userEmail} must wait ${waitSeconds}s`);
+            return NextResponse.json({
+                error: `Please wait ${waitSeconds} seconds before generating another image`
+            }, { status: 429 });
+        }
+        lastRequestTime.set(userEmail, now);
 
         // Deduct credits
         const newBalance = await deductUserCredits(userEmail, COSTS.IMAGE);
