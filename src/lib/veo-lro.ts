@@ -2,6 +2,18 @@ import { GoogleAuth } from 'google-auth-library';
 import { getVertexConfigAsync } from './config';
 
 /**
+ * Helper to sanitize string for URL construction
+ */
+function sanitize(val: any): string {
+    if (typeof val !== 'string') return '';
+    const clean = val.trim().replace(/[\r\n]/g, '');
+    if (clean !== val) {
+        console.warn(`[VEO-LRO] Sanitized input: "${val.replace(/\n/g, '\\n')}" -> "${clean}"`);
+    }
+    return clean;
+}
+
+/**
  * Start Veo 3.1 video generation using REST API :predictLongRunning
  * Returns operation name for polling
  */
@@ -13,6 +25,21 @@ export async function startVideoGeneration(params: {
 }): Promise<{ operationName: string }> {
     try {
         const config = await getVertexConfigAsync();
+        const projectId = sanitize(config.GOOGLE_PROJECT_ID || 'veo-demo');
+        const location = sanitize(config.GOOGLE_LOCATION || 'us-central1');
+        const model = sanitize('veo-3.1-fast-generate-001');
+
+        const url = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:predictLongRunning`;
+
+        console.log(`[VEO-LRO] Starting video generation: ${url}`);
+
+        // Validate URL before fetch
+        try {
+            new URL(url);
+        } catch (e) {
+            console.error('[VEO-LRO] INVALID URL CONSTRUCTED:', url);
+            throw new Error(`Invalid Vertex API URL: ${url}`);
+        }
 
         // Create OAuth2 client for Vertex AI
         const auth = new GoogleAuth({
@@ -28,16 +55,6 @@ export async function startVideoGeneration(params: {
         if (!accessToken.token) {
             throw new Error('Failed to get access token');
         }
-
-        const projectId = config.GOOGLE_PROJECT_ID || 'veo-demo';
-        const location = config.GOOGLE_LOCATION || 'us-central1';
-        const model = 'veo-3.1-fast-generate-001';
-
-        const url = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:predictLongRunning`;
-
-        console.log(`[VEO-LRO] Starting video generation: ${url}`);
-        console.log(`[VEO-LRO] Start frame: ${params.startImageGcsUri}`);
-        console.log(`[VEO-LRO] End frame: ${params.endImageGcsUri || 'none'}`);
 
         const requestBody: any = {
             instances: [{
@@ -99,16 +116,16 @@ export async function pollOperationStatus(operationName: string): Promise<{
 }> {
     try {
         const config = await getVertexConfigAsync();
-        const projectId = config.GOOGLE_PROJECT_ID;
+        const projectId = sanitize(config.GOOGLE_PROJECT_ID);
         if (!projectId) {
             throw new Error('GOOGLE_PROJECT_ID is not configured');
         }
-        let location = config.GOOGLE_LOCATION || 'us-central1';
+        let location = sanitize(config.GOOGLE_LOCATION || 'us-central1');
 
         // Check location in operationName
         const locMatch = operationName.match(/locations\/(.+?)\/operations/);
         if (locMatch && locMatch[1]) {
-            location = locMatch[1];
+            location = sanitize(locMatch[1]);
         }
 
         const auth = new GoogleAuth({
@@ -124,40 +141,32 @@ export async function pollOperationStatus(operationName: string): Promise<{
             throw new Error('Failed to get access token');
         }
 
-        // Extract UUID from operationName (last part)
-        const opId = operationName.split('/').pop();
-        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(opId || '');
+        // Extract and sanitize Operation ID
+        const rawOpId = operationName.split('/').pop() || '';
+        const opId = sanitize(rawOpId);
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(opId);
 
         console.log(`[VEO-LRO] Polling Operation ID: ${opId} (Type: ${isUuid ? 'UUID' : 'Long'}) in ${location}`);
 
-        // CRITICAL FIX: Route to the CORRECT endpoint based on ID format
-        // Numeric ID -> Standard Operations Endpoint (v1/projects/.../operations)
-        // UUID -> GenAI Operations Endpoint (v1beta1/projects/.../publishers/google/models/.../operations)
-
-        // Sanitize inputs to prevent URL malformation (spaces/newlines causing "fetch failed")
-        const cleanProjectId = projectId.trim();
         let pollingUrl: string;
 
         if (isUuid) {
-            // Determine model ID - usually veo-3.1-fast-generate-001 but extract if possible
             let modelId = 'veo-3.1-fast-generate-001';
             if (operationName.includes('/models/')) {
                 const modelMatch = operationName.match(/\/models\/([^\/]+)/);
                 if (modelMatch && modelMatch[1]) {
-                    modelId = modelMatch[1];
+                    modelId = sanitize(modelMatch[1]);
                 }
             }
             if (!modelId) throw new Error('Model ID could not be determined for UUID operation');
 
-            const cleanModelId = modelId.trim();
+            const cleanModelId = sanitize(modelId);
 
             // Construct Publisher Proxy URL for UUID operations
-            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${cleanProjectId}/locations/${location}/publishers/google/models/${cleanModelId}/operations/${opId}`;
-            console.log(`[VEO-LRO] Using GenAI Operations Endpoint (UUID): ${pollingUrl}`);
+            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/publishers/google/models/${cleanModelId}/operations/${opId}`;
         } else {
             // Use Standard Operations Endpoint for Numeric IDs
-            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${cleanProjectId}/locations/${location}/operations/${opId}`;
-            console.log(`[VEO-LRO] Using Standard Operations Endpoint (Long): ${pollingUrl}`);
+            pollingUrl = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/operations/${opId}`;
         }
 
         return await executePoll(pollingUrl, accessToken.token);
@@ -170,6 +179,14 @@ export async function pollOperationStatus(operationName: string): Promise<{
 
 async function executePoll(url: string, token: string) {
     console.log(`[VEO-LRO] Polling URL: ${url}`);
+
+    // Validate URL
+    try {
+        new URL(url);
+    } catch (e) {
+        console.error('[VEO-LRO] MALFORMED POLLING URL:', url);
+        throw new Error(`Invalid Polling URL: ${url}`);
+    }
 
     // Create AbortController with 10s timeout
     const controller = new AbortController();
@@ -203,7 +220,12 @@ async function executePoll(url: string, token: string) {
         if (error.name === 'AbortError') {
             throw new Error('Polling request timed out after 10s');
         }
+
         if (error.message && error.message.includes('fetch failed')) {
+            // ADVANCED DIAGNOSTIC: Log string details
+            const hex = Array.from(url).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join(' ');
+            console.error(`[VEO-LRO] FETCH FAILED! URL HEX: ${hex}`);
+            console.error(`[VEO-LRO] URL LENGTH: ${url.length}`);
             console.error('[VEO-LRO] Network/DNS Error. Check URL construction:', url);
         }
         throw error;
