@@ -50,6 +50,13 @@ export default function NanbananaPage() {
     const handleGenerate = async () => {
         if (!prompt) return;
 
+        // Get user for authentication
+        const user = JSON.parse(localStorage.getItem('current_user') || '{}');
+        if (!user.email) {
+            setError("Authentication required. Please login.");
+            return;
+        }
+
         // Re-check credits at moment of generation to be safe
         const freshCredits = getUserCredits();
         if (freshCredits < COSTS.IMAGE) {
@@ -65,7 +72,10 @@ export default function NanbananaPage() {
             const response = await fetch("/api/generate-image", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt })
+                body: JSON.stringify({
+                    prompt,
+                    userEmail: user.email // Pass user email for auth and credit deduction
+                })
             });
 
             const data = await response.json();
@@ -73,11 +83,18 @@ export default function NanbananaPage() {
             if (data.success && data.raw?.url) {
                 setImageUrl(data.raw.url);
 
-                // Deduct credits
-                deductCredits(COSTS.IMAGE);
+                // Update credits from server response (DATABASE is source of truth)
+                if (data.credits !== undefined) {
+                    user.credits = data.credits;
+                    localStorage.setItem('current_user', JSON.stringify(user));
+                    window.dispatchEvent(new Event('storage'));
+                    window.dispatchEvent(new Event('credits-updated'));
+                } else {
+                    // Fallback to client-side deduction (shouldn't happen now)
+                    deductCredits(COSTS.IMAGE);
+                }
 
                 // Log Activity to Database
-                const user = JSON.parse(localStorage.getItem('current_user') || '{}');
                 try {
                     await fetch('/api/activity', {
                         method: 'POST',

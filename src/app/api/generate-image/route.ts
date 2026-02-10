@@ -1,15 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getGeminiApiKey } from "@/lib/config";
+import { deductUserCredits } from "@/lib/db";
+import { COSTS } from "@/lib/credits";
 
 export async function POST(req: NextRequest) {
     try {
-        const { prompt, image } = await req.json();
+        const { prompt, image, userEmail } = await req.json();
 
         if (!prompt) {
             return NextResponse.json(
                 { error: "Prompt is required" },
                 { status: 400 }
+            );
+        }
+
+        if (!userEmail) {
+            return NextResponse.json(
+                { error: "User authentication required" },
+                { status: 401 }
+            );
+        }
+
+        // Deduct credits from database
+        const newBalance = await deductUserCredits(userEmail, COSTS.IMAGE);
+        if (newBalance === null) {
+            return NextResponse.json(
+                { error: "Insufficient credits" },
+                { status: 402 }
             );
         }
 
@@ -65,13 +83,21 @@ export async function POST(req: NextRequest) {
             if (response.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
                 const imgData = response.candidates[0].content.parts[0].inlineData;
                 const base64Image = `data:${imgData.mimeType};base64,${imgData.data}`;
-                return NextResponse.json({ success: true, raw: { url: base64Image } });
+                return NextResponse.json({
+                    success: true,
+                    raw: { url: base64Image },
+                    credits: newBalance // Return updated credits
+                });
             }
 
             // If it's a URL in text
             const text = response.text();
             if (text && text.startsWith("http")) {
-                return NextResponse.json({ success: true, raw: { url: text } });
+                return NextResponse.json({
+                    success: true,
+                    raw: { url: text },
+                    credits: newBalance // Return updated credits
+                });
             }
 
             return NextResponse.json({
