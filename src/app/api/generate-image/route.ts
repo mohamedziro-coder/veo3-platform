@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
             }
 
             return NextResponse.json(
-                { error: "Credit deduction failed (System Error)" },
+                { error: `Credit deduction failed (System Error). User has ${user.credits} (type: ${typeof user.credits}). Needed: ${COSTS.IMAGE}` },
                 { status: 500 }
             );
         }

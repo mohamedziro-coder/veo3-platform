@@ -308,8 +308,8 @@ export async function deductUserCredits(email: string, amount: number): Promise<
         // For regular users, deduct credits as normal
         const result = await sql`
             UPDATE users 
-            SET credits = credits - ${amount}
-            WHERE LOWER(email) = ${emailLower} AND credits >= ${amount}
+            SET credits = credits::integer - ${amount}
+            WHERE LOWER(email) = ${emailLower} AND credits::integer >= ${amount}
             RETURNING credits
         `;
 
