@@ -100,6 +100,9 @@ export async function pollOperationStatus(operationName: string): Promise<{
     try {
         const config = await getVertexConfigAsync();
         const projectId = config.GOOGLE_PROJECT_ID;
+        if (!projectId) {
+            throw new Error('GOOGLE_PROJECT_ID is not configured');
+        }
         let location = config.GOOGLE_LOCATION || 'us-central1';
 
         // Check location in operationName
