@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getGeminiModel } from '@/lib/vertex';
+import { geminiGenerateContent } from '@/lib/vertex';
 
 export async function POST(request: Request) {
     try {
@@ -8,8 +8,6 @@ export async function POST(request: Request) {
         if (!content) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });
         }
-
-        const model = await getGeminiModel('gemini-1.5-flash-002');
 
         const prompt = `
             You are an SEO expert. Analyze the following blog post content and generate:
@@ -27,10 +25,7 @@ export async function POST(request: Request) {
             Do not include markdown formatting (like \`\`\`json) in the response.
         `;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        // Vertex AI SDK response structure
-        const text = response.candidates?.[0].content.parts?.[0].text || "{}";
+        const text = await geminiGenerateContent(prompt, 'gemini-2.0-flash');
 
         // Clean up markdown code blocks if Gemini returns them
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getGeminiModel, getImagenModel } from '@/lib/vertex';
+import { geminiGenerateContent, getImagenModel } from '@/lib/vertex';
 
 export async function POST(request: Request) {
     try {
@@ -9,8 +9,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Topic is required" }, { status: 400 });
         }
 
-        // 1. Generate Content with Gemini
-        const geminiModel = await getGeminiModel('gemini-1.5-flash-002');
+        // 1. Generate Content with Gemini (via Google Gen AI SDK)
         const prompt = `
             You are an expert blog writer. Write a comprehensive, engaging blog post about: "${topic}".
             
@@ -23,10 +22,7 @@ export async function POST(request: Request) {
         `;
 
         console.log(`[BLOG-GEN] Generating content for topic: "${topic}"`);
-        const result = await geminiModel.generateContent(prompt);
-        const response = await result.response;
-        // Handle Vertex AI SDK response structure safely
-        const text = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+        const text = await geminiGenerateContent(prompt, 'gemini-2.0-flash');
 
         // Clean up markdown if present
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -56,8 +52,6 @@ export async function POST(request: Request) {
                     const imgData = imgResponse.candidates[0].content.parts[0].inlineData;
                     coverImage = `data:${imgData.mimeType};base64,${imgData.data}`;
                 } else if (imgResponse.candidates?.[0]?.content?.parts?.[0]?.fileData?.fileUri) {
-                    // If it returns a URI (less likely for this model config but possible), we might pass it directly
-                    // typically need to read it, but let's assume base64 or client handles URI 
                     coverImage = imgResponse.candidates[0].content.parts[0].fileData.fileUri;
                 }
             } catch (imgError) {

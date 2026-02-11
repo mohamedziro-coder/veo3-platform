@@ -49,11 +49,36 @@ export const getImagenModel = async (modelName: string = 'imagen-3.0-generate-00
         model: modelName,
     });
 };
+// ---- NEW: Google Gen AI SDK for Gemini (replaces deprecated Vertex AI SDK for Gemini) ----
+import { GoogleGenAI } from '@google/genai';
 
-export const getGeminiModel = async (modelName: string = 'gemini-1.5-flash-002') => {
+export const getGeminiGenAI = async (): Promise<GoogleGenAI> => {
+    const config = await getVertexConfigAsync();
+    // Use Vertex AI backend with service account credentials
+    return new GoogleGenAI({
+        vertexai: true,
+        project: config.GOOGLE_PROJECT_ID || 'your-project-id',
+        location: config.GOOGLE_LOCATION || 'us-central1',
+    });
+};
+
+// Helper to generate text content with Gemini via Gen AI SDK
+export const geminiGenerateContent = async (
+    prompt: string,
+    modelName: string = 'gemini-2.0-flash'
+) => {
+    const ai = await getGeminiGenAI();
+    const response = await ai.models.generateContent({
+        model: modelName,
+        contents: prompt,
+    });
+    return response.text || '{}';
+};
+
+// Keep old getGeminiModel for backward compat but mark deprecated
+/** @deprecated Use geminiGenerateContent() instead */
+export const getGeminiModel = async (modelName: string = 'gemini-2.0-flash') => {
     const client = await getVertexClient();
-    // Use standard Gemini models (not publisher models)
-    // Valid models: gemini-1.5-flash-002, gemini-1.5-pro-002, gemini-1.0-pro-002
     return client.getGenerativeModel({
         model: modelName,
     });

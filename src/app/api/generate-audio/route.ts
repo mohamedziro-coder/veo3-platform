@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getVertexConfigAsync } from "@/lib/config";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
-import { getGeminiModel } from "@/lib/vertex"; // Use Vertex for enhancement
+import { geminiGenerateContent } from "@/lib/vertex"; // Use new Gen AI SDK for enhancement
 import { TextToSpeechClient } from "@google-cloud/text-to-speech";
 
 export async function POST(req: Request) {
@@ -24,14 +24,10 @@ export async function POST(req: Request) {
         // 1. Text Enhancement with Vertex AI (Gemini)
         if (useGemini) {
             try {
-                const model = await getGeminiModel("gemini-1.5-flash-001");
                 const prompt = `Improve for TTS (Natural flow, ${languageCode}): ${text}`;
-
-                const result = await model.generateContent(prompt);
-                const response = result.response;
-
-                if (response.candidates?.[0]?.content?.parts?.[0]?.text) {
-                    processedText = response.candidates[0].content.parts[0].text.trim();
+                const result = await geminiGenerateContent(prompt, 'gemini-2.0-flash');
+                if (result) {
+                    processedText = result.trim();
                 }
             } catch (e) {
                 console.error("Gemini Enhancement Failed:", e);
