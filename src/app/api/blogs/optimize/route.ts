@@ -29,7 +29,8 @@ export async function POST(request: Request) {
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text();
+        // Vertex AI SDK response structure
+        const text = response.candidates?.[0].content.parts?.[0].text || "{}";
 
         // Clean up markdown code blocks if Gemini returns them
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
