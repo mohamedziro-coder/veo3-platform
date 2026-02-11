@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getBlogBySlug } from '@/lib/db';
 import { ArrowLeft, Calendar, Share2 } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 
 export default async function BlogPostPage({
     params,
@@ -61,10 +62,8 @@ export default async function BlogPostPage({
                     </div>
                 )}
 
-                <div className="prose prose-lg prose-purple mx-auto prose-img:rounded-2xl prose-headings:font-bold prose-a:text-purple-600">
-                    <div className="whitespace-pre-wrap font-sans text-gray-800 leading-relaxed">
-                        {blog.content}
-                    </div>
+                <div className="prose prose-lg prose-purple max-w-none prose-img:rounded-2xl prose-headings:font-bold prose-a:text-purple-600 prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-gray-700 prose-li:text-gray-700">
+                    <ReactMarkdown>{blog.content}</ReactMarkdown>
                 </div>
 
                 <hr className="my-12 border-gray-100" />

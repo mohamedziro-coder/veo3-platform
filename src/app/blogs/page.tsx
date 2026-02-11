@@ -62,9 +62,9 @@ export default async function BlogsPage() {
                                             Virezo Team
                                         </span> */}
                                     </div>
-                                    <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors line-clamp-2">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors line-clamp-2">
                                         {blog.title}
-                                    </h2>
+                                    </h3>
                                     <p className="text-gray-500 text-sm line-clamp-3 mb-4 flex-1">
                                         {blog.excerpt || "Click to read more..."}
                                     </p>
