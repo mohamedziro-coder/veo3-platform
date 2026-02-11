@@ -149,7 +149,62 @@ async function processVideoGeneration(
         while (attempts < MAX_ATTEMPTS) {
             await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
 
-            const { done, error, response } = await pollOperationStatus(operationName);
+            // FALLBACK: Check GCS directly for the output file
+            // This is "L-badil" (the alternative) for broken API polling
+            const { checkGcsOutput } = await import('@/lib/gcs-upload');
+            const gcsVideoUrl = await checkGcsOutput(operationId);
+
+            if (gcsVideoUrl) {
+                console.log(`[PROCESS] GCS Fallback SUCCESS: Video found at ${gcsVideoUrl}`);
+                storeOperationResult(operationId, {
+                    status: "complete",
+                    videoUrl: gcsVideoUrl,
+                    credits,
+                    message: "Video generated successfully! (via GCS Fallback)"
+                });
+                return;
+            }
+
+            // PRIMARY: Try API Polling
+            try {
+                const { done, error, response } = await pollOperationStatus(operationName);
+
+                if (done) {
+                    if (error) {
+                        console.error(`[PROCESS] Vertex AI operation failed:`, error);
+                        storeOperationResult(operationId, {
+                            status: "failed",
+                            error: error.message || "Video generation failed"
+                        });
+                        return;
+                    }
+
+                    // Extract video GCS URI from response
+                    console.log(`[PROCESS] Operation completed! Response:`, JSON.stringify(response));
+                    let videoUrl = null;
+
+                    if (response?.generatedVideos?.[0]?.video?.gcsUri) {
+                        const gcsUri = response.generatedVideos[0].video.gcsUri;
+                        videoUrl = gcsUriToHttps(gcsUri);
+                    } else if (response?.generatedSamples?.[0]?.video?.uri) {
+                        videoUrl = response.generatedSamples[0].video.uri;
+                        if (videoUrl.startsWith('gs://')) videoUrl = gcsUriToHttps(videoUrl);
+                    }
+
+                    if (videoUrl) {
+                        storeOperationResult(operationId, {
+                            status: "complete",
+                            videoUrl,
+                            credits,
+                            message: "Video generated successfully!"
+                        });
+                        return;
+                    }
+                }
+            } catch (pollError: any) {
+                // Silently ignore polling errors and rely on GCS fallback
+                console.warn(`[PROCESS] Polling error (will retry with GCS fallback):`, pollError.message);
+            }
 
             // Update progress message every 10 attempts (30 seconds)
             if (attempts % 10 === 0) {
@@ -159,50 +214,6 @@ async function processVideoGeneration(
                     status: "processing",
                     message: lastMessage
                 });
-            }
-
-            if (done) {
-                if (error) {
-                    console.error(`[PROCESS] Vertex AI operation failed:`, error);
-                    storeOperationResult(operationId, {
-                        status: "failed",
-                        error: error.message || "Video generation failed"
-                    });
-                    return;
-                }
-
-                // Extract video GCS URI from response
-                console.log(`[PROCESS] Operation completed! Response:`, JSON.stringify(response));
-
-                // The response structure should contain the generated video
-                // Response format: { generatedVideos: [{ video: { gcsUri: "gs://..." } }] }
-                let videoUrl = null;
-
-                if (response?.generatedVideos?.[0]?.video?.gcsUri) {
-                    const gcsUri = response.generatedVideos[0].video.gcsUri;
-                    videoUrl = gcsUriToHttps(gcsUri);
-                    console.log(`[PROCESS] Video URL: ${videoUrl}`);
-                } else if (response?.generatedSamples?.[0]?.video?.uri) {
-                    // Alternative response format
-                    videoUrl = response.generatedSamples[0].video.uri;
-                    if (videoUrl.startsWith('gs://')) {
-                        videoUrl = gcsUriToHttps(videoUrl);
-                    }
-                } else {
-                    console.error('[PROCESS] Unexpected response format:', response);
-                    throw new Error('Could not extract video URL from response');
-                }
-
-                // Success!
-                storeOperationResult(operationId, {
-                    status: "complete",
-                    videoUrl,
-                    credits,
-                    message: "Video generated successfully!"
-                });
-
-                console.log(`[PROCESS] Operation ${operationId} completed successfully`);
-                return;
             }
 
             attempts++;

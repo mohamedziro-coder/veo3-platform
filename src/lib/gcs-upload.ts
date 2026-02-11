@@ -88,6 +88,46 @@ export async function uploadBase64ToGCS(
 }
 
 /**
+ * Check if video file has been generated in GCS output directory
+ * Returns public URL if found, null otherwise
+ */
+export async function checkGcsOutput(operationId: string): Promise<string | null> {
+    try {
+        const config = await getVertexConfigAsync();
+        const storage = new Storage({
+            credentials: config.GOOGLE_APPLICATION_CREDENTIALS_JSON
+                ? JSON.parse(config.GOOGLE_APPLICATION_CREDENTIALS_JSON)
+                : undefined
+        });
+
+        let bucketName = process.env.GCS_BUCKET_NAME || config.GCS_BUCKET_NAME;
+        if (!bucketName) return null;
+        bucketName = bucketName.replace(/^gs:\/\//, '').trim();
+
+        const bucket = storage.bucket(bucketName);
+        const prefix = `veo-outputs/${operationId}/`;
+
+        console.log(`[GCS] Checking for outputs in: gs://${bucketName}/${prefix}`);
+
+        const [files] = await bucket.getFiles({ prefix });
+
+        // Look for any .mp4 file
+        const videoFile = files.find(file => file.name.endsWith('.mp4'));
+
+        if (videoFile) {
+            const gcsUri = `gs://${bucketName}/${videoFile.name}`;
+            console.log(`[GCS] Found generated video: ${gcsUri}`);
+            return gcsUriToHttps(gcsUri);
+        }
+
+        return null;
+    } catch (error) {
+        console.error('[GCS] Error checking output:', error);
+        return null;
+    }
+}
+
+/**
  * Get public URL from GCS URI (converts gs:// to https://)
  */
 export function gcsUriToHttps(gcsUri: string): string {
