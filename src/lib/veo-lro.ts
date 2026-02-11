@@ -128,25 +128,51 @@ export async function pollOperationStatus(operationName: string): Promise<{
         const opId = sanitize(operationName.split('/').pop() || '');
         const cleanOpName = operationName.startsWith('/') ? operationName.substring(1) : operationName;
 
-        // FINAL FIX: Use the FULL raw operation name provided by the API
-        // This includes the "publishers/google/models/..." nested path which is REQUIRED for UUIDs.
-        // v1beta1 is used for maximum compatibility with these nested LROs.
-        const pollingUrl = `https://${location}-aiplatform.googleapis.com/v1beta1/${cleanOpName}`;
+        // AUTO-DISCOVERY: Try multiple variations since UUIDs have inconsistent endpoint support
+        const variations = [
+            // 1. v1 Nested (Most likely for Publisher models)
+            `https://${location}-aiplatform.googleapis.com/v1/${cleanOpName}`,
+            // 2. v1beta1 Nested (Common for preview features)
+            `https://${location}-aiplatform.googleapis.com/v1beta1/${cleanOpName}`,
+            // 3. v1beta1 Flat (Often supports UUIDs where v1 flat doesn't)
+            `https://${location}-aiplatform.googleapis.com/v1beta1/projects/${projectId}/locations/${location}/operations/${opId}`,
+            // 4. v1 Flat (Standard, but known to fail with "Must be a Long" for UUIDs)
+            `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/operations/${opId}`
+        ];
 
-        console.log(`[VEO-LRO] Polling via Gaxios (v1beta1 Raw Name): ${pollingUrl}`);
+        let lastError: any = null;
 
-        const response = await client.request({
-            url: pollingUrl,
-            method: 'GET',
-            timeout: 10000
-        });
+        for (const pollingUrl of variations) {
+            try {
+                console.log(`[VEO-LRO] Trying Poll URL: ${pollingUrl}`);
+                const response = await client.request({
+                    url: pollingUrl,
+                    method: 'GET',
+                    timeout: 5000 // Short timeout for discovery
+                });
 
-        const data = response.data as any;
-        return {
-            done: data.done || false,
-            error: data.error,
-            response: data.response
-        };
+                if (response.status === 200) {
+                    const data = response.data as any;
+                    console.log(`[VEO-LRO] Successful poll at: ${pollingUrl}`);
+                    return {
+                        done: data.done || false,
+                        error: data.error,
+                        response: data.response
+                    };
+                }
+            } catch (err: any) {
+                const status = err.response?.status;
+                const errorData = err.response?.data;
+                console.warn(`[VEO-LRO] Failed variation (${status || 'NET'}): ${pollingUrl}`, errorData);
+                lastError = err;
+
+                // If it's 200/400/403/404 we continue to next variation
+                // If it's a success but done=false, the catch won't trigger, we return above.
+            }
+        }
+
+        // If we reach here, all variations failed
+        throw lastError || new Error('All polling endpoint variations failed');
 
     } catch (error: any) {
         // Advanced logging for fetch-like failures in gaxios
