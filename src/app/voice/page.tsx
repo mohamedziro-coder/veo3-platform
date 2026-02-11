@@ -7,7 +7,6 @@ import { Mic, Play, Square, Download, Wand2, Volume2, AlertCircle } from "lucide
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 
 // Voice options - defined outside component to avoid recreation
-// Voice options - defined outside component to avoid recreation
 const VOICE_OPTIONS = [
     // Moroccan Arabic (Darija) - ar-MA
     { id: "ar-XA-Wavenet-B", name: "Moroccan Arabic (Male 1)", lang: "ar-MA", type: "Wavenet (Native)" },
@@ -212,14 +211,14 @@ export default function VoicePage() {
                 <motion.div variants={itemVariants} className="text-center space-y-4">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 backdrop-blur-md text-xs font-medium text-cyan-600 shadow-sm">
                         <Volume2 className="w-3 h-3" />
-                        <span>Veo Voice Studio</span>
+                        <span>Virezo Voice Studio</span>
                     </div>
                     <h1 className="text-5xl md:text-6xl font-bold tracking-tighter text-gray-900">
                         Voice Over API
                     </h1>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
                         Transform text to professional voice with Neural2 technology. <br />
-                        <span className="text-gray-400 text-sm">Supports Moroccan Arabic, English, French, German, Spanish & more.</span>
+                        <span className="text-gray-400 text-sm">Supports Arabic, English, French, German, Spanish & more.</span>
                     </p>
                 </motion.div>
 
@@ -276,14 +275,13 @@ export default function VoicePage() {
                             </div>
                         </div>
 
-                        {/* Voice Controls (Speed & Style) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-gray-50 rounded-2xl border border-gray-100">
                             {/* Sliders */}
                             <div className="space-y-6">
                                 {/* Speed */}
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center text-sm">
-                                        <label className="font-semibold text-gray-700">Speed (Zrba)</label>
+                                        <label className="font-semibold text-gray-700">Speed</label>
                                         <span className="text-gray-500 font-mono">{speakingRate.toFixed(1)}x</span>
                                     </div>
                                     <input
@@ -305,7 +303,7 @@ export default function VoicePage() {
                                 {/* Pitch */}
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center text-sm">
-                                        <label className="font-semibold text-gray-700">Tone (Naghma)</label>
+                                        <label className="font-semibold text-gray-700">Tone</label>
                                         <span className="text-gray-500 font-mono">{pitch}</span>
                                     </div>
                                     <input
@@ -333,86 +331,86 @@ export default function VoicePage() {
                                         onClick={() => { setSpeakingRate(1.0); setPitch(0.0); }}
                                         className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-primary/50 hover:bg-blue-50/50 transition-all group"
                                     >
-                                        <span className="text-sm font-medium text-gray-700 group-hover:text-primary">Neutral (Tabi3i)</span>
+                                        <span className="text-sm font-medium text-gray-700 group-hover:text-primary">Neutral</span>
                                         <div className="w-2 h-2 rounded-full bg-gray-300 group-hover:bg-primary" />
                                     </button>
                                     <button
                                         onClick={() => { setSpeakingRate(1.2); setPitch(2.0); }}
                                         className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-green-400/50 hover:bg-green-50/50 transition-all group"
                                     >
-                                        <span className="text-sm font-medium text-gray-700 group-hover:text-green-600">Energetic (Nachat)</span>
+                                        <span className="text-sm font-medium text-gray-700 group-hover:text-green-600">Energetic</span>
                                         <span className="text-xs text-green-500 font-bold">⚡</span>
                                     </button>
                                     <button
                                         onClick={() => { setSpeakingRate(0.9); setPitch(-2.0); }}
                                         className="flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-purple-400/50 hover:bg-purple-50/50 transition-all group"
                                     >
-                                        <span className="text-sm font-medium text-gray-700 group-hover:text-purple-600">Serious (Ma39ol)</span>
+                                        <span className="text-sm font-medium text-gray-700 group-hover:text-purple-600">Serious</span>
                                         <span className="text-xs text-purple-500 font-bold">💼</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Gemini Enhancement Toggle */}
-                        <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                                        <Wand2 className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-sm font-semibold text-gray-900">Gemini Text Enhancement</h3>
-                                        <p className="text-xs text-gray-500">Improve text quality with AI before voice generation</p>
-                                    </div>
+                    {/* Gemini Enhancement Toggle */}
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                                    <Wand2 className="w-5 h-5 text-white" />
                                 </div>
-                                <button
-                                    onClick={() => setUseGemini(!useGemini)}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${useGemini ? 'bg-purple-600' : 'bg-gray-300'
-                                        }`}
-                                >
-                                    <span
-                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useGemini ? 'translate-x-6' : 'translate-x-1'
-                                            }`}
-                                    />
-                                </button>
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-900">Gemini Text Enhancement</h3>
+                                    <p className="text-xs text-gray-500">Improve text quality with AI before voice generation</p>
+                                </div>
                             </div>
-                        </div>
-
-                        {/* Text Input */}
-                        <label className="text-sm font-semibold text-gray-700 ml-1 mb-2 block">Script</label>
-                        <textarea
-                            placeholder="Enter your script here... (e.g., 'Hello, how are you? This is a test of Voice Generation.')"
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            className="w-full h-40 bg-gray-50 rounded-xl p-4 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-xl resize-none leading-relaxed shadow-inner"
-                        />
-
-
-                        {/* Controls */}
-                        <div className="flex justify-between items-center border-t border-gray-100 pt-6">
-                            <div className="text-xs text-gray-500 font-mono">
-                                {text.length} chars
-                            </div>
-
                             <button
-                                onClick={handleGenerate}
-                                disabled={!text || isLoading}
-                                className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 font-bold text-white shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                                onClick={() => setUseGemini(!useGemini)}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${useGemini ? 'bg-purple-600' : 'bg-gray-300'
+                                    }`}
                             >
-                                {isLoading ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>Generating...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Mic className="w-5 h-5" />
-                                        <span>Generate Voice ({COSTS.VOICE} Credits)</span>
-                                    </>
-                                )}
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useGemini ? 'translate-x-6' : 'translate-x-1'
+                                        }`}
+                                />
                             </button>
                         </div>
+                    </div>
+
+                    {/* Text Input */}
+                    <label className="text-sm font-semibold text-gray-700 ml-1 mb-2 block">Script</label>
+                    <textarea
+                        placeholder="Enter your script here... (e.g., 'Hello, how are you? This is a test of Voice Generation.')"
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        className="w-full h-40 bg-gray-50 rounded-xl p-4 border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-xl resize-none leading-relaxed shadow-inner"
+                    />
+
+
+                    {/* Controls */}
+                    <div className="flex justify-between items-center border-t border-gray-100 pt-6">
+                        <div className="text-xs text-gray-500 font-mono">
+                            {text.length} chars
+                        </div>
+
+                        <button
+                            onClick={handleGenerate}
+                            disabled={!text || isLoading}
+                            className="px-8 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 font-bold text-white shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2"
+                        >
+                            {isLoading ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>Generating...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Mic className="w-5 h-5" />
+                                    <span>Generate Voice ({COSTS.VOICE} Credits)</span>
+                                </>
+                            )}
+                        </button>
                     </div>
                 </motion.div>
 

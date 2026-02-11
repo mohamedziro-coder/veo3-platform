@@ -139,7 +139,7 @@ export default function HomePage() {
             {
               icon: <Mic className="w-8 h-8" />,
               title: "Multi-Language",
-              desc: "Native voiceovers in 30+ languages, including specialized support for Moroccan Darija."
+              desc: "Native voiceovers in 30+ languages, including specialized support for local dialects."
             },
             {
               icon: <Share2 className="w-8 h-8" />,
@@ -261,7 +261,7 @@ export default function HomePage() {
               <div className="text-4xl font-bold text-gray-900 mb-6">$59<span className="text-lg text-gray-400 font-normal">/mo</span></div>
               <ul className="space-y-4 text-gray-700 mb-8 text-sm font-medium">
                 <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> 50 Videos / mo</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> All Languages (Darija)</li>
+                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> All Languages Supported</li>
                 <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> 1080p HD Export</li>
                 <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> No Watermark</li>
               </ul>
