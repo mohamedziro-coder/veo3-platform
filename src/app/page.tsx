@@ -190,7 +190,7 @@ export default function HomePage() {
       {/* 5. DEMO PREVIEW SECTION */}
       <section className="py-24 px-6 max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Made with Veo</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Made with Virezo</h2>
           <p className="text-xl text-gray-500">See what others are building right now.</p>
         </div>
 
@@ -287,7 +287,7 @@ export default function HomePage() {
       <section className="py-24 px-6 md:px-12 bg-primary">
         <div className="max-w-4xl mx-auto text-center text-white">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to create viral videos?</h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">Join thousands of creators using Veo to scale their content production.</p>
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">Join thousands of creators using Virezo to scale their content production.</p>
 
           <Link
             href="/video"
@@ -307,7 +307,7 @@ export default function HomePage() {
             <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
             <Link href="#" className="hover:text-primary transition-colors">Twitter</Link>
           </div>
-          <p>&copy; 2026 Veo Platform. All rights reserved.</p>
+          <p>&copy; 2026 Virezo Platform. All rights reserved.</p>
         </div>
       </footer>
 

@@ -6,8 +6,8 @@ import Navigation from "@/components/Navigation";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Veo 3 Video Generator",
-  description: "Generate premium UGC videos with Veo 3 and Gemini",
+  title: "Virezo 3 Video Generator",
+  description: "Generate premium UGC videos with Virezo 3 and Gemini",
 };
 
 import Providers from "@/components/Providers";
