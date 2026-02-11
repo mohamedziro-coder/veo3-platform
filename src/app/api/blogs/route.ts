@@ -27,14 +27,17 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const newBlog = await createBlog(title, slug, content, excerpt, cover_image, author_email, published);
+        console.log('[BLOG-SAVE] Attempting to create blog:', { title, slug, author_email, published });
+        const newBlog = await createBlog(title, slug, content, excerpt || '', cover_image || '', author_email || '', published || false);
 
         if (!newBlog) {
-            return NextResponse.json({ error: "Failed to create blog" }, { status: 500 });
+            console.error('[BLOG-SAVE] createBlog returned null - check DB logs above');
+            return NextResponse.json({ error: "Failed to create blog - database error" }, { status: 500 });
         }
 
         return NextResponse.json({ success: true, blog: newBlog });
     } catch (error: any) {
+        console.error('[BLOG-SAVE] Exception:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

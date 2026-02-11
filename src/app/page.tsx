@@ -1,276 +1,336 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Video, Image as ImageIcon, Mic, ArrowRight, Zap, Globe, Sparkles } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { 
+  Video, 
+  Sparkles, 
+  Globe, 
+  Zap, 
+  Play, 
+  Check, 
+  ArrowRight,
+  MonitorPlay,
+  Share2,
+  Users,
+  Mic,
+  Clapperboard
+} from "lucide-react";
+import { useState } from "react";
 
-export default function LandingPage() {
+export default function HomePage() {
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const y = useTransform(scrollY, [0, 300], [0, 100]);
+  
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2 }
+    visible: { 
+      opacity: 1, 
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 } 
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring" as const,
-        bounce: 0.4
-      }
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, ease: "easeOut" } 
     }
   };
 
   return (
-    <main className="min-h-screen bg-white text-gray-900 selection:bg-primary/20">
-
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center pt-20 overflow-hidden">
-        {/* Ambient Background */}
-        <div className="absolute inset-0 pointer-events-none w-full h-full bg-white">
-          {/* Base Gradients */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/5 rounded-full blur-[130px]" />
-          <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-secondary/5 rounded-full blur-[130px]" />
-
-          {/* Vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-white" />
+    <main className="min-h-screen bg-[#050505] text-white selection:bg-violet-500/30 selection:text-violet-200 overflow-x-hidden">
+      
+      {/* 1. HERO SECTION */}
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-4 md:px-6 pt-20">
+        {/* Background Effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[60vw] h-[60vw] bg-violet-600/20 rounded-full blur-[120px] opacity-50 animate-pulse" />
+          <div className="absolute bottom-0 right-0 w-[40vw] h-[40vw] bg-blue-600/10 rounded-full blur-[100px]" />
+          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.05]" /> {/* Optional grid texture */}
         </div>
 
-        <motion.div
+        <motion.div 
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="relative z-10 text-center max-w-5xl px-6 space-y-8"
+          className="relative z-10 max-w-5xl mx-auto text-center space-y-8"
         >
-          {/* Badge */}
+          {/* Trust Badge */}
           <motion.div variants={itemVariants} className="flex justify-center">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-md text-sm font-medium text-primary">
-              <Sparkles className="w-4 h-4" />
-              <span>Next-Gen AI Content Suite</span>
-            </span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-sm text-gray-300 hover:bg-white/10 transition-colors cursor-default">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              Veo 3.0 Engine Live
+            </div>
           </motion.div>
 
           {/* Headline */}
-          <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tighter leading-[1.1] mb-4 text-gray-900">
-            Create <span className="text-primary">Anything</span> <br />
-            <span className="text-gray-900">With AI.</span>
+          <motion.h1 
+            variants={itemVariants} 
+            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1] md:leading-tight"
+          >
+            Create <span className="bg-gradient-to-r from-blue-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Limitless</span> <br />
+            AI Video Content.
           </motion.h1>
 
-          <motion.p variants={itemVariants} className="text-lg md:text-2xl text-gray-500 max-w-2xl mx-auto leading-relaxed px-4">
-            The all-in-one platform for creators. Generate Cinematic Videos, Ultra-HD Images, and Professional Voiceovers in seconds.
+          <motion.p 
+            variants={itemVariants}
+            className="text-lg md:text-2xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed"
+          >
+            Turn text into broadcast-quality user generated content. Realistic avatars, multi-language voiceovers, and cinematic visuals — in seconds.
           </motion.p>
 
-          {/* CTA Buttons */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Link
-              href="/video"
-              className="px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg hover:bg-primary/90 transition-colors flex items-center gap-2 group shadow-lg shadow-primary/20"
+          {/* CTAs */}
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+            <Link 
+              href="/signup" 
+              className="px-8 py-4 rounded-xl bg-white text-black font-semibold text-lg hover:bg-gray-200 transition-all flex items-center justify-center gap-2 group"
             >
-              Start Creating
+              Start Free
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <button className="px-8 py-4 rounded-xl bg-white border border-gray-200 text-gray-700 font-medium text-lg hover:bg-gray-50 transition-colors">
-              View Showcase
+            <button className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-white font-medium text-lg hover:bg-white/10 transition-all flex items-center justify-center gap-2 backdrop-blur-sm">
+              <Play className="w-5 h-5 fill-current" />
+              Watch Demo
             </button>
           </motion.div>
-        </motion.div>
 
-        {/* Floating UI Elements (Decorative) */}
-        <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 1 }}
-          className="absolute bottom-0 w-full h-[30vh] bg-gradient-to-t from-white to-transparent z-10"
-        />
-      </section>
-
-      {/* Features Grid */}
-      <section id="features" className="relative z-20 py-24 px-6 max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8"
-        >
-          {/* Feature 1: Video */}
-          <Link href="/video" className="group">
-            <div className="h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 hover:border-primary/50 hover:shadow-xl transition-all duration-300 relative overflow-hidden shadow-sm">
-              <div className="absolute top-0 right-0 p-32 bg-primary/5 blur-[80px] group-hover:bg-primary/10 transition-colors" />
-              <div className="relative z-10 space-y-6">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                  <Video className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2 text-gray-900">Cinematic Video</h3>
-                  <p className="text-gray-500">Turn images into motion using Veo 3.0. Create stunning transitions and effects.</p>
-                </div>
-                <div className="flex items-center text-primary font-medium group-hover:gap-2 transition-all">
-                  <span>Launch Video Tool</span>
-                  <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100" />
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          {/* Feature 2: Image */}
-          <Link href="/nanbanana" className="group">
-            <div className="h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 hover:border-secondary/50 hover:shadow-xl transition-all duration-300 relative overflow-hidden shadow-sm">
-              <div className="absolute top-0 right-0 p-32 bg-secondary/5 blur-[80px] group-hover:bg-secondary/10 transition-colors" />
-              <div className="relative z-10 space-y-6">
-                <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
-                  <ImageIcon className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2 text-gray-900">Nanbanana Image</h3>
-                  <p className="text-gray-500">Generate ultra-realistic images with Gemini 2.5 Flash. Pure imagination.</p>
-                </div>
-                <div className="flex items-center text-secondary font-medium group-hover:gap-2 transition-all">
-                  <span>Launch Image Tool</span>
-                  <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100" />
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          {/* Feature 3: Voice */}
-          <Link href="/voice" className="group">
-            <div className="h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 hover:border-accent/50 hover:shadow-xl transition-all duration-300 relative overflow-hidden shadow-sm">
-              <div className="absolute top-0 right-0 p-32 bg-accent/5 blur-[80px] group-hover:bg-accent/10 transition-colors" />
-              <div className="relative z-10 space-y-6">
-                <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-accent-foreground group-hover:scale-110 transition-transform">
-                  <Mic className="w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-bold mb-2 text-gray-900">Voice Studio</h3>
-                  <p className="text-gray-500">Realistic Text-to-Speech in multiple languages using advanced neural models.</p>
-                </div>
-                <div className="flex items-center text-accent-foreground font-medium group-hover:gap-2 transition-all">
-                  <span>Launch Audio Tool</span>
-                  <ArrowRight className="w-4 h-4 ml-1 opacity-0 group-hover:opacity-100" />
-                </div>
-              </div>
-            </div>
-          </Link>
+          {/* Mini Trust Indicators */}
+          <motion.div 
+            variants={itemVariants}
+            className="pt-12 flex items-center justify-center gap-8 text-sm text-gray-500 font-medium"
+          >
+            <span className="flex items-center gap-2"><Check className="w-4 h-4 text-violet-500" /> No Credit Card Required</span>
+            <span className="flex items-center gap-2"><Check className="w-4 h-4 text-violet-500" /> 10+ AI Models</span>
+          </motion.div>
         </motion.div>
       </section>
 
-      {/* Section 3: How it Works */}
-      <section id="how-it-works" className="py-24 px-6 max-w-7xl mx-auto relative z-20">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            From Idea to Reality
-          </h2>
-          <p className="text-xl text-gray-500">create professional content in 3 simple steps.</p>
-        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* 2. SOCIAL PROOF / STATS */}
+      <div className="border-y border-white/5 bg-white/[0.02] backdrop-blur-sm relative z-20">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-white/5">
+            {[
+              { label: "Videos Generated", value: "2M+" },
+              { label: "Active Creators", value: "50k+" },
+              { label: "Avg. Engagement", value: "3.5x" },
+              { label: "Countries", value: "120+" }
+            ].map((stat, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <span className="text-3xl md:text-4xl font-bold bg-gradient-to-b from-white to-gray-500 bg-clip-text text-transparent">{stat.value}</span>
+                <span className="text-xs md:text-sm text-gray-400 uppercase tracking-widest mt-2">{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+
+      {/* 3. FEATURES */}
+      <section className="py-32 px-6 max-w-7xl mx-auto relative z-20">
+        <div className="text-center mb-20 space-y-4">
+          <h2 className="text-3xl md:text-5xl font-bold">Everything you need to go viral.</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">Powerful tools designed for the modern creator economy.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { step: "01", title: "Select Tool", desc: "Choose between Video, Image, or Voice generation tools." },
-            { step: "02", title: "Describe It", desc: "Enter your prompt or upload reference images." },
-            { step: "03", title: "Generate", desc: "Watch AI bring your vision to life in seconds." }
-          ].map((item, i) => (
-            <div key={i} className="glass-panel p-8 rounded-3xl border border-gray-100 relative overflow-hidden group bg-white shadow-sm">
-              <div className="absolute top-0 right-0 text-[8rem] font-bold text-gray-100 leading-none -mt-4 -mr-4 group-hover:text-gray-200 transition-colors">
-                {item.step}
+            { 
+              icon: <Clapperboard className="w-8 h-8 text-blue-400" />,
+              title: "AI UGC Generator",
+              desc: "Create authentic-looking user generated content from simple text prompts." 
+            },
+            { 
+              icon: <Users className="w-8 h-8 text-violet-400" />,
+              title: "Realistic Avatars",
+              desc: "Choose from 50+ diverse AI avatars that look and sound human." 
+            },
+            { 
+              icon: <Mic className="w-8 h-8 text-pink-400" />,
+              title: "Multi-Language",
+              desc: "Voiceovers in 30+ languages, including native Moroccan Darija support." 
+            },
+            { 
+              icon: <Share2 className="w-8 h-8 text-green-400" />,
+              title: "1-Click Export",
+              desc: "Optimized formats for TikTok, Instagram Reels, and Snapchat Ads." 
+            }
+          ].map((feature, i) => (
+            <div key={i} className="group p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-violet-500/30 hover:bg-white/[0.08] transition-all duration-300">
+              <div className="mb-6 w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                {feature.icon}
               </div>
-              <div className="relative z-10">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-lg mb-6 text-primary">
-                  {item.step}
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-gray-900">{item.title}</h3>
-                <p className="text-gray-500 leading-relaxed">{item.desc}</p>
-              </div>
+              <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Section 4: Testimonials / Community */}
-      <section className="py-24 px-6 bg-gray-50 border-y border-gray-200">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-16 text-gray-900">Loved by Creators</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {/* 4. HOW IT WORKS */}
+      <section className="py-24 bg-gradient-to-b from-[#050505] to-[#0A0A0A] border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">From Idea to Video in 3 Steps</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+            {/* Connector Line (Desktop) */}
+            <div className="hidden md:block absolute top-[60px] left-[20%] right-[20%] h-[2px] bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
+
             {[
-              { name: "Sarah K.", role: "Digital Artist", quote: "The video generation is mind-blowing. Veo 3 changed my workflow entirely." },
-              { name: "Ahmed R.", role: "Content Creator", quote: "Nanbanana images are so realistic, I stopped using stock photos." },
-              { name: "Mike T.", role: "Game Dev", quote: "The Voice API is perfect for my indie game characters. Huge time saver." }
-            ].map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="glass-panel p-8 rounded-2xl text-left bg-white border border-gray-100 shadow-sm"
-              >
-                <div className="flex items-center gap-1 text-accent mb-4">
-                  {[1, 2, 3, 4, 5].map(s => <Sparkles key={s} className="w-4 h-4 fill-current" />)}
+              { step: "01", title: "Paste Product Link", text: "Link your Shopify store or Amazon product page." },
+              { step: "02", title: "AI Generates Script", text: "Our engine writes a hook, script, and visual storyboard." },
+              { step: "03", title: "Download & Post", text: "Get your finished video in 9:16 format, ready to scale." }
+            ].map((item, i) => (
+              <div key={i} className="text-center relative z-10">
+                <div className="w-16 h-16 mx-auto rounded-full bg-[#111] border border-white/10 flex items-center justify-center text-xl font-bold text-violet-400 mb-6 shadow-[0_0_30px_-10px_rgba(139,92,246,0.3)]">
+                  {item.step}
                 </div>
-                <p className="text-lg text-gray-600 mb-6 italic">"{t.quote}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200" />
-                  <div>
-                    <div className="font-bold text-gray-900">{t.name}</div>
-                    <div className="text-xs text-gray-500 uppercase tracking-wider">{t.role}</div>
-                  </div>
-                </div>
-              </motion.div>
+                <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-500 max-w-xs mx-auto">{item.text}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Section 5: Pricing / CTA */}
-      <section id="pricing" className="py-32 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary/5 blur-[100px]" />
-        <div className="max-w-5xl mx-auto glass-panel rounded-[3rem] p-12 md:p-20 text-center border border-gray-100 bg-white relative z-10 shadow-2xl">
-          <h2 className="text-5xl md:text-7xl font-bold mb-8 tracking-tighter text-gray-900">
-            Ready to <span className="text-primary">Create?</span>
-          </h2>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-12">
-            Join thousands of creators using Veo Platform to build the future of content.
-            Start for free today.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link
-              href="/video"
-              className="px-10 py-5 rounded-2xl bg-primary text-white font-bold text-xl hover:scale-105 transition-transform shadow-xl shadow-primary/20"
-            >
-              Get Started Free
-            </Link>
-            <button className="px-10 py-5 rounded-2xl bg-gray-50 border border-gray-200 text-gray-900 font-bold text-xl hover:bg-gray-100 transition-colors">
-              Contact Sales
-            </button>
+
+      {/* 5. DEMO PREVIEW (Grid) */}
+      <section className="py-32 px-6 max-w-7xl mx-auto">
+         <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Made with Veo.</h2>
+          <p className="text-gray-400">Join the next generation of content creators.</p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {[1,2,3,4,5,6].map((_, i) => (
+            <div key={i} className="aspect-[9/16] rounded-2xl bg-white/5 border border-white/5 relative overflow-hidden group cursor-pointer hover:border-violet-500/50 transition-all">
+              {/* Placeholder Gradient */}
+              <div className={`absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50`} />
+              
+              {/* Play Button Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-[2px]">
+                <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                  <Play className="w-5 h-5 fill-current pl-1" />
+                </div>
+              </div>
+              
+              {/* Label */}
+              <div className="absolute bottom-3 left-3 right-3">
+                <div className="bg-black/60 backdrop-blur-md text-xs px-2 py-1 rounded-md inline-block border border-white/10">
+                  Example {i + 1}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <button className="px-8 py-3 rounded-full border border-violet-500/30 text-violet-300 hover:bg-violet-500/10 transition-colors text-sm font-medium">
+            Generate Yours Now
+          </button>
+        </div>
+      </section>
+
+
+      {/* 6. PRICING */}
+      <section className="py-24 px-6 bg-[#080808]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-6">Simple Pricing.</h2>
+            
+            {/* Toggle */}
+            <div className="inline-flex items-center gap-4 bg-white/5 p-1 rounded-full border border-white/5">
+              <button 
+                onClick={() => setBillingCycle('monthly')}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${billingCycle === 'monthly' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}
+              >
+                Monthly
+              </button>
+              <button 
+                onClick={() => setBillingCycle('yearly')}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${billingCycle === 'yearly' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}
+              >
+                Yearly <span className="text-xs text-green-600 ml-1">(-20%)</span>
+              </button>
+            </div>
           </div>
-          <div className="mt-12 flex justify-center gap-8 text-sm text-gray-500 font-mono">
-            <span className="flex items-center gap-2"><Zap className="w-4 h-4" /> Instant Access</span>
-            <span className="flex items-center gap-2"><Globe className="w-4 h-4" /> Global CDN</span>
-            <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Powered</span>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Starter */}
+            <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
+              <h3 className="text-xl font-bold mb-2">Starter</h3>
+              <div className="text-3xl font-bold mb-6">$29<span className="text-lg text-gray-500 font-normal">/mo</span></div>
+              <ul className="space-y-4 text-sm text-gray-400 mb-8">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gray-600" /> 15 Videos / mo</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gray-600" /> 720p Export</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gray-600" /> Standard Avatars</li>
+              </ul>
+              <button className="w-full py-3 rounded-xl border border-white/20 hover:bg-white hover:text-black transition-all font-medium">Get Started</button>
+            </div>
+
+            {/* Pro - Highlighted */}
+            <div className="p-8 rounded-3xl bg-violet-600/10 border border-violet-500/50 relative">
+              <div className="absolute top-0 right-0 bg-violet-500 text-white text-[10px] uppercase font-bold px-3 py-1 rounded-bl-xl rounded-tr-2xl">Most Popular</div>
+              <h3 className="text-xl font-bold mb-2 text-violet-300">Creator</h3>
+              <div className="text-3xl font-bold mb-6">$59<span className="text-lg text-gray-500 font-normal">/mo</span></div>
+              <ul className="space-y-4 text-sm text-gray-300 mb-8">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-violet-400" /> 50 Videos / mo</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-violet-400" /> 1080p Export</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-violet-400" /> All Languages (Darija)</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-violet-400" /> No Watermark</li>
+              </ul>
+              <button className="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white transition-all font-medium shadow-lg shadow-violet-500/25">Start Free Trial</button>
+            </div>
+
+            {/* Agency */}
+            <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
+              <h3 className="text-xl font-bold mb-2">Agency</h3>
+              <div className="text-3xl font-bold mb-6">$199<span className="text-lg text-gray-500 font-normal">/mo</span></div>
+              <ul className="space-y-4 text-sm text-gray-400 mb-8">
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gray-600" /> Unlimited Videos</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gray-600" /> 4K Export</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-gray-600" /> API Access</li>
+              </ul>
+              <button className="w-full py-3 rounded-xl border border-white/20 hover:bg-white hover:text-black transition-all font-medium">Contact Sales</button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-gray-500 text-sm">
-            © 2026 Veo Platform. All rights reserved.
-          </div>
-          <div className="flex gap-6">
-            <Link href="#" className="text-gray-500 hover:text-gray-900 transition-colors">Privacy</Link>
-            <Link href="#" className="text-gray-500 hover:text-gray-900 transition-colors">Terms</Link>
-            <Link href="#" className="text-gray-500 hover:text-gray-900 transition-colors">Twitter</Link>
+
+      {/* 7. FINAL CTA */}
+      <section className="py-24 px-6">
+        <div className="max-w-4xl mx-auto text-center relative overflow-hidden rounded-[3rem] bg-gradient-to-r from-blue-900 to-violet-900 px-8 py-16 border border-white/10 shadow-2xl">
+          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 mix-blend-overlay" />
+          
+          <div className="relative z-10">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">Start Creating AI Videos in Seconds.</h2>
+            <p className="text-blue-200 text-lg mb-8 max-w-xl mx-auto">No credit card required. Cancel anytime.</p>
+            
+            <Link 
+              href="/video"
+              className="inline-flex px-10 py-5 rounded-2xl bg-white text-black font-bold text-xl hover:scale-105 transition-transform shadow-xl hover:shadow-2xl hover:shadow-white/20"
+            >
+              Create Your First Video
+            </Link>
           </div>
         </div>
+      </section>
+
+      {/* Footer Minimal */}
+      <footer className="py-12 border-t border-white/5 text-center text-gray-600 text-sm">
+        <p>&copy; 2026 Veo Platform. All rights reserved.</p>
       </footer>
+
     </main>
   );
 }

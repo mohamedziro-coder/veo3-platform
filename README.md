@@ -38,3 +38,37 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Database
 
 This project uses Neon Postgres for user authentication and data persistence.
+
+## Configuration
+
+To run this project, you need to set up the following environment variables. Copy `.env.example` to `.env.local` and fill in the values:
+
+- `GEMINI_API_KEY`: Your Google Gemini API Key.
+- `GOOGLE_PROJECT_ID`: Your Google Cloud Project ID.
+- `GOOGLE_LOCATION`: Google Cloud region (e.g., `us-central1`).
+- `GCS_BUCKET_NAME`: Google Cloud Storage bucket name for temporary images/videos.
+- `GOOGLE_APPLICATION_CREDENTIALS_JSON`: JSON content of your Service Account Key (for Veo/Vertex AI access).
+- `POSTGRES_URL`: Connection string for your Neon Database.
+- `RESEND_API_KEY`: (Optional) For email notifications.
+
+## Troubleshooting
+
+Run `node scripts/verify-full-env.js` to check if your environment is correctly configured.
+
+
+## Configuration
+
+To run this project, you need to set up the following environment variables. Copy `.env.example` to `.env.local` and fill in the values:
+
+- `GEMINI_API_KEY`: Your Google Gemini API Key.
+- `GOOGLE_PROJECT_ID`: Your Google Cloud Project ID.
+- `GOOGLE_LOCATION`: Google Cloud region (e.g., `us-central1`).
+- `GCS_BUCKET_NAME`: Google Cloud Storage bucket name for temporary images/videos.
+- `GOOGLE_APPLICATION_CREDENTIALS_JSON`: JSON content of your Service Account Key (for Veo/Vertex AI access).
+- `POSTGRES_URL`: Connection string for your Neon Database.
+- `RESEND_API_KEY`: (Optional) For email notifications.
+
+## Troubleshooting
+
+Run `node scripts/verify-full-env.js` to check if your environment is correctly configured.
+
