@@ -11,6 +11,9 @@ function BlogEditor() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isOptimizing, setIsOptimizing] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [showGenModal, setShowGenModal] = useState(false);
+    const [genTopic, setGenTopic] = useState("");
     const [isFetching, setIsFetching] = useState(!!blogId);
 
     const [formData, setFormData] = useState({
@@ -157,6 +160,41 @@ function BlogEditor() {
         }
     };
 
+    const handleGenerateBlog = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!genTopic) return;
+
+        setIsGenerating(true);
+        try {
+            const res = await fetch('/api/blogs/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic: genTopic })
+            });
+            const data = await res.json();
+
+            if (data.success && data.data) {
+                setFormData(prev => ({
+                    ...prev,
+                    title: data.data.title || prev.title,
+                    slug: data.data.slug || prev.slug,
+                    excerpt: data.data.excerpt || prev.excerpt,
+                    content: data.data.content || prev.content,
+                    cover_image: data.data.cover_image || prev.cover_image,
+                }));
+                setShowGenModal(false);
+                setGenTopic("");
+            } else {
+                alert("Generation failed: " + data.error);
+            }
+        } catch (error) {
+            console.error("Generation error:", error);
+            alert("Failed to generate blog.");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     if (isFetching) return <div className="min-h-screen flex items-center justify-center">Loading editor...</div>;
 
     return (
@@ -173,24 +211,34 @@ function BlogEditor() {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-2xl font-bold">{blogId ? 'Edit Post' : 'Create New Post'}</h1>
-                        <button
-                            type="button"
-                            onClick={handleOptimizeSEO}
-                            disabled={isOptimizing}
-                            className="bg-gradient-to-r from-purple-500 to-blue-600 text-white font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50"
-                        >
-                            {isOptimizing ? (
-                                <>
-                                    <Sparkles className="w-4 h-4 animate-spin" />
-                                    Optimizing...
-                                </>
-                            ) : (
-                                <>
-                                    <Wand2 className="w-4 h-4" />
-                                    Auto-Optimize SEO
-                                </>
-                            )}
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowGenModal(true)}
+                                className="bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:opacity-90 transition-opacity active:scale-95 shadow-md"
+                            >
+                                <Sparkles className="w-4 h-4" />
+                                Magic Associate
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleOptimizeSEO}
+                                disabled={isOptimizing}
+                                className="bg-gradient-to-r from-purple-500 to-blue-600 text-white font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50"
+                            >
+                                {isOptimizing ? (
+                                    <>
+                                        <Sparkles className="w-4 h-4 animate-spin" />
+                                        Optimizing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Wand2 className="w-4 h-4" />
+                                        Auto-Optimize SEO
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -286,6 +334,59 @@ function BlogEditor() {
                     </form>
                 </div>
             </div>
+
+
+            {/* Magic Generation Modal */}
+            {showGenModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Sparkles className="w-6 h-6 text-pink-500" />
+                            <h2 className="text-2xl font-bold">Magic Associate</h2>
+                        </div>
+                        <p className="text-gray-500 mb-6">Enter a topic, and AI will generate the full blog post and a cover image for you.</p>
+
+                        <form onSubmit={handleGenerateBlog}>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Topic or Keyword</label>
+                            <input
+                                type="text"
+                                value={genTopic}
+                                onChange={(e) => setGenTopic(e.target.value)}
+                                placeholder="e.g. The future of electric cars"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/10 focus:outline-none mb-6"
+                                autoFocus
+                            />
+
+                            <div className="flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowGenModal(false)}
+                                    className="flex-1 py-3 font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isGenerating || !genTopic}
+                                    className="flex-1 py-3 font-bold text-white bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 rounded-xl transition-all shadow-lg shadow-pink-500/25 disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
+                                >
+                                    {isGenerating ? (
+                                        <>
+                                            <Sparkles className="w-4 h-4 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="w-4 h-4" />
+                                            Generate
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }
