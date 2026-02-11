@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Users, Trash2, ArrowLeft, ShieldAlert, Zap, BarChart3, Clock, Settings, Key, Gift, Plus, Minus } from "lucide-react";
+import { Users, Trash2, ArrowLeft, ShieldAlert, Zap, BarChart3, Clock, Settings, Key, Gift, Plus, Minus, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminPage() {
@@ -169,6 +169,27 @@ export default function AdminPage() {
                         </div>
                         <p className="text-3xl md:text-4xl font-bold text-gray-900 truncate">{stats.mostUsed}</p>
                     </div>
+                </div>
+
+                {/* Content Management */}
+                <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 mb-8 shadow-sm">
+                    <h2 className="text-xl md:text-2xl font-bold mb-6 flex items-center gap-3">
+                        <FileText className="w-5 h-5 md:w-6 md:h-6 text-pink-600" />
+                        Content Management
+                    </h2>
+
+                    <button
+                        onClick={() => router.push('/admin/blogs')}
+                        className="w-full md:w-auto bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold px-6 py-4 rounded-2xl transition-all hover:shadow-lg active:scale-95 flex items-center justify-center md:justify-start gap-4"
+                    >
+                        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                            <FileText className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="text-left">
+                            <div className="text-lg font-bold">Manage Blogs</div>
+                            <div className="text-sm text-pink-100 font-medium">Create, edit, and publish posts</div>
+                        </div>
+                    </button>
                 </div>
 
                 {/* Credit Management */}
