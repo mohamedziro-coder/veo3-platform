@@ -10,7 +10,7 @@ export async function POST(request: Request) {
         }
 
         // 1. Generate Content with Gemini
-        const geminiModel = await getGeminiModel('gemini-1.5-flash');
+        const geminiModel = await getGeminiModel('gemini-1.5-flash-002');
         const prompt = `
             You are an expert blog writer. Write a comprehensive, engaging blog post about: "${topic}".
             

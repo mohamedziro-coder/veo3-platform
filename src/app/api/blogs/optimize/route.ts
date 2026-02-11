@@ -9,7 +9,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Content is required" }, { status: 400 });
         }
 
-        const model = await getGeminiModel('gemini-1.5-flash');
+        const model = await getGeminiModel('gemini-1.5-flash-002');
 
         const prompt = `
             You are an SEO expert. Analyze the following blog post content and generate:

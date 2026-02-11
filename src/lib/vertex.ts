@@ -50,8 +50,10 @@ export const getImagenModel = async (modelName: string = 'imagen-3.0-generate-00
     });
 };
 
-export const getGeminiModel = async (modelName: string = 'gemini-1.5-flash-001') => {
+export const getGeminiModel = async (modelName: string = 'gemini-1.5-flash-002') => {
     const client = await getVertexClient();
+    // Use standard Gemini models (not publisher models)
+    // Valid models: gemini-1.5-flash-002, gemini-1.5-pro-002, gemini-1.0-pro-002
     return client.getGenerativeModel({
         model: modelName,
     });
