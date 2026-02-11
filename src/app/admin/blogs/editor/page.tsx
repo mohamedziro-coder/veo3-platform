@@ -16,6 +16,11 @@ function BlogEditor() {
     const [genTopic, setGenTopic] = useState("");
     const [isFetching, setIsFetching] = useState(!!blogId);
 
+    // Image generation state
+    const [showImageGenModal, setShowImageGenModal] = useState(false);
+    const [imagePrompt, setImagePrompt] = useState("");
+    const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
     const [formData, setFormData] = useState({
         title: "",
         slug: "",
@@ -195,6 +200,38 @@ function BlogEditor() {
         }
     };
 
+    const handleGenerateImage = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!imagePrompt) return;
+
+        setIsGeneratingImage(true);
+        try {
+            const user = JSON.parse(localStorage.getItem('current_user') || '{}');
+            const res = await fetch('/api/generate-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt: imagePrompt,
+                    userEmail: user.email
+                })
+            });
+            const data = await res.json();
+
+            if (data.success && data.raw?.url) {
+                setFormData(prev => ({ ...prev, cover_image: data.raw.url }));
+                setShowImageGenModal(false);
+                setImagePrompt("");
+            } else {
+                alert("Image generation failed: " + (data.error || "Unknown error"));
+            }
+        } catch (error) {
+            console.error("Image generation error:", error);
+            alert("Failed to generate image.");
+        } finally {
+            setIsGeneratingImage(false);
+        }
+    };
+
     if (isFetching) return <div className="min-h-screen flex items-center justify-center">Loading editor...</div>;
 
     return (
@@ -284,13 +321,23 @@ function BlogEditor() {
                                 <ImageIcon className="w-4 h-4" />
                                 Cover Image URL
                             </label>
-                            <input
-                                type="text"
-                                value={formData.cover_image}
-                                onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
-                                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                                placeholder="https://..."
-                            />
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={formData.cover_image}
+                                    onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
+                                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                                    placeholder="https://..."
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowImageGenModal(true)}
+                                    className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-bold px-4 py-3 rounded-xl flex items-center gap-2 hover:opacity-90 transition-opacity active:scale-95 shadow-md whitespace-nowrap"
+                                >
+                                    <Wand2 className="w-4 h-4" />
+                                    Generate
+                                </button>
+                            </div>
                             {formData.cover_image && (
                                 <img src={formData.cover_image} alt="Preview" className="h-40 w-full object-cover rounded-xl mt-2 border border-gray-100" />
                             )}
@@ -378,6 +425,57 @@ function BlogEditor() {
                                     ) : (
                                         <>
                                             <Sparkles className="w-4 h-4" />
+                                            Generate
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Image Generation Modal */}
+            {showImageGenModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Wand2 className="w-6 h-6 text-orange-500" />
+                            <h2 className="text-2xl font-bold">Generate Cover Image</h2>
+                        </div>
+                        <p className="text-gray-500 mb-6">Describe the cover image you want, and AI will create it for you.</p>
+
+                        <form onSubmit={handleGenerateImage}>
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Image Description</label>
+                            <textarea
+                                value={imagePrompt}
+                                onChange={(e) => setImagePrompt(e.target.value)}
+                                placeholder="e.g. A professional blog header with modern tech theme, vibrant colors"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/10 focus:outline-none mb-6 h-24 resize-none"
+                                autoFocus
+                            />
+
+                            <div className="flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowImageGenModal(false)}
+                                    className="flex-1 py-3 font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isGeneratingImage || !imagePrompt}
+                                    className="flex-1 py-3 font-bold text-white bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 rounded-xl transition-all shadow-lg shadow-orange-500/25 disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
+                                >
+                                    {isGeneratingImage ? (
+                                        <>
+                                            <Wand2 className="w-4 h-4 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Wand2 className="w-4 h-4" />
                                             Generate
                                         </>
                                     )}
