@@ -503,24 +503,22 @@ export async function updateBlog(
     try {
         const sql = getDb();
 
-        // Dynamic update query construction
-        const updates: any = {};
-        if (data.title !== undefined) updates.title = data.title;
-        if (data.slug !== undefined) updates.slug = data.slug;
-        if (data.content !== undefined) updates.content = data.content;
-        if (data.excerpt !== undefined) updates.excerpt = data.excerpt;
-        if (data.cover_image !== undefined) updates.cover_image = data.cover_image;
-        if (data.published !== undefined) updates.published = data.published;
-
-        updates.updated_at = new Date();
-
+        // Simple approach: use COALESCE to update only provided fields
         const result = await sql`
             UPDATE blogs 
-            SET ${sql(updates)}
+            SET 
+                title = COALESCE(${data.title ?? null}, title),
+                slug = COALESCE(${data.slug ?? null}, slug),
+                content = COALESCE(${data.content ?? null}, content),
+                excerpt = COALESCE(${data.excerpt ?? null}, excerpt),
+                cover_image = COALESCE(${data.cover_image ?? null}, cover_image),
+                published = COALESCE(${data.published ?? null}, published),
+                updated_at = NOW()
             WHERE id = ${id}
             RETURNING *
         `;
-        return result[0] as Blog;
+
+        return result[0] as Blog || null;
     } catch (error) {
         console.error('Error updating blog:', error);
         return null;
