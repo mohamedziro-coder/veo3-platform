@@ -143,8 +143,9 @@ async function processVideoGeneration(
 
         // Step 3: Poll operation status
         let attempts = 0;
-        const MAX_ATTEMPTS = 80; // 4 minutes (3s intervals)
+        const MAX_ATTEMPTS = 200; // 10 minutes (3s intervals)
         let lastMessage = "Generating video...";
+        let lastDebug = "";
 
         while (attempts < MAX_ATTEMPTS) {
             await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
@@ -152,7 +153,9 @@ async function processVideoGeneration(
             // FALLBACK: Check GCS directly for the output file
             // This is "L-badil" (the alternative) for broken API polling
             const { checkGcsOutput } = await import('@/lib/gcs-upload');
-            const gcsVideoUrl = await checkGcsOutput(operationId);
+            const { url: gcsVideoUrl, bucketName, fileCount, filesFound } = await checkGcsOutput(operationId);
+
+            lastDebug = `Bucket: ${bucketName}, Files: ${fileCount}`;
 
             if (gcsVideoUrl) {
                 console.log(`[PROCESS] GCS Fallback SUCCESS: Video found at ${gcsVideoUrl}`);
@@ -209,7 +212,7 @@ async function processVideoGeneration(
             // Update progress message every 10 attempts (30 seconds)
             if (attempts % 10 === 0) {
                 const elapsed = Math.floor((attempts * 3) / 60);
-                lastMessage = `Generating video... ${elapsed}m ${(attempts * 3) % 60}s elapsed`;
+                lastMessage = `Generating... ${elapsed}m ${(attempts * 3) % 60}s. (Debug: ${lastDebug})`;
                 storeOperationResult(operationId, {
                     status: "processing",
                     message: lastMessage
@@ -220,10 +223,10 @@ async function processVideoGeneration(
         }
 
         // Timeout
-        console.error(`[PROCESS] Operation ${operationId} timed out after ${MAX_ATTEMPTS * 3}s`);
+        console.error(`[PROCESS] Operation ${operationId} timed out after ${MAX_ATTEMPTS * 3}s. Debug: ${lastDebug}`);
         storeOperationResult(operationId, {
             status: "failed",
-            error: "Video generation timed out. Please try again."
+            error: `Video generation timed out after 10m. Debug: ${lastDebug}`
         });
 
     } catch (error: any) {
