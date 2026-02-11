@@ -51,10 +51,25 @@ export const getImagenModel = async (modelName: string = 'imagen-3.0-generate-00
 };
 // ---- NEW: Google Gen AI SDK for Gemini (replaces deprecated Vertex AI SDK for Gemini) ----
 import { GoogleGenAI } from '@google/genai';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 export const getGeminiGenAI = async (): Promise<GoogleGenAI> => {
     const config = await getVertexConfigAsync();
-    // Use Vertex AI backend with service account credentials
+
+    // If credentials JSON is stored in DB/config, write to temp file for ADC
+    if (config.GOOGLE_APPLICATION_CREDENTIALS_JSON && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        try {
+            const tmpDir = os.tmpdir();
+            const credPath = path.join(tmpDir, 'vertex-sa-key.json');
+            fs.writeFileSync(credPath, config.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+            process.env.GOOGLE_APPLICATION_CREDENTIALS = credPath;
+        } catch (e) {
+            console.error('Failed to write temp credentials file:', e);
+        }
+    }
+
     return new GoogleGenAI({
         vertexai: true,
         project: config.GOOGLE_PROJECT_ID || 'your-project-id',
