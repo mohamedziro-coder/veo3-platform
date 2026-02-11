@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Save, Globe, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Save, Globe, Image as ImageIcon, Sparkles, Wand2 } from "lucide-react";
 
 function BlogEditor() {
     const router = useRouter();
@@ -10,6 +10,7 @@ function BlogEditor() {
     const blogId = searchParams.get('id');
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isOptimizing, setIsOptimizing] = useState(false);
     const [isFetching, setIsFetching] = useState(!!blogId);
 
     const [formData, setFormData] = useState({
@@ -120,6 +121,42 @@ function BlogEditor() {
         }
     };
 
+    const handleOptimizeSEO = async () => {
+        if (!formData.content || formData.content.length < 50) {
+            alert("Please write some content first (at least 50 characters) to analyze.");
+            return;
+        }
+
+        setIsOptimizing(true);
+        try {
+            const res = await fetch('/api/blogs/optimize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: formData.content,
+                    title: formData.title
+                })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                setFormData(prev => ({
+                    ...prev,
+                    title: data.title || prev.title,
+                    slug: data.slug || prev.slug,
+                    excerpt: data.excerpt || prev.excerpt
+                }));
+            } else {
+                alert("SEO Optimization failed: " + data.error);
+            }
+        } catch (error) {
+            console.error("Optimization error:", error);
+            alert("Failed to optimize SEO.");
+        } finally {
+            setIsOptimizing(false);
+        }
+    };
+
     if (isFetching) return <div className="min-h-screen flex items-center justify-center">Loading editor...</div>;
 
     return (
@@ -134,7 +171,27 @@ function BlogEditor() {
                 </button>
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
-                    <h1 className="text-2xl font-bold mb-6">{blogId ? 'Edit Post' : 'Create New Post'}</h1>
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-2xl font-bold">{blogId ? 'Edit Post' : 'Create New Post'}</h1>
+                        <button
+                            type="button"
+                            onClick={handleOptimizeSEO}
+                            disabled={isOptimizing}
+                            className="bg-gradient-to-r from-purple-500 to-blue-600 text-white font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-50"
+                        >
+                            {isOptimizing ? (
+                                <>
+                                    <Sparkles className="w-4 h-4 animate-spin" />
+                                    Optimizing...
+                                </>
+                            ) : (
+                                <>
+                                    <Wand2 className="w-4 h-4" />
+                                    Auto-Optimize SEO
+                                </>
+                            )}
+                        </button>
+                    </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Title & Slug */}
