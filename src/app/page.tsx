@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { 
-  Video, 
-  Sparkles, 
-  Globe, 
-  Zap, 
-  Play, 
-  Check, 
+import { motion, useScroll, useTransform, Variants } from "framer-motion";
+import {
+  Video,
+  Sparkles,
+  Globe,
+  Zap,
+  Play,
+  Check,
   ArrowRight,
   MonitorPlay,
   Share2,
@@ -22,29 +22,29 @@ export default function HomePage() {
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
   const y = useTransform(scrollY, [0, 300], [0, 100]);
-  
+
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1, 
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 } 
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.6, ease: "easeOut" } 
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
     }
   };
 
   return (
     <main className="min-h-screen bg-[#050505] text-white selection:bg-violet-500/30 selection:text-violet-200 overflow-x-hidden">
-      
+
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[90vh] flex flex-col items-center justify-center px-4 md:px-6 pt-20">
         {/* Background Effects */}
@@ -54,7 +54,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.05]" /> {/* Optional grid texture */}
         </div>
 
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -72,15 +72,15 @@ export default function HomePage() {
           </motion.div>
 
           {/* Headline */}
-          <motion.h1 
-            variants={itemVariants} 
+          <motion.h1
+            variants={itemVariants}
             className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1] md:leading-tight"
           >
             Create <span className="bg-gradient-to-r from-blue-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Limitless</span> <br />
             AI Video Content.
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             variants={itemVariants}
             className="text-lg md:text-2xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed"
           >
@@ -89,8 +89,8 @@ export default function HomePage() {
 
           {/* CTAs */}
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-            <Link 
-              href="/signup" 
+            <Link
+              href="/signup"
               className="px-8 py-4 rounded-xl bg-white text-black font-semibold text-lg hover:bg-gray-200 transition-all flex items-center justify-center gap-2 group"
             >
               Start Free
@@ -103,7 +103,7 @@ export default function HomePage() {
           </motion.div>
 
           {/* Mini Trust Indicators */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="pt-12 flex items-center justify-center gap-8 text-sm text-gray-500 font-medium"
           >
@@ -143,25 +143,25 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { 
+            {
               icon: <Clapperboard className="w-8 h-8 text-blue-400" />,
               title: "AI UGC Generator",
-              desc: "Create authentic-looking user generated content from simple text prompts." 
+              desc: "Create authentic-looking user generated content from simple text prompts."
             },
-            { 
+            {
               icon: <Users className="w-8 h-8 text-violet-400" />,
               title: "Realistic Avatars",
-              desc: "Choose from 50+ diverse AI avatars that look and sound human." 
+              desc: "Choose from 50+ diverse AI avatars that look and sound human."
             },
-            { 
+            {
               icon: <Mic className="w-8 h-8 text-pink-400" />,
               title: "Multi-Language",
-              desc: "Voiceovers in 30+ languages, including native Moroccan Darija support." 
+              desc: "Voiceovers in 30+ languages, including native Moroccan Darija support."
             },
-            { 
+            {
               icon: <Share2 className="w-8 h-8 text-green-400" />,
               title: "1-Click Export",
-              desc: "Optimized formats for TikTok, Instagram Reels, and Snapchat Ads." 
+              desc: "Optimized formats for TikTok, Instagram Reels, and Snapchat Ads."
             }
           ].map((feature, i) => (
             <div key={i} className="group p-8 rounded-2xl bg-white/5 border border-white/5 hover:border-violet-500/30 hover:bg-white/[0.08] transition-all duration-300">
@@ -180,7 +180,7 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-to-b from-[#050505] to-[#0A0A0A] border-y border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">From Idea to Video in 3 Steps</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             {/* Connector Line (Desktop) */}
             <div className="hidden md:block absolute top-[60px] left-[20%] right-[20%] h-[2px] bg-gradient-to-r from-transparent via-violet-500/20 to-transparent" />
@@ -205,24 +205,24 @@ export default function HomePage() {
 
       {/* 5. DEMO PREVIEW (Grid) */}
       <section className="py-32 px-6 max-w-7xl mx-auto">
-         <div className="text-center mb-16">
+        <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Made with Veo.</h2>
           <p className="text-gray-400">Join the next generation of content creators.</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {[1,2,3,4,5,6].map((_, i) => (
+          {[1, 2, 3, 4, 5, 6].map((_, i) => (
             <div key={i} className="aspect-[9/16] rounded-2xl bg-white/5 border border-white/5 relative overflow-hidden group cursor-pointer hover:border-violet-500/50 transition-all">
               {/* Placeholder Gradient */}
               <div className={`absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50`} />
-              
+
               {/* Play Button Overlay */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-[2px]">
                 <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center transform scale-0 group-hover:scale-100 transition-transform duration-300">
                   <Play className="w-5 h-5 fill-current pl-1" />
                 </div>
               </div>
-              
+
               {/* Label */}
               <div className="absolute bottom-3 left-3 right-3">
                 <div className="bg-black/60 backdrop-blur-md text-xs px-2 py-1 rounded-md inline-block border border-white/10">
@@ -246,16 +246,16 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-6">Simple Pricing.</h2>
-            
+
             {/* Toggle */}
             <div className="inline-flex items-center gap-4 bg-white/5 p-1 rounded-full border border-white/5">
-              <button 
+              <button
                 onClick={() => setBillingCycle('monthly')}
                 className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${billingCycle === 'monthly' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}
               >
                 Monthly
               </button>
-              <button 
+              <button
                 onClick={() => setBillingCycle('yearly')}
                 className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${billingCycle === 'yearly' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'}`}
               >
@@ -311,12 +311,12 @@ export default function HomePage() {
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center relative overflow-hidden rounded-[3rem] bg-gradient-to-r from-blue-900 to-violet-900 px-8 py-16 border border-white/10 shadow-2xl">
           <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 mix-blend-overlay" />
-          
+
           <div className="relative z-10">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Start Creating AI Videos in Seconds.</h2>
             <p className="text-blue-200 text-lg mb-8 max-w-xl mx-auto">No credit card required. Cancel anytime.</p>
-            
-            <Link 
+
+            <Link
               href="/video"
               className="inline-flex px-10 py-5 rounded-2xl bg-white text-black font-bold text-xl hover:scale-105 transition-transform shadow-xl hover:shadow-2xl hover:shadow-white/20"
             >
