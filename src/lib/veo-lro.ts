@@ -22,6 +22,7 @@ export async function startVideoGeneration(params: {
     startImageGcsUri: string;
     endImageGcsUri?: string;
     outputGcsUri: string;
+    aspectRatio?: string;
 }): Promise<{ operationName: string }> {
     try {
         const config = await getVertexConfigAsync();
@@ -59,7 +60,7 @@ export async function startVideoGeneration(params: {
             parameters: {
                 storageUri: params.outputGcsUri,
                 sampleCount: 1,
-                aspectRatio: '16:9'
+                aspectRatio: params.aspectRatio || '16:9'
             }
         };
 

@@ -27,6 +27,7 @@ export default function VideoPage() {
     const [startImageUrl, setStartImageUrl] = useState<string | null>(null);
     const [endImageUrl, setEndImageUrl] = useState<string | null>(null);
     const [prompt, setPrompt] = useState("");
+    const [aspectRatio, setAspectRatio] = useState<"9:16" | "16:9">("9:16");
     const [gravityIntensity, setGravityIntensity] = useState(0.5);
     const [isLoading, setIsLoading] = useState(false);
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -159,7 +160,8 @@ export default function VideoPage() {
                     startImage: startImageBase64,
                     endImage: endImageBase64,
                     prompt: finalPrompt,
-                    userEmail: userEmail
+                    userEmail: userEmail,
+                    aspectRatio: aspectRatio
                 }),
                 headers: { "Content-Type": "application/json" }
             });
@@ -372,6 +374,25 @@ export default function VideoPage() {
                         onSelect={handleFrameGenerated}
                         contextImage={targetSlot === 'end' ? startImageUrl : null}
                     />
+
+                    {/* Aspect Ratio Selector */}
+                    <div className="mt-8 space-y-4">
+                        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">Aspect Ratio</label>
+                        <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
+                            <button
+                                onClick={() => setAspectRatio("9:16")}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${aspectRatio === "9:16" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                            >
+                                9:16 (Vertical)
+                            </button>
+                            <button
+                                onClick={() => setAspectRatio("16:9")}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${aspectRatio === "16:9" ? "bg-white text-black shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                            >
+                                16:9 (Landscape)
+                            </button>
+                        </div>
+                    </div>
 
                     {/* Prompt Section */}
                     <div className="mt-8 space-y-4">

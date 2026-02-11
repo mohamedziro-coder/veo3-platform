@@ -6,7 +6,7 @@ import { storeOperationResult } from "@/lib/operations";
 
 export async function POST(req: NextRequest) {
     try {
-        const { startImage, endImage, prompt, userEmail, gravityIntensity = 0.5 } = await req.json();
+        const { startImage, endImage, prompt, userEmail, gravityIntensity = 0.5, aspectRatio = "9:16" } = await req.json();
 
         if (!userEmail) {
             return NextResponse.json({ error: "User authentication required" }, { status: 401 });
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         });
 
         // Spawn async video generation (non-blocking)
-        processVideoGeneration(operationId, startImage, endImage, prompt, gravityIntensity, newBalance)
+        processVideoGeneration(operationId, startImage, endImage, prompt, gravityIntensity, newBalance, aspectRatio)
             .catch((error) => {
                 console.error(`[GENERATE] Operation ${operationId} failed:`, error);
                 storeOperationResult(operationId, {
@@ -61,7 +61,8 @@ async function processVideoGeneration(
     endImage: string,
     prompt: string,
     gravityIntensity: number,
-    credits: number
+    credits: number,
+    aspectRatio: string
 ) {
     try {
         console.log(`[PROCESS] Starting background generation for operation: ${operationId}`);
@@ -136,7 +137,8 @@ async function processVideoGeneration(
             prompt: prompt || "Cinematic video shot",
             startImageGcsUri,
             endImageGcsUri,
-            outputGcsUri
+            outputGcsUri,
+            aspectRatio
         });
 
         console.log(`[PROCESS] Vertex AI operation started: ${operationName}`);
