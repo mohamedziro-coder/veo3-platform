@@ -52,7 +52,7 @@ export const getImagenModel = async (modelName: string = 'imagen-3.0-generate-00
 
 export const getGeminiModel = async (modelName: string = 'gemini-1.5-flash-001') => {
     const client = await getVertexClient();
-    return client.preview.getGenerativeModel({
+    return client.getGenerativeModel({
         model: modelName,
     });
 };
