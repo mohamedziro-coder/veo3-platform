@@ -28,6 +28,19 @@ export interface Activity {
     timestamp: Date;
 }
 
+export interface Blog {
+    id: number;
+    slug: string;
+    title: string;
+    content: string;
+    excerpt: string;
+    cover_image: string;
+    published: boolean;
+    author_email: string;
+    created_at: Date;
+    updated_at: Date;
+}
+
 // Get user by email
 export async function getUserByEmail(email: string): Promise<User | null> {
     try {
@@ -415,5 +428,113 @@ export async function getSystemConfig(key: string): Promise<any | null> {
         return null;
     } catch (error) {
         return null; // Fail gracefully (fallback to env)
+    }
+}
+
+// --- Blog System Helpers ---
+
+// Get all blogs (for admin or public)
+export async function getBlogs(publishedOnly: boolean = true): Promise<Blog[]> {
+    try {
+        const sql = getDb();
+        if (publishedOnly) {
+            const result = await sql`
+                SELECT * FROM blogs 
+                WHERE published = TRUE 
+                ORDER BY created_at DESC
+            `;
+            return result as Blog[];
+        } else {
+            const result = await sql`
+                SELECT * FROM blogs 
+                ORDER BY created_at DESC
+            `;
+            return result as Blog[];
+        }
+    } catch (error) {
+        console.error('Error getting blogs:', error);
+        return [];
+    }
+}
+
+// Get single blog by slug
+export async function getBlogBySlug(slug: string): Promise<Blog | null> {
+    try {
+        const sql = getDb();
+        const result = await sql`
+            SELECT * FROM blogs WHERE slug = ${slug}
+        `;
+        return result[0] as Blog || null;
+    } catch (error) {
+        console.error('Error getting blog by slug:', error);
+        return null;
+    }
+}
+
+// Create new blog
+export async function createBlog(
+    title: string,
+    slug: string,
+    content: string,
+    excerpt: string,
+    coverImage: string,
+    authorEmail: string,
+    published: boolean
+): Promise<Blog | null> {
+    try {
+        const sql = getDb();
+        const result = await sql`
+            INSERT INTO blogs (title, slug, content, excerpt, cover_image, author_email, published)
+            VALUES (${title}, ${slug}, ${content}, ${excerpt}, ${coverImage}, ${authorEmail}, ${published})
+            RETURNING *
+        `;
+        return result[0] as Blog;
+    } catch (error) {
+        console.error('Error creating blog:', error);
+        return null;
+    }
+}
+
+// Update blog
+export async function updateBlog(
+    id: number,
+    data: Partial<Omit<Blog, 'id' | 'created_at' | 'updated_at'>>
+): Promise<Blog | null> {
+    try {
+        const sql = getDb();
+
+        // Dynamic update query construction
+        const updates: any = {};
+        if (data.title !== undefined) updates.title = data.title;
+        if (data.slug !== undefined) updates.slug = data.slug;
+        if (data.content !== undefined) updates.content = data.content;
+        if (data.excerpt !== undefined) updates.excerpt = data.excerpt;
+        if (data.cover_image !== undefined) updates.cover_image = data.cover_image;
+        if (data.published !== undefined) updates.published = data.published;
+
+        updates.updated_at = new Date();
+
+        const result = await sql`
+            UPDATE blogs 
+            SET ${sql(updates)}
+            WHERE id = ${id}
+            RETURNING *
+        `;
+        return result[0] as Blog;
+    } catch (error) {
+        console.error('Error updating blog:', error);
+        return null;
+    }
+}
+
+// Delete blog
+export async function deleteBlog(id: number): Promise<boolean> {
+    try {
+        const sql = getDb();
+        await sql`DELETE FROM blogs WHERE id = ${id}`;
+        return true;
+    } catch (error) {
+        console.error('Error deleting blog:', error);
+        return false;
     }
 }

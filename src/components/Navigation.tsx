@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Video, Image as ImageIcon, Sparkles, Mic, Home, LayoutGrid, LogOut } from "lucide-react";
+import { Video, Image as ImageIcon, Sparkles, Mic, Home, LayoutGrid, LogOut, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -136,6 +136,12 @@ export default function Navigation() {
             icon: Mic,
             active: pathname === "/voice",
         },
+        {
+            href: "/blogs",
+            label: "Blog",
+            icon: FileText,
+            active: pathname.startsWith("/blogs"),
+        },
     ];
 
     // If on Auth pages (Login/Signup), show minimal or no navigation to avoid distractions
@@ -170,6 +176,7 @@ export default function Navigation() {
                     <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
                         <Link href="/#features" className="hover:text-gray-900 transition-colors">Features</Link>
                         <Link href="/#how-it-works" className="hover:text-gray-900 transition-colors">How it Works</Link>
+                        <Link href="/blogs" className="hover:text-gray-900 transition-colors">Blog</Link>
                         <Link href="/pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
                     </div>
 
@@ -238,6 +245,13 @@ export default function Navigation() {
                                     className="text-gray-600 hover:text-gray-900 transition-colors py-2 text-sm font-medium"
                                 >
                                     Pricing
+                                </Link>
+                                <Link
+                                    href="/blogs"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="text-gray-600 hover:text-gray-900 transition-colors py-2 text-sm font-medium"
+                                >
+                                    Blog
                                 </Link>
                                 <div className="h-px bg-gray-200 my-2" />
                                 <Link

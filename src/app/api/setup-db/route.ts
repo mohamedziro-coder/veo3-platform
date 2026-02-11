@@ -62,6 +62,22 @@ export async function GET() {
             END $$;
         `;
 
+        // 5. Create blogs table if missing
+        await sql`
+            CREATE TABLE IF NOT EXISTS blogs (
+                id SERIAL PRIMARY KEY,
+                slug TEXT UNIQUE NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
+                excerpt TEXT,
+                cover_image TEXT,
+                published BOOLEAN DEFAULT FALSE,
+                author_email TEXT,
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            );
+        `;
+
         return NextResponse.json({ success: true, message: "Database schema updated successfully" });
 
     } catch (error: any) {
