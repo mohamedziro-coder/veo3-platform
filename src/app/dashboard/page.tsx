@@ -136,7 +136,7 @@ export default function Dashboard() {
     const tools = [
         {
             title: "Video Generator",
-            desc: "Transform images into cinematic videos using Veo 3.0 AI.",
+            desc: "Transform images into cinematic videos using Virezo AI.",
             href: "/video",
             icon: Video,
             color: "purple"

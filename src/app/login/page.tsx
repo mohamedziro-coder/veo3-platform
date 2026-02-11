@@ -72,7 +72,7 @@ export default function LoginPage() {
                             Welcome <span className="text-primary">Back.</span>
                         </h1>
                         <p className="text-lg text-gray-500 leading-relaxed mb-8">
-                            Continue your journey with Veo Platform. Your next masterpiece is waiting to be created.
+                            Continue your journey with Virezo. Your next masterpiece is waiting to be created.
                         </p>
 
                         <div className="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm backdrop-blur-sm">
@@ -111,7 +111,7 @@ export default function LoginPage() {
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-lg shadow-primary/20">
                                 <Sparkles className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-2xl">Veo Platform</span>
+                            <span className="text-2xl">Virezo</span>
                         </div>
                     </motion.div>
 

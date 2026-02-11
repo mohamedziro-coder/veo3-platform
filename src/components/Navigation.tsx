@@ -169,7 +169,7 @@ export default function Navigation() {
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white">
                             <Sparkles className="w-5 h-5 fill-white" />
                         </div>
-                        <span>Veo Platform</span>
+                        <span>Virezo</span>
                     </div>
 
                     {/* Desktop Menu */}

@@ -288,7 +288,7 @@ export default function VideoPage() {
                 <motion.div variants={itemVariants} className="text-center space-y-4">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 backdrop-blur-md text-xs font-medium text-purple-600 shadow-sm">
                         <Sparkles className="w-3 h-3" />
-                        <span>Powered by Veo 3.0</span>
+                        <span>Powered by Virezo AI</span>
                     </div>
                     <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-gray-900">
                         Product Video Ad

@@ -83,7 +83,7 @@ export default function PricingPage() {
                         Simple, Transparent Pricing
                     </h1>
                     <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
-                        Choose the plan that fits your creative needs. Unlock the full potential of Veo 3.0.
+                        Choose the plan that fits your creative needs. Unlock the full potential of Virezo.
                     </p>
                 </div>
 

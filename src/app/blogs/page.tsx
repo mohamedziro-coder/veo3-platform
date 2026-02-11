@@ -22,7 +22,7 @@ export default async function BlogsPage() {
                         Latest Updates
                     </h1>
                     <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-                        Discover the latest news, tutorials, and updates from the Veo 3 team.
+                        Discover the latest news, tutorials, and updates from the Virezo team.
                     </p>
                 </div>
 
@@ -59,7 +59,7 @@ export default async function BlogsPage() {
                                         </span>
                                         {/* <span className="flex items-center gap-1">
                                             <User className="w-3 h-3" />
-                                            Veo Team
+                                            Virezo Team
                                         </span> */}
                                     </div>
                                     <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-purple-600 transition-colors line-clamp-2">

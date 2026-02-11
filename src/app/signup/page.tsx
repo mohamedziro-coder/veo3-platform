@@ -77,7 +77,7 @@ export default function SignupPage() {
                             Create the <span className="text-primary">Impossible.</span>
                         </h1>
                         <p className="text-lg text-gray-500 leading-relaxed mb-8">
-                            Join Veo Platform to access state-of-the-art AI generation tools.
+                            Join Virezo to access state-of-the-art AI generation tools.
                             Turn your imagination into reality with a single click.
                         </p>
 
@@ -115,7 +115,7 @@ export default function SignupPage() {
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg shadow-primary/20">
                                 <Sparkles className="w-5 h-5 text-white" />
                             </div>
-                            <span className="text-2xl">Veo Platform</span>
+                            <span className="text-2xl">Virezo</span>
                         </div>
                     </motion.div>
 
