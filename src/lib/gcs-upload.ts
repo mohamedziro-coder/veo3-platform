@@ -123,11 +123,30 @@ export async function checkGcsOutput(operationId: string): Promise<{
         if (videoFile) {
             const gcsUri = `gs://${bucketName}/${videoFile.name}`;
             console.log(`[GCS] Found generated video: ${gcsUri}`);
-            return {
-                url: gcsUriToHttps(gcsUri),
-                bucketName,
-                fileCount: files.length
-            };
+
+            // ALWAYS use Signed URLs. 
+            // "Public Access Prevention" on buckets makes makePublic() unreliable/impossible.
+            // Signed URLs work flawlessly with Service Account credentials.
+            try {
+                const [signedUrl] = await videoFile.getSignedUrl({
+                    action: 'read',
+                    expires: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+                });
+
+                return {
+                    url: signedUrl,
+                    bucketName,
+                    fileCount: files.length
+                };
+            } catch (signError: any) {
+                console.error('[GCS] Failed to sign URL:', signError);
+                // Fallback to unsigned URL if signing fails (unlikely)
+                return {
+                    url: `https://storage.googleapis.com/${bucketName}/${videoFile.name}`,
+                    bucketName,
+                    fileCount: files.length
+                };
+            }
         }
 
         return {
