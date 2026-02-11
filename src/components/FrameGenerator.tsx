@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Wand2, Check, Upload, Image as ImageIcon } from "lucide-react";
 
@@ -11,7 +11,7 @@ interface FrameGeneratorProps {
     contextImage?: string | null; // URL of the Start Frame (for consistency)
 }
 
-export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage }: FrameGeneratorProps) {
+function FrameGenerator({ isOpen, onClose, onSelect, contextImage }: FrameGeneratorProps) {
     const [prompt, setPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -228,3 +228,4 @@ export default function FrameGenerator({ isOpen, onClose, onSelect, contextImage
         </AnimatePresence>
     );
 }
+export default memo(FrameGenerator);

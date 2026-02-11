@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ interface ImageUploadProps {
     externalImageUrl?: string | null;
 }
 
-export default function ImageUpload({ label, onImageSelect, selectedImage, externalImageUrl }: ImageUploadProps) {
+function ImageUpload({ label, onImageSelect, selectedImage, externalImageUrl }: ImageUploadProps) {
     const [isDragging, setIsDragging] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -133,3 +133,5 @@ export default function ImageUpload({ label, onImageSelect, selectedImage, exter
         </div>
     );
 }
+
+export default memo(ImageUpload);

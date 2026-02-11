@@ -6,8 +6,14 @@ import ImageUpload from "@/components/ImageUpload";
 import VideoPlayer from "@/components/VideoPlayer";
 import { Sparkles, PlayCircle, AlertCircle, ShoppingBag, Wand2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import FrameGenerator from "@/components/FrameGenerator";
+import dynamic from 'next/dynamic';
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
+import ProgressDisplay from "@/components/ProgressDisplay";
+
+const FrameGenerator = dynamic(() => import('@/components/FrameGenerator'), {
+    loading: () => null,
+    ssr: false
+});
 
 export default function VideoPage() {
     const router = useRouter();
@@ -26,7 +32,7 @@ export default function VideoPage() {
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [progressMessage, setProgressMessage] = useState<string>("");
-    const [elapsedTime, setElapsedTime] = useState(0);
+    const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
 
     // Credit usage state
     const currentCredits = getUserCredits();
@@ -98,7 +104,7 @@ export default function VideoPage() {
         setVideoUrl(null);
         setError(null);
         setProgressMessage("Preparing images...");
-        setElapsedTime(0);
+        setGenerationStartTime(Date.now());
 
         try {
             const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
@@ -174,27 +180,23 @@ export default function VideoPage() {
             console.error("Generation failed", error);
             setError(error.message || "Network connection error. Try again.");
             setIsLoading(false);
+            setGenerationStartTime(null);
         }
     };
 
     // Polling function to check video generation status
     const pollForCompletion = async (operationId: string, userEmail: string) => {
         const startTime = Date.now();
-        const MAX_WAIT_TIME = 5 * 60 * 1000; // 5 minutes max
+        const MAX_WAIT_TIME = 10 * 60 * 1000; // Increased to 10 minutes max
         const POLL_INTERVAL = 3000; // Poll every 3 seconds
 
-        // Update elapsed time every second
-        const timerInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            setElapsedTime(elapsed);
-        }, 1000);
+        // No more setInterval here!
 
         const poll = async (): Promise<void> => {
             try {
                 const elapsed = Date.now() - startTime;
 
                 if (elapsed > MAX_WAIT_TIME) {
-                    clearInterval(timerInterval);
                     throw new Error("Video generation timed out. Please try again.");
                 }
 
@@ -205,10 +207,10 @@ export default function VideoPage() {
                 const statusData = await statusResponse.json();
 
                 if (statusData.status === "complete" && statusData.videoUrl) {
-                    clearInterval(timerInterval);
                     setVideoUrl(statusData.videoUrl);
                     setProgressMessage("Video ready!");
                     setIsLoading(false);
+                    setGenerationStartTime(null);
 
                     // Update credits
                     if (statusData.credits !== undefined) {
@@ -240,25 +242,29 @@ export default function VideoPage() {
                     }
 
                 } else if (statusData.status === "failed") {
-                    clearInterval(timerInterval);
                     throw new Error(statusData.error || "Video generation failed");
                 } else {
-                    // Still processing, update message and continue polling
-                    setProgressMessage(statusData.message || "Generating video...");
+                    // Still processing, update message ONLY IF CHANGED to avoid re-renders
+                    if (statusData.message && statusData.message !== progressMessage) {
+                        setProgressMessage(statusData.message);
+                    }
                     setTimeout(poll, POLL_INTERVAL);
                 }
 
             } catch (error: any) {
-                clearInterval(timerInterval);
                 console.error("Polling error:", error);
                 setError(error.message || "Failed to check video status");
                 setIsLoading(false);
+                setGenerationStartTime(null);
             }
         };
 
         // Start polling
         await poll();
     };
+
+    // const ProgressDisplay = require('@/components/ProgressDisplay').default; // Removed
+
 
     return (
         <main className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden pt-24 pb-32 bg-gray-50">
@@ -417,17 +423,11 @@ export default function VideoPage() {
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent translate-x-[-100%] hover:translate-x-[100%] transition-transform duration-1000" />
 
                             {isLoading ? (
-                                <div className="flex flex-col items-center gap-2 w-full">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                        <span className="tracking-wide">{progressMessage || "Generating..."}</span>
-                                    </div>
-                                    {elapsedTime > 0 && (
-                                        <span className="text-sm opacity-70">
-                                            {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')} elapsed
-                                        </span>
-                                    )}
-                                </div>
+                                <ProgressDisplay
+                                    isProcessing={isLoading}
+                                    message={progressMessage || "Generating..."}
+                                    startTime={generationStartTime || Date.now()}
+                                />
                             ) : (
                                 <>
                                     <PlayCircle className="w-6 h-6" />

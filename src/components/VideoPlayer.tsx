@@ -2,13 +2,14 @@
 
 import { motion } from "framer-motion";
 import { Loader2, Play } from "lucide-react";
+import { memo } from "react";
 
 interface VideoPlayerProps {
     videoUrl: string | null;
     isLoading: boolean;
 }
 
-export default function VideoPlayer({ videoUrl, isLoading }: VideoPlayerProps) {
+function VideoPlayer({ videoUrl, isLoading }: VideoPlayerProps) {
     if (!videoUrl && !isLoading) return null;
 
     return (
@@ -34,3 +35,5 @@ export default function VideoPlayer({ videoUrl, isLoading }: VideoPlayerProps) {
         </motion.div>
     );
 }
+
+export default memo(VideoPlayer);
