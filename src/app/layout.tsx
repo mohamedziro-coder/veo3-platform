@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 import Providers from "@/components/Providers";
+import ScrollProgress from "@/components/ScrollProgress";
 
 export default function RootLayout({
   children,
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-background text-foreground antialiased min-h-screen`}>
         <Providers>
+          <ScrollProgress />
           <div className="fixed inset-0 -z-10 h-full w-full bg-background"></div>
           <Navigation />
           {children}
