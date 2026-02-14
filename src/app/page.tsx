@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion, Variants } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import {
   Sparkles,
   Play,
@@ -16,6 +16,7 @@ import { useState } from "react";
 
 export default function HomePage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -188,36 +189,93 @@ export default function HomePage() {
       </section>
 
       {/* 5. DEMO PREVIEW SECTION */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
+      <section className="py-24 px-6 max-w-7xl mx-auto" id="demos">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Made with Virezo</h2>
           <p className="text-xl text-gray-500">See what others are building right now.</p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="aspect-[9/16] bg-gray-100 rounded-2xl relative group overflow-hidden cursor-pointer hover:shadow-lg transition-all border border-gray-200">
+          {[
+            { id: 1, title: "Product Promo", video: "/videos/demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=711&fit=crop" },
+            { id: 2, title: "Social Reel", video: "/videos/demo2.mp4", thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=711&fit=crop" },
+            { id: 3, title: "E-com UGC", video: "/videos/demo3.mp4", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&h=711&fit=crop" },
+            { id: 4, title: "News Update", video: "/videos/demo4.mp4", thumbnail: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&h=711&fit=crop" },
+            { id: 5, title: "Travel Blog", video: "/videos/demo5.mp4", thumbnail: "https://images.unsplash.com/photo-1502444330042-d1a1ddf9bb5b?w=400&h=711&fit=crop" },
+            { id: 6, title: "Style Guide", video: "/videos/demo6.mp4", thumbnail: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=711&fit=crop" }
+          ].map((demo) => (
+            <motion.div
+              key={demo.id}
+              whileHover={{ y: -5 }}
+              onClick={() => setSelectedVideo(demo.video)}
+              className="aspect-[9/16] bg-gray-100 rounded-2xl relative group overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all border border-gray-200"
+            >
+              {/* Thumbnail */}
+              <img
+                src={demo.thumbnail}
+                alt={demo.title}
+                className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+              />
+
               {/* Overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                  <Play className="w-5 h-5 text-primary ml-1" />
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                <div className="w-12 h-12 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                  <Play className="w-5 h-5 text-primary ml-1 fill-current" />
                 </div>
               </div>
-              <div className="absolute bottom-4 left-4">
-                <span className="bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded text-gray-800">
-                  Demo {i}
+              <div className="absolute bottom-4 left-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                <span className="bg-white/95 backdrop-blur text-[10px] font-extrabold tracking-widest uppercase px-3 py-1.5 rounded-full text-gray-800 shadow-sm block text-center">
+                  {demo.title}
                 </span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <button className="px-8 py-3 rounded-full border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all">
+          <Link href="/signup" className="inline-flex px-8 py-4 rounded-xl bg-primary/5 text-primary border border-primary/20 font-bold hover:bg-primary hover:text-white transition-all transform hover:-translate-y-1">
             Generate Yours Now
-          </button>
+          </Link>
         </div>
       </section>
+
+      {/* Video Modal */}
+      <AnimatePresence>
+        {selectedVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+            onClick={() => setSelectedVideo(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition-colors border border-white/10"
+              >
+                <span className="sr-only">Close</span>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <video
+                src={selectedVideo}
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 6. PRICING SECTION */}
       <section className="py-24 px-6 bg-white">
