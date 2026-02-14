@@ -35,6 +35,15 @@ export default function HomePage() {
     }
   };
 
+  const demos = [
+    { id: 1, title: "Product Promo", video: "/videos/demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=711&fit=crop" },
+    { id: 2, title: "Social Reel", video: "/videos/demo2.mp4", thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=711&fit=crop" },
+    { id: 3, title: "E-com UGC", video: "/videos/demo3.mp4", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&h=711&fit=crop" },
+    { id: 4, title: "News Update", video: "/videos/demo4.mp4", thumbnail: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&h=711&fit=crop" },
+    { id: 5, title: "Travel Blog", video: "/videos/demo5.mp4", thumbnail: "https://images.unsplash.com/photo-1502444330042-d1a1ddf9bb5b?w=400&h=711&fit=crop" },
+    { id: 6, title: "Style Guide", video: "/videos/demo6.mp4", thumbnail: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=711&fit=crop" }
+  ];
+
   return (
     <main className="min-h-screen bg-white text-[#1A1A1A] font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary">
 
@@ -195,45 +204,55 @@ export default function HomePage() {
           <p className="text-xl text-gray-500">See what others are building right now.</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-          {[
-            { id: 1, title: "Product Promo", video: "/videos/demo1.mp4", thumbnail: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=400&h=711&fit=crop" },
-            { id: 2, title: "Social Reel", video: "/videos/demo2.mp4", thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=711&fit=crop" },
-            { id: 3, title: "E-com UGC", video: "/videos/demo3.mp4", thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400&h=711&fit=crop" },
-            { id: 4, title: "News Update", video: "/videos/demo4.mp4", thumbnail: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&h=711&fit=crop" },
-            { id: 5, title: "Travel Blog", video: "/videos/demo5.mp4", thumbnail: "https://images.unsplash.com/photo-1502444330042-d1a1ddf9bb5b?w=400&h=711&fit=crop" },
-            { id: 6, title: "Style Guide", video: "/videos/demo6.mp4", thumbnail: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=711&fit=crop" }
-          ].map((demo) => (
-            <motion.div
-              key={demo.id}
-              whileHover={{ y: -5 }}
-              onClick={() => setSelectedVideo(demo.video)}
-              className="aspect-[9/16] bg-gray-100 rounded-2xl relative group overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all border border-gray-200"
-            >
-              {/* Video Preview */}
-              <video
-                src={demo.video}
-                poster={demo.thumbnail}
-                muted
-                autoPlay
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-              />
+        <div className="relative overflow-hidden py-10 -mx-6 md:-mx-12 cursor-grab active:cursor-grabbing">
+          {/* Faded edges for premium feel */}
+          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                <div className="w-12 h-12 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                  <Play className="w-5 h-5 text-primary ml-1 fill-current" />
+          <motion.div
+            className="flex gap-6 w-max px-6"
+            animate={{
+              x: ["0%", "-50%"]
+            }}
+            transition={{
+              duration: 30,
+              ease: "linear",
+              repeat: Infinity
+            }}
+            whileHover={{ transition: { duration: 60 } }} // Slow down on hover
+          >
+            {[...demos, ...demos].map((demo, index) => (
+              <motion.div
+                key={`${demo.id}-${index}`}
+                whileHover={{ y: -10, scale: 1.02 }}
+                onClick={() => setSelectedVideo(demo.video)}
+                className="w-[280px] aspect-[9/16] bg-gray-100 rounded-2xl relative group overflow-hidden cursor-pointer shadow-sm hover:shadow-2xl transition-all border border-gray-200"
+              >
+                {/* Video Preview */}
+                <video
+                  src={demo.video}
+                  poster={demo.thumbnail}
+                  muted
+                  autoPlay
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                />
+
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black/5 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                  <div className="w-14 h-14 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                    <Play className="w-6 h-6 text-primary ml-1 fill-current" />
+                  </div>
                 </div>
-              </div>
-              <div className="absolute bottom-4 left-4 right-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
-                <span className="bg-white/95 backdrop-blur text-[10px] font-extrabold tracking-widest uppercase px-3 py-1.5 rounded-full text-gray-800 shadow-sm block text-center">
-                  {demo.title}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+                <div className="absolute bottom-6 left-6 right-6 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                  <span className="bg-white/95 backdrop-blur text-[10px] font-extrabold tracking-widest uppercase px-4 py-2 rounded-full text-gray-800 shadow-sm block text-center">
+                    {demo.title}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
 
         <div className="text-center mt-12">
