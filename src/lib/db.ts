@@ -536,3 +536,20 @@ export async function deleteBlog(id: number): Promise<boolean> {
         return false;
     }
 }
+// Update user password
+export async function updateUserPassword(email: string, newPassword: string): Promise<boolean> {
+    try {
+        const sql = getDb();
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+
+        await sql`
+            UPDATE users 
+            SET password_hash = ${passwordHash}, verification_token = NULL 
+            WHERE LOWER(email) = ${email.toLowerCase()}
+        `;
+        return true;
+    } catch (error) {
+        console.error('Error updating password:', error);
+        return false;
+    }
+}
