@@ -166,26 +166,31 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      <section className="bg-gray-50 border-y border-gray-100">
+      <section className="py-20 px-6 bg-white overflow-hidden">
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={{ once: true, amount: 0.2 }}
           variants={staggerContainer}
-          className="max-w-7xl mx-auto px-6 py-12"
+          className="max-w-7xl mx-auto"
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-gray-200/50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { label: "Videos Generated", value: "2M+" },
-              { label: "Active Creators", value: "50k+" },
-              { label: "Avg. Engagement", value: "3.5x" },
-              { label: "Global Reach", value: "120+" }
+              { label: "Active users", value: "5,000+" },
+              { label: "Creatives generated", value: "50,000+" },
+              { label: "Campaigns launched", value: "100,000+" },
+              { label: "Saved weekly per user", value: "15 hrs" }
             ].map((stat, i) => (
-              <motion.div key={i} variants={itemVariants} className="flex flex-col items-center p-2">
-                <span className="text-4xl font-bold text-primary mb-1">
+              <motion.div
+                key={i}
+                variants={itemVariants}
+                whileHover={{ y: -5 }}
+                className="p-8 rounded-3xl bg-gray-50/50 border border-gray-100 flex flex-col items-center justify-center text-center group transition-all hover:bg-white hover:shadow-xl hover:border-primary/20"
+              >
+                <span className="text-4xl md:text-5xl font-black text-primary mb-3">
                   <Counter value={stat.value} />
                 </span>
-                <span className="text-sm text-gray-500 font-medium uppercase tracking-wider">{stat.label}</span>
+                <span className="text-sm font-semibold text-gray-500 uppercase tracking-widest">{stat.label}</span>
               </motion.div>
             ))}
           </div>
