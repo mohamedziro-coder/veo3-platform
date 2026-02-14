@@ -15,8 +15,44 @@ import {
 import { useState } from "react";
 
 export default function HomePage() {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      question: "What is Virezo AI Video Platform?",
+      answer: "Virezo is an advanced AI-powered video generation platform. We help creators, marketers, and businesses turn ideas into viral, broadcast-quality content in seconds using realistic avatars and native multi-language voiceovers."
+    },
+    {
+      question: "How does the AI UGC Generator work?",
+      answer: "It's simple: just paste your product link. Our AI analyzes the page, identifies key selling points, writes a high-conversion script, and generates a polished video with a lifelike avatar—all in under a minute."
+    },
+    {
+      question: "Do I have commercial rights to the videos?",
+      answer: "Absolutely. Every video you generate on the Virezo platform comes with full commercial usage rights. You can use them for TikTok ads, Instagram Reels, YouTube, or your own website without any restrictions."
+    },
+    {
+      question: "Which languages does Virezo support?",
+      answer: "We support over 30 languages with native-level pronunciation and local dialects. This includes English, Spanish, French, German, Arabic, Japanese, and many more, allowing you to reach a global audience effortlessly."
+    },
+    {
+      question: "Do I need any technical or video editing skills?",
+      answer: "None at all. Virezo is designed for everyone. Our cloud-based AI handles the scriptwriting, voiceover, and video editing. You just provide the link or idea, and we deliver the final viral-ready video."
+    }
+  ];
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -46,6 +82,11 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-white text-[#1A1A1A] font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+      {/* FAQ Schema for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
 
       {/* 1. HERO SECTION */}
       <section className="relative pt-32 pb-20 px-6 md:px-12 overflow-hidden">
@@ -301,66 +342,50 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* 6. PRICING SECTION */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Simple, Transparent Pricing</h2>
-
-            <div className="inline-flex items-center gap-2 bg-gray-100 p-1 rounded-full">
-              <button
-                onClick={() => setBillingCycle('monthly')}
-                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${billingCycle === 'monthly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setBillingCycle('yearly')}
-                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${billingCycle === 'yearly' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                Yearly <span className="text-secondary ml-1">-20%</span>
-              </button>
-            </div>
+      {/* 6. FAQ SECTION */}
+      <section className="py-24 px-6 bg-gray-50/50 border-y border-gray-100" id="faq">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-gray-500">Everything you need to know about Virezo AI.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-            {/* Starter */}
-            <div className="p-8 rounded-3xl border border-gray-200 hover:border-gray-300 transition-all">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Starter</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">$29<span className="text-lg text-gray-400 font-normal">/mo</span></div>
-              <ul className="space-y-4 text-gray-600 mb-8 text-sm">
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-green-500" /> 15 Videos / mo</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-green-500" /> Standard Avatars</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-green-500" /> 720p Export</li>
-              </ul>
-              <button className="w-full py-3 rounded-xl border border-gray-200 font-bold text-gray-700 hover:bg-gray-50 transition-all">Get Started</button>
-            </div>
-
-            {/* Pro */}
-            <div className="p-8 rounded-3xl border-2 border-primary bg-white shadow-xl relative transform md:-translate-y-4">
-              <div className="absolute top-0 right-0 bg-primary text-white text-xs font-bold px-3 py-1 rounded-bl-xl rounded-tr-xl">MOST POPULAR</div>
-              <h3 className="text-xl font-bold text-primary mb-2">Creator</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">$59<span className="text-lg text-gray-400 font-normal">/mo</span></div>
-              <ul className="space-y-4 text-gray-700 mb-8 text-sm font-medium">
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> 50 Videos / mo</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> All Languages Supported</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> 1080p HD Export</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-primary" /> No Watermark</li>
-              </ul>
-              <button className="w-full py-3 rounded-xl bg-primary text-white font-bold hover:bg-blue-600 transition-all shadow-lg shadow-primary/25">Start Free Trial</button>
-            </div>
-
-            {/* Agency */}
-            <div className="p-8 rounded-3xl border border-gray-200 hover:border-gray-300 transition-all">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Agency</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">$199<span className="text-lg text-gray-400 font-normal">/mo</span></div>
-              <ul className="space-y-4 text-gray-600 mb-8 text-sm">
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-green-500" /> Unlimited Videos</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-green-500" /> 4K Export</li>
-                <li className="flex items-center gap-3"><Check className="w-4 h-4 text-green-500" /> API Access</li>
-              </ul>
-              <button className="w-full py-3 rounded-xl border border-gray-200 font-bold text-gray-700 hover:bg-gray-50 transition-all">Contact Sales</button>
-            </div>
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <motion.div
+                key={i}
+                className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full px-8 py-6 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+                >
+                  <span className="font-bold text-gray-900 md:text-lg">{faq.question}</span>
+                  <motion.span
+                    animate={{ rotate: openFaq === i ? 45 : 0 }}
+                    className="flex-shrink-0 ml-4"
+                  >
+                    <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </motion.span>
+                </button>
+                <AnimatePresence>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    >
+                      <div className="px-8 pb-6 text-gray-600 leading-relaxed border-t border-gray-50 pt-4">
+                        {faq.answer}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
