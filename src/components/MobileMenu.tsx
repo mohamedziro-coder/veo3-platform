@@ -16,7 +16,7 @@ const MenuToggle = ({ isOpen, toggle }: { isOpen: boolean; toggle: () => void })
     return (
         <button
             onClick={toggle}
-            className="relative z-[1000] w-12 h-12 flex items-center justify-center rounded-full bg-card-bg/80 backdrop-blur-md border border-card-border shadow-lg"
+            className="relative z-[10000] w-12 h-12 flex items-center justify-center rounded-xl bg-white dark:bg-card-bg border border-card-border shadow-2xl shadow-primary/20 transition-all hover:scale-110 active:scale-90"
             aria-label="Toggle Menu"
         >
             <svg width="23" height="23" viewBox="0 0 23 23">
@@ -67,8 +67,8 @@ const menuVariants: Variants = {
         opacity: 0,
         x: "100%",
         transition: {
-            duration: 0.5,
-            ease: [0.6, 0.01, -0.05, 0.9],
+            duration: 0.4,
+            ease: [0.6, 0.05, -0.01, 0.9],
             staggerChildren: 0.05,
             staggerDirection: -1
         }
@@ -77,8 +77,8 @@ const menuVariants: Variants = {
         opacity: 1,
         x: 0,
         transition: {
-            duration: 0.5,
-            ease: [0.6, 0.01, -0.05, 0.9],
+            duration: 0.6,
+            ease: [0.6, 0.05, -0.01, 0.9],
             staggerChildren: 0.1,
             delayChildren: 0.2
         }
@@ -88,13 +88,13 @@ const menuVariants: Variants = {
 const linkVariants: Variants = {
     closed: {
         opacity: 0,
-        y: 20,
+        y: 40,
         transition: { duration: 0.3, ease: "easeIn" }
     },
     open: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.5, ease: [0.6, 0.01, -0.05, 0.9] }
+        transition: { duration: 0.6, ease: [0.6, 0.05, -0.01, 0.9] }
     }
 };
 
@@ -105,11 +105,15 @@ export default function MobileMenu({ isOpen, setIsOpen, links }: MobileMenuProps
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
+            // Ensure we are at z-index context for mobile
+            document.body.style.touchAction = "none";
         } else {
             document.body.style.overflow = "unset";
+            document.body.style.touchAction = "auto";
         }
         return () => {
             document.body.style.overflow = "unset";
+            document.body.style.touchAction = "auto";
         };
     }, [isOpen]);
 
@@ -117,30 +121,30 @@ export default function MobileMenu({ isOpen, setIsOpen, links }: MobileMenuProps
         <div className="md:hidden">
             <MenuToggle isOpen={isOpen} toggle={() => setIsOpen(!isOpen)} />
 
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
                 {isOpen && (
                     <motion.div
                         variants={menuVariants}
                         initial="closed"
                         animate="open"
                         exit="closed"
-                        className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-white/90 dark:bg-neutral-950/95 backdrop-blur-xl"
+                        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-black backdrop-blur-3xl"
                     >
-                        <div className="absolute top-8 left-8 flex items-center gap-2 font-bold text-2xl tracking-tighter text-foreground">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white">
-                                <Sparkles className="w-6 h-6 fill-white" />
+                        <div className="absolute top-10 left-10 flex items-center gap-3 font-black text-3xl tracking-tighter text-foreground">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white shadow-xl">
+                                <Sparkles className="w-7 h-7 fill-white" />
                             </div>
                             <span>Virezo</span>
                         </div>
 
-                        <nav className="flex flex-col items-center gap-8 px-6 text-center">
+                        <nav className="flex flex-col items-center gap-10 px-8 text-center mt-20">
                             {links.map((link, i) => (
                                 <motion.div key={i} variants={linkVariants}>
                                     {link.isButton ? (
                                         <Link
                                             href={link.href}
                                             onClick={() => setIsOpen(false)}
-                                            className="px-12 py-4 rounded-full bg-primary text-white text-xl font-bold shadow-xl shadow-primary/20 transform active:scale-95 transition-transform inline-block"
+                                            className="px-16 py-5 rounded-3xl bg-primary text-white text-2xl font-black shadow-2xl shadow-primary/30 transform active:scale-95 transition-all inline-block hover:bg-primary/90"
                                         >
                                             {link.label}
                                         </Link>
@@ -148,7 +152,7 @@ export default function MobileMenu({ isOpen, setIsOpen, links }: MobileMenuProps
                                         <Link
                                             href={link.href}
                                             onClick={() => setIsOpen(false)}
-                                            className={`text-4xl font-black tracking-tight transition-colors ${pathname === link.href || (link.href.startsWith("/#") && pathname === "/")
+                                            className={`text-5xl font-black tracking-tight transition-all hover:scale-105 active:scale-95 block ${pathname === link.href || (link.href.startsWith("/#") && pathname === "/")
                                                 ? "text-primary"
                                                 : "text-foreground hover:text-primary"
                                                 }`}
