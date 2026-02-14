@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateUserPassword } from '@/lib/db';
-import { neon } from '@neondatabase/serverless';
+import { updateUserPassword, verifyResetCode } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
     try {
@@ -10,21 +9,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Email, code and new password are required' }, { status: 400 });
         }
 
-        const sql = neon(process.env.POSTGRES_URL!);
-
-        // Verify token
-        const users = await sql`
-            SELECT id, email, verification_token
-            FROM users
-            WHERE LOWER(email) = ${email.toLowerCase()}
-        `;
-
-        if (users.length === 0) {
-            return NextResponse.json({ error: 'User not found' }, { status: 404 });
-        }
-
-        const user = users[0];
-        if (!user.verification_token || user.verification_token !== code) {
+        // Verify code (includes expiry check)
+        const isValid = await verifyResetCode(email, code);
+        if (!isValid) {
             return NextResponse.json({ error: 'Invalid or expired code' }, { status: 400 });
         }
 

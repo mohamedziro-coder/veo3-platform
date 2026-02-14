@@ -19,12 +19,22 @@ export async function GET() {
             END $$;
         `;
 
-        // 2. Add verification_token if missing
+        // 3. Add verification_token if missing
         await sql`
             DO $$ 
             BEGIN 
                 IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='verification_token') THEN 
                     ALTER TABLE users ADD COLUMN verification_token TEXT; 
+                END IF; 
+            END $$;
+        `;
+
+        // 3.1 Add reset_code_expiry if missing
+        await sql`
+            DO $$ 
+            BEGIN 
+                IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='reset_code_expiry') THEN 
+                    ALTER TABLE users ADD COLUMN reset_code_expiry TIMESTAMP WITH TIME ZONE; 
                 END IF; 
             END $$;
         `;

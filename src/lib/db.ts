@@ -17,6 +17,8 @@ export interface User {
     role: string;
     credits: number;
     created_at: Date;
+    verification_token?: string;
+    reset_code_expiry?: Date;
 }
 
 export interface Activity {
@@ -307,6 +309,50 @@ export async function updateVerificationToken(email: string, token: string): Pro
         return true;
     } catch (error) {
         console.error('Error updating verification token:', error);
+        return false;
+    }
+}
+
+// Set user reset code with expiry
+export async function setUserResetCode(email: string, code: string, expiryMinutes: number = 15): Promise<boolean> {
+    try {
+        const sql = getDb();
+        const expiry = new Date();
+        expiry.setMinutes(expiry.getMinutes() + expiryMinutes);
+
+        await sql`
+            UPDATE users 
+            SET verification_token = ${code}, reset_code_expiry = ${expiry} 
+            WHERE LOWER(email) = ${email.toLowerCase()}
+        `;
+        return true;
+    } catch (error) {
+        console.error('Error setting user reset code:', error);
+        return false;
+    }
+}
+
+// Verify reset code
+export async function verifyResetCode(email: string, code: string): Promise<boolean> {
+    try {
+        const sql = getDb();
+        const emailLower = email.toLowerCase();
+        const result = await sql`
+            SELECT verification_token, reset_code_expiry 
+            FROM users 
+            WHERE LOWER(email) = ${emailLower}
+        `;
+
+        if (result.length === 0) return false;
+
+        const { verification_token, reset_code_expiry } = result[0];
+
+        if (!verification_token || verification_token !== code) return false;
+        if (!reset_code_expiry || new Date(reset_code_expiry) < new Date()) return false;
+
+        return true;
+    } catch (error) {
+        console.error('Error verifying reset code:', error);
         return false;
     }
 }
