@@ -153,6 +153,14 @@ export default function LoginPage() {
                                     />
                                     <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                                 </div>
+                                <div className="flex justify-end">
+                                    <Link
+                                        href="/forgot-password"
+                                        className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                                    >
+                                        Forgot password?
+                                    </Link>
+                                </div>
                             </div>
 
                             {error && (
