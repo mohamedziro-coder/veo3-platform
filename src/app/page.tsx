@@ -13,6 +13,7 @@ import {
   Wand2
 } from "lucide-react";
 import { useState } from "react";
+import Counter from "@/components/Counter";
 
 export default function HomePage() {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -181,7 +182,9 @@ export default function HomePage() {
               { label: "Global Reach", value: "120+" }
             ].map((stat, i) => (
               <motion.div key={i} variants={itemVariants} className="flex flex-col items-center p-2">
-                <span className="text-4xl font-bold text-primary mb-1">{stat.value}</span>
+                <span className="text-4xl font-bold text-primary mb-1">
+                  <Counter value={stat.value} />
+                </span>
                 <span className="text-sm text-gray-500 font-medium uppercase tracking-wider">{stat.label}</span>
               </motion.div>
             ))}
