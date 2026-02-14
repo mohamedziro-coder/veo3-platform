@@ -16,7 +16,7 @@ const MenuToggle = ({ isOpen, toggle }: { isOpen: boolean; toggle: () => void })
     return (
         <button
             onClick={toggle}
-            className="relative z-[110] w-12 h-12 flex items-center justify-center rounded-full bg-card-bg/80 backdrop-blur-md border border-card-border shadow-lg"
+            className="relative z-[1000] w-12 h-12 flex items-center justify-center rounded-full bg-card-bg/80 backdrop-blur-md border border-card-border shadow-lg"
             aria-label="Toggle Menu"
         >
             <svg width="23" height="23" viewBox="0 0 23 23">
@@ -124,7 +124,7 @@ export default function MobileMenu({ isOpen, setIsOpen, links }: MobileMenuProps
                         initial="closed"
                         animate="open"
                         exit="closed"
-                        className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-xl"
+                        className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-white/90 dark:bg-neutral-950/95 backdrop-blur-xl"
                     >
                         <div className="absolute top-8 left-8 flex items-center gap-2 font-bold text-2xl tracking-tighter text-foreground">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white">

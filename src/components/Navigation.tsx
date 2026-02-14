@@ -169,52 +169,53 @@ export default function Navigation() {
     if (!isLoggedIn || isLandingPage) {
         return (
             <>
-                <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
-                    {/* Logo */}
-                    <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white">
-                            <Sparkles className="w-5 h-5 fill-white" />
+                <div className="fixed top-0 inset-x-0 z-[999]">
+                    <div className="flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
+                        {/* Logo */}
+                        <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white">
+                                <Sparkles className="w-5 h-5 fill-white" />
+                            </div>
+                            <span>Virezo</span>
                         </div>
-                        <span>Virezo</span>
-                    </div>
 
-                    {/* Desktop Menu */}
-                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-                        <Link href="/#features" className="hover:text-gray-900 transition-colors">Features</Link>
-                        <Link href="/#how-it-works" className="hover:text-gray-900 transition-colors">How it Works</Link>
-                        <Link href="/blogs" className="hover:text-gray-900 transition-colors">Blog</Link>
-                        <Link href="/pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
-                    </div>
+                        {/* Desktop Menu */}
+                        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+                            <Link href="/#features" className="hover:text-gray-900 transition-colors">Features</Link>
+                            <Link href="/#how-it-works" className="hover:text-gray-900 transition-colors">How it Works</Link>
+                            <Link href="/blogs" className="hover:text-gray-900 transition-colors">Blog</Link>
+                            <Link href="/pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
+                        </div>
 
-                    {/* Auth Buttons */}
-                    <div className="hidden md:flex items-center gap-4">
-                        <Link href="/login" className="text-sm font-medium text-foreground hover:text-muted-foreground transition-colors">
-                            Sign In
-                        </Link>
-                        <Link
-                            href="/signup"
-                            className="px-5 py-2.5 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-transform"
-                        >
-                            Get Started
-                        </Link>
-                    </div>
+                        {/* Auth Buttons */}
+                        <div className="hidden md:flex items-center gap-4">
+                            <Link href="/login" className="text-sm font-medium text-foreground hover:text-muted-foreground transition-colors">
+                                Sign In
+                            </Link>
+                            <Link
+                                href="/signup"
+                                className="px-5 py-2.5 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-transform"
+                            >
+                                Get Started
+                            </Link>
+                        </div>
 
-                    {/* Mobile Menu Toggle - Fixed to the right */}
-                    <div className="md:hidden">
-                        <MobileMenu
-                            isOpen={mobileMenuOpen}
-                            setIsOpen={setMobileMenuOpen}
-                            links={[
-                                { href: "/", label: "Home" },
-                                { href: "/#features", label: "Features" },
-                                { href: "/#how-it-works", label: "How it Works" },
-                                { href: "/pricing", label: "Pricing" },
-                                { href: "/login", label: "Login", isButton: true }
-                            ]}
-                        />
+                        {/* Mobile Menu Toggle - Fixed to the right */}
+                        <div className="md:hidden">
+                            <MobileMenu
+                                isOpen={mobileMenuOpen}
+                                setIsOpen={setMobileMenuOpen}
+                                links={[
+                                    { href: "/", label: "Home" },
+                                    { href: "/#features", label: "Features" },
+                                    { href: "/#how-it-works", label: "How it Works" },
+                                    { href: "/pricing", label: "Pricing" },
+                                    { href: "/login", label: "Login", isButton: true }
+                                ]}
+                            />
+                        </div>
                     </div>
                 </div>
-
             </>
         );
     }
