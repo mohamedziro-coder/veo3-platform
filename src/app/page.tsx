@@ -88,32 +88,32 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* 1. HERO SECTION */}
-      <section className="relative pt-32 pb-20 px-6 md:px-12 overflow-hidden">
+      {/* 1. HERO SECTION (Scaled Up) */}
+      <section className="relative min-h-screen flex flex-col justify-center pt-32 pb-48 px-6 md:px-12 overflow-hidden">
         {/* Subtle Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-          <div className="absolute -top-[20%] -right-[10%] w-[50vw] h-[50vw] bg-secondary/5 rounded-full blur-[100px]" />
-          <div className="absolute top-[20%] -left-[10%] w-[40vw] h-[40vw] bg-primary/5 rounded-full blur-[100px]" />
+          <div className="absolute -top-[20%] -right-[10%] w-[60vw] h-[60vw] bg-secondary/5 rounded-full blur-[150px]" />
+          <div className="absolute top-[20%] -left-[10%] w-[50vw] h-[50vw] bg-primary/5 rounded-full blur-[150px]" />
         </div>
 
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="max-w-5xl mx-auto text-center space-y-8"
+          className="max-w-[1400px] mx-auto text-center space-y-12"
         >
           {/* Badge */}
           <motion.div variants={itemVariants} className="flex justify-center">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-sm font-medium text-primary cursor-default hover:bg-primary/10 transition-colors">
-              <Sparkles className="w-4 h-4 fill-current animate-pulse" />
+            <span className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/5 border border-primary/10 text-sm font-bold text-primary cursor-default hover:bg-primary/10 transition-colors uppercase tracking-[0.2em] backdrop-blur-sm">
+              <Sparkles className="w-5 h-5 fill-current animate-pulse" />
               <span>The Next Gen of AI Video</span>
             </span>
           </motion.div>
 
-          {/* Headline */}
+          {/* Headline (Grand & Immersive) */}
           <motion.h1
             variants={itemVariants}
-            className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] text-foreground"
+            className="text-6xl md:text-8xl lg:text-[8.5rem] font-black tracking-tight leading-[0.9] text-foreground"
           >
             Create <span className="text-primary relative inline-block">
               Viral Videos
@@ -121,9 +121,9 @@ export default function HomePage() {
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute w-full h-3 -bottom-1 left-0 text-secondary opacity-40" viewBox="0 0 100 10" preserveAspectRatio="none"
+                className="absolute w-full h-4 -bottom-2 left-0 text-secondary opacity-40" viewBox="0 0 100 10" preserveAspectRatio="none"
               >
-                <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
+                <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="10" fill="none" />
               </motion.svg>
             </span> <br />
             With Artificial Intelligence.
@@ -131,39 +131,39 @@ export default function HomePage() {
 
           <motion.p
             variants={itemVariants}
-            className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            className="text-xl md:text-3xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium"
           >
             Turn ideas into broadcast-quality content in seconds.
-            Realistic avatars, native multi-language voiceovers, and endless creativity.
+            Realistic avatars, native multi-language voiceovers, and infinite creativity.
           </motion.p>
 
-          {/* CTAs */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
+          {/* CTAs (Scaled Up) */}
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 justify-center pt-10">
             <Link
               href="/signup"
-              className="px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg hover:bg-blue-600 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transform hover:-translate-y-1 hover:scale-105"
+              className="px-12 py-6 rounded-2xl bg-primary text-white font-black text-xl hover:bg-blue-600 transition-all shadow-[0_0_40px_-10px_var(--color-primary)] flex items-center justify-center gap-3 transform hover:-translate-y-1 hover:scale-105 active:scale-95"
             >
-              Start Free
-              <ArrowRight className="w-5 h-5" />
+              Start Creating Free
+              <ArrowRight className="w-6 h-6" />
             </Link>
-            <button className="px-8 py-4 rounded-xl bg-card-bg border border-card-border text-foreground font-bold text-lg hover:bg-muted transition-all flex items-center justify-center gap-2 shadow-sm transform hover:-translate-y-1">
-              <Play className="w-5 h-5 text-primary" />
+            <button className="px-12 py-6 rounded-2xl bg-card-bg border border-card-border text-foreground font-black text-xl hover:bg-muted transition-all flex items-center justify-center gap-3 shadow-sm transform hover:-translate-y-1 active:scale-95">
+              <Play className="w-6 h-6 text-primary fill-current" />
               Watch Demo
             </button>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* 2. STATS SECTION (LCP Critical - Kept Static for now) */}
-      <section className="py-20 px-6 bg-background overflow-hidden border-t border-card-border">
+      {/* 2. STATS SECTION (Scaled Up Spacing) */}
+      <section className="py-48 px-6 bg-[#09090B] overflow-hidden border-y border-card-border">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={staggerContainer}
-          className="max-w-7xl mx-auto"
+          className="max-w-[1400px] mx-auto"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
             {[
               { label: "Active users", value: "5,000+" },
               { label: "Creatives generated", value: "50,000+" },
@@ -173,12 +173,12 @@ export default function HomePage() {
               <motion.div
                 key={i}
                 variants={itemVariants}
-                className="p-8 rounded-3xl bg-muted/50 border border-card-border flex flex-col items-center justify-center text-center group transition-all hover:bg-card-bg hover:shadow-xl hover:border-primary/20"
+                className="p-12 rounded-[2.5rem] bg-white/[0.02] border border-white/5 flex flex-col items-center justify-center text-center group transition-all hover:bg-white/[0.05] hover:shadow-2xl hover:border-primary/20 backdrop-blur-xl"
               >
-                <span className="text-4xl md:text-5xl font-black text-primary mb-3">
+                <span className="text-5xl md:text-7xl font-black text-primary mb-4 tracking-tighter">
                   <Counter value={stat.value} />
                 </span>
-                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">{stat.label}</span>
+                <span className="text-sm font-black text-muted-foreground uppercase tracking-[0.25em]">{stat.label}</span>
               </motion.div>
             ))}
           </div>
@@ -192,18 +192,6 @@ export default function HomePage() {
       <Testimonials itemVariants={itemVariants} staggerContainer={staggerContainer} />
       <FAQ faqs={faqs} itemVariants={itemVariants} staggerContainer={staggerContainer} />
       <FinalCTA itemVariants={itemVariants} staggerContainer={staggerContainer} />
-
-      {/* Footer Minimal */}
-      <footer className="py-12 bg-background border-t border-card-border text-center text-muted-foreground text-sm">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-center gap-8 mb-6">
-            <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
-            <Link href="#" className="hover:text-primary transition-colors">Twitter</Link>
-          </div>
-          <p>&copy; 2026 Virezo Platform. All rights reserved.</p>
-        </div>
-      </footer>
     </main>
   );
 }

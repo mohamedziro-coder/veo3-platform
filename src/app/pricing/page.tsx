@@ -60,87 +60,91 @@ const PLANS = [
 
 export default function PricingPage() {
     return (
-        <main className="min-h-screen pt-24 pb-20 px-4 md:px-8 bg-gray-50 relative overflow-hidden">
-            {/* Background Ambience */}
+        <main className="min-h-screen pt-48 pb-32 px-4 md:px-12 bg-[#FAFAFB] dark:bg-background relative overflow-hidden">
+            {/* Background Ambience (Grand Scale) */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-500/5 blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-purple-500/5 blur-[120px]" />
+                <div className="absolute top-[-10%] left-[-10%] w-[1000px] h-[1000px] rounded-full bg-primary/10 blur-[150px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[1000px] h-[1000px] rounded-full bg-accent/5 blur-[150px]" />
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
-                {/* Header */}
-                <div className="text-center mb-20 space-y-6">
+            <div className="max-w-[1400px] mx-auto px-6 relative z-10">
+                {/* Header (Grand Scale) */}
+                <div className="text-center mb-32 space-y-10">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-700 text-sm font-medium"
+                        className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-primary/10 text-primary text-sm font-black uppercase tracking-[0.25em]"
                     >
-                        <Sparkles className="w-4 h-4" />
+                        <Sparkles className="w-5 h-5" />
                         <span>Simple Pricing</span>
                     </motion.div>
 
-                    <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-6 text-gray-900">
-                        Simple, Transparent Pricing
+                    <h1 className="text-5xl md:text-8xl lg:text-[7.5rem] font-black tracking-tight leading-[0.95] mb-8 text-foreground italic md:not-italic">
+                        Simple, <br className="hidden md:block" /> Transparent Pricing
                     </h1>
-                    <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
-                        Choose the plan that fits your creative needs. Unlock the full potential of Virezo.
+                    <p className="text-xl md:text-3xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium">
+                        Choose the plan that fits your creative needs. Unlock the full potential of Virezo AI.
                     </p>
                 </div>
 
-                {/* Pricing Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Pricing Grid (Luxury Scale) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                     {PLANS.map((plan, i) => (
                         <div
                             key={plan.name}
-                            className={`relative rounded-3xl p-8 border transition-all duration-300 flex flex-col h-full ${plan.popular
-                                ? 'bg-white border-primary/20 shadow-xl scale-[1.02] z-10'
-                                : 'bg-white/60 border-gray-200 hover:border-primary/20 hover:bg-white hover:shadow-lg'
+                            className={`relative rounded-[3.5rem] p-14 border transition-all duration-500 flex flex-col h-full ${plan.popular
+                                ? 'bg-white dark:bg-card-bg border-primary/40 shadow-[0_40px_80px_-20px_rgba(74,144,226,0.25)] scale-[1.05] z-10'
+                                : 'bg-white/60 dark:bg-card-bg/60 border-card-border hover:border-primary/30 hover:bg-white dark:hover:bg-card-bg hover:shadow-2xl'
                                 }`}
                         >
                             {plan.popular && (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-2 rounded-full text-base font-black shadow-xl tracking-widest uppercase">
                                     Most Popular
                                 </div>
                             )}
 
-                            <div className="mb-8">
-                                <h3 className={`text-xl font-bold mb-2 ${plan.popular ? 'text-primary' : 'text-gray-900'}`}>{plan.name}</h3>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl md:text-5xl font-black text-gray-900">{plan.price}</span>
-                                    {plan.period && <span className="text-gray-500">{plan.period}</span>}
+                            <div className="mb-12">
+                                <h3 className={`text-2xl font-black mb-4 uppercase tracking-[0.1em] ${plan.popular ? 'text-primary' : 'text-foreground'}`}>{plan.name}</h3>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-5xl md:text-7xl font-black text-foreground tracking-tighter">{plan.price}</span>
+                                    {plan.period && <span className="text-xl text-muted-foreground font-bold">{plan.period}</span>}
                                 </div>
-                                <p className="text-gray-500 mt-4 text-sm leading-relaxed">{plan.description}</p>
+                                <p className="text-muted-foreground mt-8 text-lg md:text-xl font-medium leading-relaxed">{plan.description}</p>
                             </div>
 
-                            <ul className="space-y-4 mb-8 flex-grow">
+                            <ul className="space-y-6 mb-12 flex-grow">
                                 {plan.features.map((feature, i) => (
-                                    <li key={i} className="flex items-start gap-3 text-sm">
-                                        <Check className={`w-5 h-5 flex-shrink-0 ${plan.popular ? 'text-primary' : 'text-gray-400'}`} />
-                                        <span className="text-gray-600">{feature}</span>
+                                    <li key={i} className="flex items-start gap-4 text-lg md:text-xl font-medium">
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-1 ${plan.popular ? 'bg-primary/10 text-primary' : 'bg-gray-200 dark:bg-white/10 text-gray-400'}`}>
+                                            <Check className="w-4 h-4 stroke-[4px]" />
+                                        </div>
+                                        <span className="text-muted-foreground">{feature}</span>
                                     </li>
                                 ))}
                             </ul>
 
-                            <button className={`w-full py-4 rounded-xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 ${plan.popular
-                                ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/20'
-                                : 'bg-white border border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300'
-                                }`}>
+                            <Link
+                                href={plan.href}
+                                className={`w-full py-6 rounded-2xl font-black text-xl transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${plan.popular
+                                    ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/30'
+                                    : 'bg-white dark:bg-card-bg border border-card-border text-foreground hover:bg-gray-50 dark:hover:bg-muted/50 hover:border-gray-300'
+                                    }`}>
                                 <span>{plan.cta}</span>
-                                {plan.popular && <Sparkles className="w-4 h-4" />}
-                            </button>
+                                {plan.popular && <Sparkles className="w-5 h-5 fill-white" />}
+                            </Link>
                         </div>
                     ))}
                 </div>
 
-                {/* Trust Badges */}
-                <div className="max-w-7xl mx-auto mt-20 text-center relative z-10">
-                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">Trusted by Creators from</p>
-                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                        {/* Placeholder logos */}
-                        <div className="flex items-center gap-2 text-xl font-black text-gray-900"><Shield className="w-6 h-6" /> Google</div>
-                        <div className="flex items-center gap-2 text-xl font-black text-gray-900"><Zap className="w-6 h-6" /> OpenAI</div>
-                        <div className="flex items-center gap-2 text-xl font-black text-gray-900"><Star className="w-6 h-6" /> Anthropic</div>
-                        <div className="flex items-center gap-2 text-xl font-black text-gray-900"><CreditCard className="w-6 h-6" /> Stripe</div>
+                {/* Trust Badges (Expanded) */}
+                <div className="max-w-[1400px] mx-auto mt-48 text-center relative z-10 border-t border-card-border pt-24">
+                    <p className="text-sm md:text-base font-black text-muted-foreground uppercase tracking-[0.3em] mb-12">Trusted by Creators from</p>
+                    <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-40 grayscale hover:grayscale-0 transition-all duration-1000">
+                        {/* Placeholder logos (Scaled) */}
+                        <div className="flex items-center gap-3 text-2xl md:text-4xl font-black text-foreground"><Shield className="w-8 h-8 md:w-10 md:h-10 text-primary" /> Google</div>
+                        <div className="flex items-center gap-3 text-2xl md:text-4xl font-black text-foreground"><Zap className="w-8 h-8 md:w-10 md:h-10 text-yellow-500" /> OpenAI</div>
+                        <div className="flex items-center gap-3 text-2xl md:text-4xl font-black text-foreground"><Star className="w-8 h-8 md:w-10 md:h-10 text-orange-500" /> Anthropic</div>
+                        <div className="flex items-center gap-3 text-2xl md:text-4xl font-black text-foreground"><CreditCard className="w-8 h-8 md:w-10 md:h-10 text-blue-600" /> Stripe</div>
                     </div>
                 </div>
             </div>

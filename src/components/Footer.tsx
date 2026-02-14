@@ -53,41 +53,41 @@ const socialLinks = [
 
 export default function Footer() {
     return (
-        <footer className="bg-[#0A0A0B] border-t border-white/5 pt-24 pb-12 overflow-hidden relative">
+        <footer className="bg-[#0A0A0B] border-t border-white/5 pt-48 pb-24 overflow-hidden relative">
             {/* Background Decorative Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
+            <div className="max-w-[1400px] mx-auto px-6 relative z-10">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-20 mb-32">
 
-                    {/* Brand Column */}
-                    <div className="col-span-2 lg:col-span-1 space-y-6">
-                        <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tighter text-white">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
-                                <Sparkles className="w-6 h-6 fill-white text-white" />
+                    {/* Brand Column (Scaled Up) */}
+                    <div className="col-span-2 lg:col-span-1 space-y-10">
+                        <Link href="/" className="flex items-center gap-3 font-black text-3xl tracking-tighter text-white">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-xl">
+                                <Sparkles className="w-7 h-7 fill-white text-white" />
                             </div>
                             <span>Virezo</span>
                         </Link>
-                        <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
+                        <p className="text-gray-500 text-lg leading-relaxed max-w-sm font-medium">
                             Defy the limits of video production with AI-powered creative solutions for modern brands and agencies.
                         </p>
                     </div>
 
-                    {/* Links Columns */}
+                    {/* Links Columns (Scaled Up Typography) */}
                     {footerLinks.map((section) => (
-                        <div key={section.title} className="space-y-6">
-                            <h4 className="text-white text-xs font-black tracking-[0.2em] uppercase opacity-50">
+                        <div key={section.title} className="space-y-10">
+                            <h4 className="text-white text-sm font-black tracking-[0.3em] uppercase opacity-40">
                                 {section.title}
                             </h4>
-                            <ul className="space-y-4">
+                            <ul className="space-y-6">
                                 {section.links.map((link) => (
                                     <li key={link.name}>
                                         <Link
                                             href={link.href}
-                                            className="group flex items-center text-gray-400 hover:text-primary transition-colors duration-300"
+                                            className="group flex items-center text-gray-400 hover:text-primary transition-all duration-300"
                                         >
                                             <motion.span
-                                                className="inline-block transform transition-transform duration-300 group-hover:translate-x-1 text-[15px] font-medium"
+                                                className="inline-block transform transition-transform duration-300 group-hover:translate-x-2 text-lg font-bold"
                                             >
                                                 {link.name}
                                             </motion.span>
@@ -99,26 +99,26 @@ export default function Footer() {
                     ))}
                 </div>
 
-                {/* Bottom Bar */}
-                <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <p className="text-gray-500 text-sm font-medium">
+                {/* Bottom Bar (More whitespace) */}
+                <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-10">
+                    <p className="text-gray-500 text-base font-bold">
                         © {new Date().getFullYear()} Virezo. All rights reserved.
                     </p>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-8">
                         {socialLinks.map((social) => (
                             <Link
                                 key={social.label}
                                 href={social.href}
-                                className="text-gray-500 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/5"
+                                className="text-gray-500 hover:text-white transition-all p-3 rounded-xl hover:bg-white/5"
                                 aria-label={social.label}
                             >
-                                <social.icon className="w-5 h-5" />
+                                <social.icon className="w-6 h-6" />
                             </Link>
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-8 text-sm font-medium text-gray-500">
+                    <div className="flex items-center gap-10 text-base font-bold text-gray-500">
                         <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
                     </div>

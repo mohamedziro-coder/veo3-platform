@@ -61,42 +61,41 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <main className="min-h-screen flex bg-white overflow-hidden font-sans selection:bg-primary/20">
+        <main className="min-h-screen flex bg-[#FAFAFB] dark:bg-background overflow-hidden font-sans selection:bg-primary/20">
             {/* LEFT SIDE - VISUALS (Desktop Only) */}
-            <div className="hidden lg:flex w-1/2 relative bg-gray-50 items-center justify-center p-12 overflow-hidden">
+            <div className="hidden lg:flex w-1/2 relative bg-white dark:bg-card-bg items-center justify-center p-24 overflow-hidden border-r border-card-border">
                 <div className="absolute inset-0 z-0">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(74,144,226,0.05),transparent_70%)]" />
-                    <div className="absolute bottom-0 right-0 w-[80%] h-[80%] bg-[radial-gradient(circle_at_100%_100%,rgba(80,227,194,0.1),transparent_60%)]" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full animate-pulse" />
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(74,144,226,0.08),transparent_70%)]" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 blur-[150px] rounded-full animate-pulse" />
                 </div>
 
-                <div className="relative z-10 max-w-lg">
+                <div className="relative z-10 max-w-2xl">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        transition={{ duration: 1, ease: "easeOut" }}
                     >
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center mb-8 shadow-xl shadow-primary/20">
-                            <KeyRound className="w-8 h-8 text-white" />
+                        <div className="w-20 h-20 rounded-[2rem] bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center mb-12 shadow-2xl shadow-primary/30">
+                            <KeyRound className="w-10 h-10 text-white" />
                         </div>
-                        <h1 className="text-6xl font-bold tracking-tight text-gray-900 mb-6 leading-tight">
-                            Reset Your <span className="text-primary">Password.</span>
+                        <h1 className="text-6xl md:text-8xl font-black tracking-tight text-foreground mb-10 leading-[0.95]">
+                            Reset Your <br /> <span className="text-primary italic">Password.</span>
                         </h1>
-                        <p className="text-lg text-gray-500 leading-relaxed mb-8">
-                            Don't worry! It happens to the best of us. Enter your email and we'll send you a reset code.
+                        <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-12 font-medium">
+                            Don't worry! It happens to the best of us. Enter your email and we'll send you a reset code instantly.
                         </p>
 
-                        <div className="p-6 rounded-2xl bg-white border border-gray-100 shadow-sm backdrop-blur-sm">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-                                    <Sparkles className="w-5 h-5" />
+                        <div className="p-10 rounded-[2.5rem] bg-white dark:bg-card-bg border border-card-border shadow-xl backdrop-blur-sm">
+                            <div className="flex items-center gap-6 mb-6">
+                                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                    <Sparkles className="w-8 h-8" />
                                 </div>
                                 <div>
-                                    <div className="text-gray-900 font-bold">Security Tip</div>
-                                    <div className="text-xs text-gray-500">Keep your account safe</div>
+                                    <div className="text-foreground text-xl font-black tracking-tight uppercase">Security Tip</div>
+                                    <div className="text-sm text-muted-foreground font-bold uppercase tracking-widest">Keep your account safe</div>
                                 </div>
                             </div>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-lg text-muted-foreground font-medium leading-relaxed">
                                 "Use a strong password with a mix of uppercase, lowercase, numbers, and special characters for maximum security."
                             </p>
                         </div>
@@ -105,37 +104,37 @@ export default function ForgotPasswordPage() {
             </div>
 
             {/* RIGHT SIDE - FORM */}
-            <div className="w-full lg:w-1/2 relative flex items-center justify-center p-4 lg:p-12">
+            <div className="w-full lg:w-1/2 relative flex items-center justify-center p-8 lg:p-24 overflow-y-auto">
                 {/* Mobile Background */}
-                <div className="absolute inset-0 lg:hidden pointer-events-none z-0 overflow-hidden bg-white">
-                    <div className="absolute top-[-10%] right-[-10%] w-[70%] h-[70%] bg-primary/5 blur-[80px] rounded-full animate-pulse" />
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[70%] h-[70%] bg-secondary/5 blur-[80px] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                <div className="absolute inset-0 lg:hidden pointer-events-none z-0 overflow-hidden bg-white dark:bg-background">
+                    <div className="absolute top-[-10%] right-[-10%] w-[70%] h-[70%] bg-primary/5 blur-[100px] rounded-full animate-pulse" />
                 </div>
 
-                <div className="w-full max-w-md relative z-10 bg-white/80 backdrop-blur-xl border border-gray-100 p-6 rounded-3xl lg:bg-transparent lg:backdrop-blur-none lg:border-none lg:p-0 shadow-xl lg:shadow-none">
+                <div className="w-full max-w-xl relative z-10 bg-white/80 dark:bg-card-bg/80 backdrop-blur-2xl border border-card-border p-10 md:p-14 rounded-[3.5rem] lg:bg-transparent lg:border-none lg:p-0 shadow-2xl lg:shadow-none">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="mb-8 lg:hidden text-center"
+                        className="mb-12 lg:hidden text-center"
                     >
-                        <div className="inline-flex items-center gap-2 font-bold text-xl tracking-tighter text-gray-900">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-lg shadow-primary/20">
-                                <Sparkles className="w-5 h-5 text-white" />
+                        <div className="inline-flex items-center gap-4 font-black text-3xl tracking-tighter text-foreground">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-xl shadow-primary/20">
+                                <Sparkles className="w-6 h-6 text-white" />
                             </div>
-                            <span className="text-2xl">Virezo</span>
+                            <span>Virezo</span>
                         </div>
                     </motion.div>
 
                     <motion.div
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 30 }}
                         animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8 }}
                         className="relative"
                     >
-                        <div className="mb-8">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                        <div className="mb-12">
+                            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-4 tracking-tight">
                                 {step === 'request' ? 'Forgot Password' : 'Reset Password'}
                             </h2>
-                            <p className="text-gray-500">
+                            <p className="text-xl text-muted-foreground font-medium">
                                 {step === 'request'
                                     ? 'Enter your email to receive a reset code.'
                                     : 'Enter the code and your new password.'}
@@ -146,9 +145,9 @@ export default function ForgotPasswordPage() {
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="mb-5 p-4 rounded-xl bg-green-50 border border-green-100 text-green-700 text-sm flex items-center gap-2"
+                                className="mb-8 p-6 rounded-[1.5rem] bg-green-500/10 border border-green-500/20 text-green-600 text-lg font-bold flex items-center gap-4"
                             >
-                                <Check className="w-5 h-5 flex-shrink-0" />
+                                <Check className="w-6 h-6 flex-shrink-0" />
                                 <span>{message}</span>
                             </motion.div>
                         )}
@@ -157,102 +156,102 @@ export default function ForgotPasswordPage() {
                             <motion.div
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="mb-5 p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm"
+                                className="mb-8 p-6 rounded-[1.5rem] bg-red-500/10 border border-red-500/20 text-red-600 text-lg font-bold"
                             >
                                 {error}
                             </motion.div>
                         )}
 
                         {step === 'request' ? (
-                            <form onSubmit={requestCode} className="space-y-5">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 ml-1">Email Address</label>
+                            <form onSubmit={requestCode} className="space-y-8">
+                                <div className="space-y-3">
+                                    <label className="text-base font-black text-foreground ml-2 uppercase tracking-widest opacity-60">Email Address</label>
                                     <div className="relative group/input">
                                         <input
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="name@example.com"
-                                            className="w-full pl-4 pr-12 py-4 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all font-medium"
+                                            className="w-full pl-6 pr-14 py-6 rounded-2xl bg-white dark:bg-card-bg border border-card-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-bold text-lg"
                                             required
                                         />
-                                        <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                                        <Mail className="absolute right-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground pointer-events-none group-focus-within/input:text-primary transition-colors" />
                                     </div>
                                 </div>
 
                                 <button
                                     type="submit"
                                     disabled={isLoading || !email}
-                                    className="w-full py-4 rounded-xl bg-primary text-white font-bold text-lg hover:bg-primary/90 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                                    className="w-full py-6 rounded-2xl bg-primary text-white font-black text-xl hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-2xl shadow-primary/30"
                                 >
                                     {isLoading ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                                     ) : (
                                         <>
                                             <span>Send Reset Code</span>
-                                            <ArrowRight className="w-5 h-5" />
+                                            <ArrowRight className="w-6 h-6" />
                                         </>
                                     )}
                                 </button>
                             </form>
                         ) : (
-                            <form onSubmit={submitReset} className="space-y-5">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 ml-1">Email Address</label>
+                            <form onSubmit={submitReset} className="space-y-8">
+                                <div className="space-y-3">
+                                    <label className="text-base font-black text-foreground ml-2 uppercase tracking-widest opacity-60">Email Address</label>
                                     <div className="relative group/input">
                                         <input
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
                                             placeholder="name@example.com"
-                                            className="w-full pl-4 pr-12 py-4 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all font-medium"
+                                            className="w-full pl-6 pr-14 py-6 rounded-2xl bg-white dark:bg-card-bg border border-card-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-bold text-lg"
                                             required
                                         />
-                                        <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                                        <Mail className="absolute right-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground pointer-events-none group-focus-within/input:text-primary transition-colors" />
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 ml-1">Reset Code</label>
+                                <div className="space-y-3">
+                                    <label className="text-base font-black text-foreground ml-2 uppercase tracking-widest opacity-60">Reset Code</label>
                                     <div className="relative group/input">
                                         <input
                                             type="text"
                                             value={code}
                                             onChange={(e) => setCode(e.target.value)}
                                             placeholder="Enter 6-digit code"
-                                            className="w-full pl-4 pr-12 py-4 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all font-medium"
+                                            className="w-full pl-6 pr-14 py-6 rounded-2xl bg-white dark:bg-card-bg border border-card-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-bold text-lg"
                                             required
                                         />
-                                        <KeyRound className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                                        <KeyRound className="absolute right-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground pointer-events-none group-focus-within/input:text-primary transition-colors" />
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-700 ml-1">New Password</label>
+                                <div className="space-y-3">
+                                    <label className="text-base font-black text-foreground ml-2 uppercase tracking-widest opacity-60">New Password</label>
                                     <div className="relative group/input">
                                         <input
                                             type="password"
                                             value={newPassword}
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             placeholder="••••••••"
-                                            className="w-full pl-4 pr-12 py-4 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all font-medium"
+                                            className="w-full pl-6 pr-14 py-6 rounded-2xl bg-white dark:bg-card-bg border border-card-border text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-bold text-lg"
                                             required
                                         />
-                                        <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                                        <Lock className="absolute right-6 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground pointer-events-none group-focus-within/input:text-primary transition-colors" />
                                     </div>
                                 </div>
 
                                 <button
                                     type="submit"
                                     disabled={isLoading || !code || !newPassword}
-                                    className="w-full py-4 rounded-xl bg-primary text-white font-bold text-lg hover:bg-primary/90 transition-all transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                                    className="w-full py-6 rounded-2xl bg-primary text-white font-black text-xl hover:bg-primary/90 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-2xl shadow-primary/30"
                                 >
                                     {isLoading ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                                     ) : (
                                         <>
                                             <span>Update Password</span>
-                                            <ArrowRight className="w-5 h-5" />
+                                            <ArrowRight className="w-6 h-6" />
                                         </>
                                     )}
                                 </button>
@@ -266,17 +265,17 @@ export default function ForgotPasswordPage() {
                                         setError(null);
                                         setMessage(null);
                                     }}
-                                    className="w-full py-3 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                                    className="w-full py-4 text-base font-black text-muted-foreground hover:text-foreground transition-all uppercase tracking-widest"
                                 >
                                     Didn't receive a code? Request again
                                 </button>
                             </form>
                         )}
 
-                        <div className="mt-8 pt-8 border-t border-gray-100 text-center">
-                            <p className="text-gray-500">
+                        <div className="mt-12 pt-12 border-t border-card-border text-center">
+                            <p className="text-lg text-muted-foreground font-medium">
                                 Remember your password?{" "}
-                                <Link href="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                                <Link href="/login" className="text-primary hover:text-primary/80 font-black transition-colors">
                                     Sign In
                                 </Link>
                             </p>

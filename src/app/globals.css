@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* Clean / SaaS Palette (Light Mode Tokens) */
+  /* Clean / SaaS Palette (Light Mode Tokens) - Scaled Up */
   --background: #FFFFFF;
   --foreground: #1A1A1A;
 
@@ -21,13 +21,19 @@
   --bg-color: var(--background);
   --text-color: var(--foreground);
 
-  /* Global Typography System */
+  /* Global Typography System - Immersive Scale */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
+  --text-xs: 0.875rem;
+  /* 14px -> Previous SM */
+  --text-sm: 1rem;
+  /* 16px -> Previous BASE */
+  --text-base: 1.125rem;
+  /* 18px -> New Base */
+  --text-lg: 1.25rem;
+  /* 20px */
+  --text-xl: 1.5rem;
+  /* 24px */
   --text-xl: 1.25rem;
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
