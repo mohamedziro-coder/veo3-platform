@@ -210,15 +210,19 @@ export default function HomePage() {
               onClick={() => setSelectedVideo(demo.video)}
               className="aspect-[9/16] bg-gray-100 rounded-2xl relative group overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all border border-gray-200"
             >
-              {/* Thumbnail */}
-              <img
-                src={demo.thumbnail}
-                alt={demo.title}
+              {/* Video Preview */}
+              <video
+                src={demo.video}
+                poster={demo.thumbnail}
+                muted
+                autoPlay
+                loop
+                playsInline
                 className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
               />
 
               {/* Overlay */}
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                 <div className="w-12 h-12 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-300">
                   <Play className="w-5 h-5 text-primary ml-1 fill-current" />
                 </div>
