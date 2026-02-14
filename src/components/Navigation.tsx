@@ -155,7 +155,7 @@ export default function Navigation() {
             <div className="fixed top-6 left-6 z-50">
                 <Link
                     href="/"
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white backdrop-blur-md border border-gray-200 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-card-bg/80 border-card-border/50 text-muted-foreground hover:text-foreground transition-colors"
                 >
                     <Home className="w-4 h-4" />
                     <span>Back to Home</span>
@@ -187,7 +187,7 @@ export default function Navigation() {
 
                     {/* Auth Buttons */}
                     <div className="hidden md:flex items-center gap-4">
-                        <Link href="/login" className="text-sm font-medium text-gray-900 hover:text-gray-600 transition-colors">
+                        <Link href="/login" className="text-sm font-medium text-foreground hover:text-muted-foreground transition-colors">
                             Sign In
                         </Link>
                         <Link
@@ -202,7 +202,7 @@ export default function Navigation() {
                     {!isDesktop && (
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-gray-100 border border-gray-200 hover:bg-gray-200 transition-colors"
+                            className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-muted border-card-border hover:bg-border transition-colors"
                             aria-label="Toggle menu"
                         >
                             <motion.span
@@ -228,33 +228,33 @@ export default function Navigation() {
                         exit={{ opacity: 0, y: -20 }}
                         className="fixed top-20 left-0 right-0 z-40 px-6"
                     >
-                        <div className="bg-white/95 backdrop-blur-xl border border-gray-200 rounded-2xl p-6 shadow-2xl">
+                        <div className="bg-card-bg/95 border-card-border shadow-2xl">
                             <div className="flex flex-col gap-4">
                                 <Link
                                     href="/#features"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="text-gray-600 hover:text-gray-900 transition-colors py-2 text-sm font-medium"
+                                    className="text-muted-foreground hover:text-foreground transition-colors py-2 text-sm font-medium"
                                 >
                                     Features
                                 </Link>
                                 <Link
                                     href="/#how-it-works"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="text-gray-600 hover:text-gray-900 transition-colors py-2 text-sm font-medium"
+                                    className="text-muted-foreground hover:text-foreground transition-colors py-2 text-sm font-medium"
                                 >
                                     How it Works
                                 </Link>
                                 <Link
                                     href="/pricing"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="text-gray-600 hover:text-gray-900 transition-colors py-2 text-sm font-medium"
+                                    className="text-muted-foreground hover:text-foreground transition-colors py-2 text-sm font-medium"
                                 >
                                     Pricing
                                 </Link>
                                 <Link
                                     href="/blogs"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="text-gray-600 hover:text-gray-900 transition-colors py-2 text-sm font-medium"
+                                    className="text-muted-foreground hover:text-foreground transition-colors py-2 text-sm font-medium"
                                 >
                                     Blog
                                 </Link>
@@ -262,7 +262,7 @@ export default function Navigation() {
                                 <Link
                                     href="/login"
                                     onClick={() => setMobileMenuOpen(false)}
-                                    className="text-gray-900 hover:text-gray-600 transition-colors py-2 text-sm font-medium"
+                                    className="text-foreground hover:text-muted-foreground transition-colors py-2 text-sm font-medium"
                                 >
                                     Sign In
                                 </Link>
@@ -287,7 +287,7 @@ export default function Navigation() {
             {/* Desktop Navigation (Top Pill) - Only show if Desktop */}
             {isDesktop && (
                 <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 items-center gap-4 w-full max-w-fit px-4 flex">
-                    <nav className="relative bg-white/80 backdrop-blur-xl border border-gray-200 rounded-full p-1.5 flex items-center gap-1 shadow-lg ring-1 ring-gray-900/5">
+                    <nav className="relative bg-card-bg/80 backdrop-blur-xl border border-card-border rounded-full p-1.5 flex items-center gap-1 shadow-lg ring-1 ring-white/10">
                         {appLinks.map((link) => {
                             const isActive = link.active;
 
@@ -297,7 +297,7 @@ export default function Navigation() {
                                     href={link.href}
                                     className={cn(
                                         "relative flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 z-10",
-                                        isActive ? "text-white" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                                        isActive ? "text-white" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                                     )}
                                 >
                                     {isActive && (
@@ -340,14 +340,14 @@ export default function Navigation() {
                 <>
                     {/* Mobile Top Bar with Credits */}
                     <div className="fixed top-6 right-6 z-50">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-gray-200 text-xs font-bold text-gray-700 shadow-md">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-card-border text-xs font-bold text-foreground shadow-md">
                             <Sparkles className="w-3 h-3 text-primary" />
                             <span>{credits}</span>
                         </div>
                     </div>
 
                     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
-                        <nav className="relative bg-white/90 backdrop-blur-2xl border border-gray-200 rounded-full p-2 flex items-center justify-between shadow-xl ring-1 ring-gray-900/5">
+                        <nav className="relative bg-card-bg/90 backdrop-blur-2xl border border-card-border rounded-full p-2 flex items-center justify-between shadow-xl ring-1 ring-white/10">
                             {appLinks.map((link) => {
                                 const isActive = link.active;
 

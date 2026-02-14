@@ -98,7 +98,7 @@ export default function HomePage() {
   ];
 
   return (
-    <main className="min-h-screen bg-white text-[#1A1A1A] font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+    <main className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary">
       {/* FAQ Schema for SEO */}
       <script
         type="application/ld+json"
@@ -130,7 +130,7 @@ export default function HomePage() {
           {/* Headline */}
           <motion.h1
             variants={itemVariants}
-            className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] text-gray-900"
+            className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] text-foreground"
           >
             Create <span className="text-primary relative inline-block">
               Viral Videos
@@ -164,7 +164,7 @@ export default function HomePage() {
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <button className="px-8 py-4 rounded-xl bg-white border border-gray-200 text-gray-700 font-bold text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 shadow-sm transform hover:-translate-y-1">
-              <Play className="w-5 h-5 text-gray-900" />
+              <Play className="w-5 h-5 text-foreground" />
               Watch Demo
             </button>
           </motion.div>
@@ -211,7 +211,7 @@ export default function HomePage() {
           className="max-w-7xl mx-auto space-y-20"
         >
           <motion.div variants={itemVariants} className="text-center space-y-4">
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Why Top Media Buyers Scale With Us</h2>
+            <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight">Why Top Media Buyers Scale With Us</h2>
             <p className="text-xl text-gray-500 max-w-2xl mx-auto font-medium">Unfair advantage through AI automation. Launch faster, test smarter, and scale harder.</p>
           </motion.div>
 
@@ -260,7 +260,7 @@ export default function HomePage() {
                 <div className="w-16 h-16 rounded-[1.25rem] bg-primary/5 flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">
                   {feature.icon}
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">{feature.title}</h3>
+                <h3 className="text-2xl font-bold text-foreground mb-4 tracking-tight">{feature.title}</h3>
                 <p className="text-gray-500 leading-relaxed font-medium">{feature.desc}</p>
               </motion.div>
             ))}
@@ -276,7 +276,7 @@ export default function HomePage() {
           variants={staggerContainer}
           className="max-w-7xl mx-auto px-6 text-center"
         >
-          <motion.h2 variants={itemVariants} className="text-3xl md:text-4xl font-bold text-gray-900 mb-16">How It Works</motion.h2>
+          <motion.h2 variants={itemVariants} className="text-3xl md:text-4xl font-bold text-foreground mb-16">How It Works</motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             {/* Connector Line (Desktop) */}
@@ -296,7 +296,7 @@ export default function HomePage() {
                 <div className="w-14 h-14 rounded-full bg-white border-2 border-primary text-primary font-bold text-xl flex items-center justify-center mb-6 shadow-md group-hover:bg-primary group-hover:text-white transition-all duration-300">
                   {item.step}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                <h3 className="text-xl font-bold text-foreground mb-3">{item.title}</h3>
                 <p className="text-gray-600 max-w-xs">{item.text}</p>
               </motion.div>
             ))}
@@ -307,7 +307,7 @@ export default function HomePage() {
       {/* 5. DEMO PREVIEW SECTION */}
       <section className="py-24 px-6 max-w-7xl mx-auto" id="demos">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Made with Virezo</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Made with Virezo</h2>
           <p className="text-xl text-gray-500">See what others are building right now.</p>
         </div>
 
@@ -418,7 +418,7 @@ export default function HomePage() {
           className="max-w-7xl mx-auto space-y-20"
         >
           <motion.div variants={itemVariants} className="text-center space-y-4">
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Loved by High-Growth Brands</h2>
+            <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight">Loved by High-Growth Brands</h2>
             <p className="text-xl text-gray-500 max-w-2xl mx-auto font-medium">Real results from marketers scaling past 7-figures.</p>
           </motion.div>
 
@@ -468,7 +468,7 @@ export default function HomePage() {
                     {testimonial.initials}
                   </div>
                   <div>
-                    <div className="font-bold text-gray-900">{testimonial.name}</div>
+                    <div className="font-bold text-foreground">{testimonial.name}</div>
                     <div className="text-sm text-gray-500 font-medium">{testimonial.role}</div>
                   </div>
                 </div>
@@ -514,7 +514,7 @@ export default function HomePage() {
           className="max-w-3xl mx-auto"
         >
           <motion.div variants={itemVariants} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Frequently Asked Questions</h2>
             <p className="text-xl text-gray-500">Everything you need to know about Virezo AI.</p>
           </motion.div>
 
@@ -529,7 +529,7 @@ export default function HomePage() {
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full px-8 py-6 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
                 >
-                  <span className="font-bold text-gray-900 md:text-lg">{faq.question}</span>
+                  <span className="font-bold text-foreground md:text-lg">{faq.question}</span>
                   <motion.span
                     animate={{ rotate: openFaq === i ? 45 : 0 }}
                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}

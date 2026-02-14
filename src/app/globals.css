@@ -17,6 +17,10 @@
   --card-bg: #FFFFFF;
   --card-border: #E5E5E5;
 
+  /* Theme Aliases */
+  --bg-color: var(--background);
+  --text-color: var(--foreground);
+
   /* Global Typography System */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
@@ -57,6 +61,10 @@
 
   --card-bg: #111111;
   --card-border: #262626;
+
+  /* Theme Aliases */
+  --bg-color: var(--background);
+  --text-color: var(--foreground);
 }
 
 @theme inline {
@@ -70,6 +78,8 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
 }
 
 /* Global Typography Reset & Force */
@@ -82,14 +92,26 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-color) !important;
+  color: var(--text-color) !important;
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   overflow-x: hidden;
   transition: background-color var(--theme-transition), color var(--theme-transition);
 }
 
+/* Force sections to respect theme background */
+main,
+section,
+nav,
+div[class*="bg-white"]:not(.glass-panel),
+div[class*="bg-gray-50"]:not(.glass-panel) {
+  background-color: transparent !important;
+  color: inherit;
+  transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition);
+}
+
+/* Ensure foreground color is inherited */
 h1,
 h2,
 h3,
@@ -97,13 +119,11 @@ h4,
 h5,
 h6,
 p,
+span,
 a,
-button,
-div,
-section,
-nav,
-span {
-  transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition);
+li {
+  color: var(--text-color);
+  transition: color var(--theme-transition);
 }
 
 h1,
