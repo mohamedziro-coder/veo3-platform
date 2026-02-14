@@ -181,8 +181,29 @@ export const pagesData: Record<string, PageContent> = {
             { icon: HelpCircle, title: "Help Center", description: "Browse our extensive library of guides and tutorials." }
         ]
     },
-
+    "creative-testing": {
+        title: "AI Creative Testing",
+        subtitle: "Kill the guesswork. Use AI to analyze and iterate on your best-performing ads instantly.",
+        cta: "Start Testing",
+        visualType: "orb",
+        features: [
+            { icon: BarChart3, title: "Hook Analysis", description: "Automatically identify which hooks are driving the lowest CPA." },
+            { icon: Zap, title: "Instant Iteration", description: "Generate 10 variants of your best ad in under 60 seconds." },
+            { icon: Target, title: "Winner Scaling", description: "Data-driven suggestions on how to scale your winning concepts." }
+        ]
+    },
     // RESOURCES
+    "getting-started": {
+        title: "Getting Started with Virezo",
+        subtitle: "Your fast-track guide to generating high-performance AI video ads from scratch.",
+        cta: "Read the Guide",
+        visualType: "mesh",
+        features: [
+            { icon: Rocket, title: "Launch in 5 Mins", description: "Follow our quickstart checklist to get your first ad live today." },
+            { icon: Library, title: "Template Library", description: "Start with proven frameworks that are already winning on social." },
+            { icon: HelpCircle, title: "Expert Support", description: "Access our community and support team for personalized advice." }
+        ]
+    },
     "help-center": {
         title: "Virezo Help Center",
         subtitle: "Everything you need to know about mastering the Virezo platform.",
@@ -203,6 +224,17 @@ export const pagesData: Record<string, PageContent> = {
             { icon: Library, title: "100+ Definitions", description: "From 'Neural Synthesis' to 'Hook Rate'—we cover it all." },
             { icon: Zap, title: "Stay Updated", description: "Regularly updated with the latest industry terminology." },
             { icon: ShieldCheck, title: "Expert Insight", description: "Deep dives into how specific AI technologies actually work." }
+        ]
+    },
+    "affiliate": {
+        title: "Virezo Affiliate Program",
+        subtitle: "Share the power of AI advertising and earn industry-leading recurring commissions.",
+        cta: "Become a Partner",
+        visualType: "orb",
+        features: [
+            { icon: Users, title: "30% Recurring", description: "Earn passive income for as long as your referrals stay active." },
+            { icon: Target, title: "High Conversion", description: "Promote a tool that media buyers and agencies actually need." },
+            { icon: BarChart3, title: "Real-time Tracking", description: "A dedicated dashboard to track your clicks, signups, and payouts." }
         ]
     }
 };

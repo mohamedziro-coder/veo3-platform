@@ -13,6 +13,8 @@ export const metadata: Metadata = {
 import Providers from "@/components/Providers";
 import ScrollProgress from "@/components/ScrollProgress";
 
+import Footer from "@/components/Footer";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -43,6 +45,7 @@ export default function RootLayout({
           <div className="fixed inset-0 -z-10 h-full w-full bg-background"></div>
           <Navigation />
           {children}
+          <Footer />
         </Providers>
       </body>
     </html>
