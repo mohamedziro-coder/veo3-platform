@@ -274,6 +274,7 @@ export default function HomePage() {
                 src={selectedVideo}
                 controls
                 autoPlay
+                loop
                 className="w-full h-full object-contain"
               />
             </motion.div>
