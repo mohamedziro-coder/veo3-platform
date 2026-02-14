@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  /* Clean / SaaS Palette */
+  /* Clean / SaaS Palette (Light Mode Tokens) */
   --background: #FFFFFF;
   --foreground: #1A1A1A;
 
@@ -14,27 +14,21 @@
 
   --border: #E5E5E5;
 
+  --card-bg: #FFFFFF;
+  --card-border: #E5E5E5;
+
   /* Global Typography System */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
   --text-xs: 0.75rem;
-  /* 12px */
   --text-sm: 0.875rem;
-  /* 14px */
   --text-base: 1rem;
-  /* 16px */
   --text-lg: 1.125rem;
-  /* 18px */
   --text-xl: 1.25rem;
-  /* 20px */
   --text-2xl: 1.5rem;
-  /* 24px */
   --text-3xl: 1.875rem;
-  /* 30px */
   --text-4xl: 2.25rem;
-  /* 36px */
   --text-5xl: 3rem;
-  /* 48px */
 
   --leading-tight: 1.2;
   --leading-normal: 1.5;
@@ -43,6 +37,26 @@
   /* Premium Motion Presets */
   --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --theme-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --background: #0A0A0A;
+  --foreground: #F5F5F5;
+
+  --primary: #5CABFF;
+  /* Slightly brighter for dark mode */
+  --secondary: #50E3C2;
+  --accent: #F8E71C;
+
+  --muted: #1A1A1A;
+  --muted-foreground: #A1A1A1;
+
+  --border: #262626;
+
+  --card-bg: #111111;
+  --card-border: #262626;
 }
 
 @theme inline {
@@ -73,6 +87,23 @@ body {
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   overflow-x: hidden;
+  transition: background-color var(--theme-transition), color var(--theme-transition);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+button,
+div,
+section,
+nav,
+span {
+  transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition);
 }
 
 h1,
@@ -94,20 +125,19 @@ p {
 a,
 button {
   font-family: var(--font-family) !important;
-  transition: all var(--ease-premium);
 }
 
-/* Custom Scrollbar - Light Mode */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F5F5F5;
+  background: var(--muted);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CCCCCC;
+  background: var(--border);
   border-radius: 4px;
 }
 
@@ -123,21 +153,15 @@ button {
 
 /* Utilities */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--card-bg);
+  opacity: 0.95;
   backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
+  border: 1px solid var(--card-border);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Removed neon-glow and background patterns for clean look */
-.bg-noise {
-  display: none;
-}
-
-.bg-grid-white {
-  display: none;
-}
-
+.bg-noise,
+.bg-grid-white,
 .bg-grid-small-white {
   display: none;
 }
