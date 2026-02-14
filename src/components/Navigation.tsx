@@ -34,12 +34,14 @@ export default function Navigation() {
     const isAuthPage = pathname === "/login" || pathname === "/signup";
 
     // Check if user is admin & get credits
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [credits, setCredits] = useState(0);
 
     const updateAuthStatus = async () => {
         const userStr = localStorage.getItem('current_user');
         if (userStr) {
+            setIsLoggedIn(true);
             try {
                 const localUser = JSON.parse(userStr);
                 setIsAdmin(localUser.role === 'admin');
@@ -53,7 +55,10 @@ export default function Navigation() {
 
             } catch (e) {
                 console.error("Failed to parse user", e);
+                setIsLoggedIn(false);
             }
+        } else {
+            setIsLoggedIn(false);
         }
     };
 
@@ -159,8 +164,8 @@ export default function Navigation() {
         );
     }
 
-    // Landing Page Navigation
-    if (isLandingPage) {
+    // Show Landing Page navigation if NOT logged in, OR if on a landing-specific page
+    if (!isLoggedIn || isLandingPage) {
         return (
             <>
                 <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 max-w-7xl mx-auto">
