@@ -63,11 +63,22 @@ export default function HomePage() {
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" }
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+    }
+  };
+
+  const staggerContainer: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1
+      }
     }
   };
 
@@ -97,15 +108,15 @@ export default function HomePage() {
         </div>
 
         <motion.div
-          variants={containerVariants}
+          variants={staggerContainer}
           initial="hidden"
           animate="visible"
           className="max-w-5xl mx-auto text-center space-y-8"
         >
           {/* Badge */}
           <motion.div variants={itemVariants} className="flex justify-center">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-sm font-medium text-primary cursor-default">
-              <Sparkles className="w-4 h-4 fill-current" />
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-sm font-medium text-primary cursor-default hover:bg-primary/10 transition-colors">
+              <Sparkles className="w-4 h-4 fill-current animate-pulse" />
               <span>The Next Gen of AI Video</span>
             </span>
           </motion.div>
@@ -117,9 +128,14 @@ export default function HomePage() {
           >
             Create <span className="text-primary relative inline-block">
               Viral Videos
-              <svg className="absolute w-full h-3 -bottom-1 left-0 text-secondary opacity-40" viewBox="0 0 100 10" preserveAspectRatio="none">
+              <motion.svg
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ delay: 1, duration: 0.8 }}
+                className="absolute w-full h-3 -bottom-1 left-0 text-secondary opacity-40" viewBox="0 0 100 10" preserveAspectRatio="none"
+              >
                 <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
-              </svg>
+              </motion.svg>
             </span> <br />
             With Artificial Intelligence.
           </motion.h1>
@@ -136,12 +152,12 @@ export default function HomePage() {
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
             <Link
               href="/signup"
-              className="px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg hover:bg-blue-600 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transform hover:-translate-y-1"
+              className="px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg hover:bg-blue-600 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transform hover:-translate-y-1 hover:scale-105"
             >
               Start Free
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <button className="px-8 py-4 rounded-xl bg-white border border-gray-200 text-gray-700 font-bold text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 shadow-sm">
+            <button className="px-8 py-4 rounded-xl bg-white border border-gray-200 text-gray-700 font-bold text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 shadow-sm transform hover:-translate-y-1">
               <Play className="w-5 h-5 text-gray-900" />
               Watch Demo
             </button>
@@ -149,9 +165,14 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* 2. SOCIAL PROOF / STATS */}
       <section className="bg-gray-50 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 py-12">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+          className="max-w-7xl mx-auto px-6 py-12"
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-gray-200/50">
             {[
               { label: "Videos Generated", value: "2M+" },
@@ -159,83 +180,102 @@ export default function HomePage() {
               { label: "Avg. Engagement", value: "3.5x" },
               { label: "Global Reach", value: "120+" }
             ].map((stat, i) => (
-              <div key={i} className="flex flex-col items-center p-2">
+              <motion.div key={i} variants={itemVariants} className="flex flex-col items-center p-2">
                 <span className="text-4xl font-bold text-primary mb-1">{stat.value}</span>
                 <span className="text-sm text-gray-500 font-medium uppercase tracking-wider">{stat.label}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* 3. FEATURES SECTION */}
       <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-16 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Powerful Tools for Creators</h2>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto">Everything you need to scale your content production.</p>
-        </div>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={staggerContainer}
+          className="space-y-16"
+        >
+          <motion.div variants={itemVariants} className="text-center space-y-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Powerful Tools for Creators</h2>
+            <p className="text-xl text-gray-500 max-w-2xl mx-auto">Everything you need to scale your content production.</p>
+          </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            {
-              icon: <Wand2 className="w-8 h-8" />,
-              title: "AI UGC Generator",
-              desc: "Generate authentic user-generated content scripts and visuals instantly from a URL."
-            },
-            {
-              icon: <Users className="w-8 h-8" />,
-              title: "Realistic Avatars",
-              desc: "Access 50+ diverse, human-like avatars that perfectly lip-sync to your script."
-            },
-            {
-              icon: <Mic className="w-8 h-8" />,
-              title: "Multi-Language",
-              desc: "Native voiceovers in 30+ languages, including specialized support for local dialects."
-            },
-            {
-              icon: <Share2 className="w-8 h-8" />,
-              title: "1-Click Export",
-              desc: "Auto-resize and optimize your videos for TikTok, Instagram Reels, and Snapchat."
-            }
-          ].map((feature, i) => (
-            <div
-              key={i}
-              className="group p-8 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 relative overflow-hidden"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
-            </div>
-          ))}
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                icon: <Wand2 className="w-8 h-8" />,
+                title: "AI UGC Generator",
+                desc: "Generate authentic user-generated content scripts and visuals instantly from a URL."
+              },
+              {
+                icon: <Users className="w-8 h-8" />,
+                title: "Realistic Avatars",
+                desc: "Access 50+ diverse, human-like avatars that perfectly lip-sync to your script."
+              },
+              {
+                icon: <Mic className="w-8 h-8" />,
+                title: "Multi-Language",
+                desc: "Native voiceovers in 30+ languages, including specialized support for local dialects."
+              },
+              {
+                icon: <Share2 className="w-8 h-8" />,
+                title: "1-Click Export",
+                desc: "Auto-resize and optimize your videos for TikTok, Instagram Reels, and Snapchat."
+              }
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                variants={itemVariants}
+                whileHover={{ y: -5, scale: 1.02 }}
+                className="group p-8 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 relative overflow-hidden"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </section>
 
-      {/* 4. HOW IT WORKS */}
       <section className="py-24 bg-gray-50 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-16">How It Works</h2>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+          className="max-w-7xl mx-auto px-6 text-center"
+        >
+          <motion.h2 variants={itemVariants} className="text-3xl md:text-4xl font-bold text-gray-900 mb-16">How It Works</motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
             {/* Connector Line (Desktop) */}
-            <div className="hidden md:block absolute top-[28px] left-[20%] right-[20%] h-[2px] bg-gray-200 -z-0" />
+            <motion.div
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              transition={{ delay: 0.8, duration: 1 }}
+              className="hidden md:block absolute top-[28px] left-[20%] right-[20%] h-[2px] bg-gray-200 -z-0 origin-left"
+            />
 
             {[
               { step: 1, title: "Paste Product Link", text: "Link your store page or product listing." },
               { step: 2, title: "AI Generates Magic", text: "We write the script & animate the avatar." },
               { step: 3, title: "Download & Post", text: "Get your viral-ready video in seconds." }
             ].map((item) => (
-              <div key={item.step} className="relative z-10 flex flex-col items-center">
-                <div className="w-14 h-14 rounded-full bg-white border-2 border-primary text-primary font-bold text-xl flex items-center justify-center mb-6 shadow-md">
+              <motion.div key={item.step} variants={itemVariants} className="relative z-10 flex flex-col items-center group">
+                <div className="w-14 h-14 rounded-full bg-white border-2 border-primary text-primary font-bold text-xl flex items-center justify-center mb-6 shadow-md group-hover:bg-primary group-hover:text-white transition-all duration-300">
                   {item.step}
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
                 <p className="text-gray-600 max-w-xs">{item.text}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* 5. DEMO PREVIEW SECTION */}
@@ -342,19 +382,25 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* 6. FAQ SECTION */}
       <section className="py-24 px-6 bg-gray-50/50 border-y border-gray-100" id="faq">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={staggerContainer}
+          className="max-w-3xl mx-auto"
+        >
+          <motion.div variants={itemVariants} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
             <p className="text-xl text-gray-500">Everything you need to know about Virezo AI.</p>
-          </div>
+          </motion.div>
 
           <div className="space-y-4">
             {faqs.map((faq, i) => (
               <motion.div
                 key={i}
-                className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm"
+                variants={itemVariants}
+                className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -363,6 +409,7 @@ export default function HomePage() {
                   <span className="font-bold text-gray-900 md:text-lg">{faq.question}</span>
                   <motion.span
                     animate={{ rotate: openFaq === i ? 45 : 0 }}
+                    transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                     className="flex-shrink-0 ml-4"
                   >
                     <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -376,7 +423,7 @@ export default function HomePage() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <div className="px-8 pb-6 text-gray-600 leading-relaxed border-t border-gray-50 pt-4">
                         {faq.answer}
@@ -387,23 +434,30 @@ export default function HomePage() {
               </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      {/* 7. FINAL CTA */}
-      <section className="py-24 px-6 md:px-12 bg-primary">
-        <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to create viral videos?</h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">Join thousands of creators using Virezo to scale their content production.</p>
+      <section className="py-24 px-6 md:px-12 bg-primary overflow-hidden">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="max-w-4xl mx-auto text-center text-white"
+        >
+          <motion.h2 variants={itemVariants} className="text-4xl md:text-5xl font-bold mb-6">Ready to create viral videos?</motion.h2>
+          <motion.p variants={itemVariants} className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">Join thousands of creators using Virezo to scale their content production.</motion.p>
 
-          <Link
-            href="/video"
-            className="inline-flex px-10 py-5 rounded-2xl bg-white text-primary font-bold text-xl hover:bg-gray-50 transition-all shadow-2xl hover:shadow-xl hover:scale-105"
-          >
-            Create Your First AI Video
-          </Link>
-          <p className="mt-6 text-sm text-blue-200">No credit card required. Cancel anytime.</p>
-        </div>
+          <motion.div variants={itemVariants}>
+            <Link
+              href="/signup"
+              className="inline-flex px-10 py-5 rounded-2xl bg-white text-primary font-bold text-xl hover:bg-gray-50 transition-all shadow-2xl hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 active:scale-95"
+            >
+              Create Your First AI Video
+            </Link>
+          </motion.div>
+          <motion.p variants={itemVariants} className="mt-6 text-sm text-blue-200">No credit card required. Cancel anytime.</motion.p>
+        </motion.div>
       </section>
 
       {/* Footer Minimal */}
