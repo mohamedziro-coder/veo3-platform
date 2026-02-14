@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Video, Image as ImageIcon, Sparkles, Mic, Home, LayoutGrid, LogOut, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import MobileMenu from "./MobileMenu";
 
 // Hook to check for desktop screen
 const useMediaQuery = (query: string) => {
@@ -198,85 +199,22 @@ export default function Navigation() {
                         </Link>
                     </div>
 
-                    {/* Mobile Burger Menu - Only show if NOT Desktop */}
-                    {!isDesktop && (
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden w-10 h-10 flex flex-col items-center justify-center gap-1.5 rounded-lg bg-muted border-card-border hover:bg-border transition-colors"
-                            aria-label="Toggle menu"
-                        >
-                            <motion.span
-                                animate={mobileMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
-                                className="w-5 h-0.5 bg-gray-900 rounded-full"
-                            />
-                            <motion.span
-                                animate={mobileMenuOpen ? { opacity: 0 } : { opacity: 1 }}
-                                className="w-5 h-0.5 bg-gray-900 rounded-full"
-                            />
-                            <motion.span
-                                animate={mobileMenuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
-                                className="w-5 h-0.5 bg-gray-900 rounded-full"
-                            />
-                        </button>
-                    )}
+                    {/* Mobile Menu Toggle - Fixed to the right */}
+                    <div className="md:hidden">
+                        <MobileMenu
+                            isOpen={mobileMenuOpen}
+                            setIsOpen={setMobileMenuOpen}
+                            links={[
+                                { href: "/", label: "Home" },
+                                { href: "/#features", label: "Features" },
+                                { href: "/#how-it-works", label: "How it Works" },
+                                { href: "/pricing", label: "Pricing" },
+                                { href: "/login", label: "Login", isButton: true }
+                            ]}
+                        />
+                    </div>
                 </div>
 
-                {!isDesktop && mobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="fixed top-20 left-0 right-0 z-40 px-6"
-                    >
-                        <div className="bg-card-bg/95 border-card-border shadow-2xl">
-                            <div className="flex flex-col gap-4">
-                                <Link
-                                    href="/#features"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="text-muted-foreground hover:text-foreground transition-colors py-2 text-sm font-medium"
-                                >
-                                    Features
-                                </Link>
-                                <Link
-                                    href="/#how-it-works"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="text-muted-foreground hover:text-foreground transition-colors py-2 text-sm font-medium"
-                                >
-                                    How it Works
-                                </Link>
-                                <Link
-                                    href="/pricing"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="text-muted-foreground hover:text-foreground transition-colors py-2 text-sm font-medium"
-                                >
-                                    Pricing
-                                </Link>
-                                <Link
-                                    href="/blogs"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="text-muted-foreground hover:text-foreground transition-colors py-2 text-sm font-medium"
-                                >
-                                    Blog
-                                </Link>
-                                <div className="h-px bg-gray-200 my-2" />
-                                <Link
-                                    href="/login"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="text-foreground hover:text-muted-foreground transition-colors py-2 text-sm font-medium"
-                                >
-                                    Sign In
-                                </Link>
-                                <Link
-                                    href="/signup"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="px-5 py-3 rounded-full bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-transform text-center"
-                                >
-                                    Get Started
-                                </Link>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
             </>
         );
     }
