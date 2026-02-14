@@ -10,7 +10,13 @@ import {
   Share2,
   Users,
   Mic,
-  Wand2
+  Wand2,
+  Zap,
+  Rocket,
+  ShieldCheck,
+  Layers,
+  Library,
+  BarChart3
 } from "lucide-react";
 import { useState } from "react";
 import Counter from "@/components/Counter";
@@ -197,53 +203,66 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      <section className="py-24 px-6 max-w-7xl mx-auto">
+      <section className="py-24 px-6 bg-white">
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.15 }}
           variants={staggerContainer}
-          className="space-y-16"
+          className="max-w-7xl mx-auto space-y-20"
         >
           <motion.div variants={itemVariants} className="text-center space-y-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Powerful Tools for Creators</h2>
-            <p className="text-xl text-gray-500 max-w-2xl mx-auto">Everything you need to scale your content production.</p>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Why Top Media Buyers Scale With Us</h2>
+            <p className="text-xl text-gray-500 max-w-2xl mx-auto font-medium">Unfair advantage through AI automation. Launch faster, test smarter, and scale harder.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {[
               {
-                icon: <Wand2 className="w-8 h-8" />,
-                title: "AI UGC Generator",
-                desc: "Generate authentic user-generated content scripts and visuals instantly from a URL."
+                icon: <Zap className="w-8 h-8" />,
+                title: "Generative Ad Engine",
+                desc: "Turn product URLs into winning video scripts and visuals instantly. Zero editing skills required."
               },
               {
-                icon: <Users className="w-8 h-8" />,
-                title: "Realistic Avatars",
-                desc: "Access 50+ diverse, human-like avatars that perfectly lip-sync to your script."
+                icon: <Rocket className="w-8 h-8" />,
+                title: "Mass Campaign Launcher",
+                desc: "Deploy hundreds of ad sets in a single click. Skip the manual grind and focus on strategy."
               },
               {
-                icon: <Mic className="w-8 h-8" />,
-                title: "Multi-Language",
-                desc: "Native voiceovers in 30+ languages, including specialized support for local dialects."
+                icon: <ShieldCheck className="w-8 h-8" />,
+                title: "Automated Budget Protection",
+                desc: "Our algorithms cut wasting ads and double down on profits 24/7. No more babysitting dashboards."
               },
               {
-                icon: <Share2 className="w-8 h-8" />,
-                title: "1-Click Export",
-                desc: "Auto-resize and optimize your videos for TikTok, Instagram Reels, and Snapchat."
+                icon: <Layers className="w-8 h-8" />,
+                title: "Centralized Agency Hub",
+                desc: "One command center for all your brands. Toggle between ad accounts without friction."
+              },
+              {
+                icon: <Library className="w-8 h-8" />,
+                title: "Winning Strategy Library",
+                desc: "Don't reinvent the wheel. Save your best structures and deploy them instantly across new accounts."
+              },
+              {
+                icon: <BarChart3 className="w-8 h-8" />,
+                title: "Real-Time Profit Vision",
+                desc: "Aggregated data streams giving you the pulse of your ROI instantly. Spot trends before your competitors."
               }
             ].map((feature, i) => (
               <motion.div
                 key={i}
                 variants={itemVariants}
-                whileHover={{ y: -5, scale: 1.02 }}
-                className="group p-8 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 relative overflow-hidden"
+                whileHover={{
+                  y: -12,
+                  transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+                }}
+                className="group p-10 rounded-[2.5rem] bg-white border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-15px_rgba(74,144,226,0.15)] hover:border-primary/20 transition-all duration-300 flex flex-col items-start text-left"
               >
-                <div className="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                <div className="w-16 h-16 rounded-[1.25rem] bg-primary/5 flex items-center justify-center text-primary mb-8 group-hover:bg-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">
                   {feature.icon}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{feature.desc}</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">{feature.title}</h3>
+                <p className="text-gray-500 leading-relaxed font-medium">{feature.desc}</p>
               </motion.div>
             ))}
           </div>
