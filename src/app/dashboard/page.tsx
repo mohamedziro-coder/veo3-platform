@@ -178,8 +178,24 @@ export default function Dashboard() {
         <main className="min-h-screen bg-gray-50 text-gray-900 pt-24 px-6 relative overflow-hidden">
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px]" />
+                <motion.div
+                    animate={{
+                        x: [0, 50, 0],
+                        y: [0, 30, 0],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                    className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]"
+                />
+                <motion.div
+                    animate={{
+                        x: [0, -40, 0],
+                        y: [0, 50, 0],
+                        scale: [1, 1.2, 1]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px]"
+                />
             </div>
 
             <motion.div
@@ -192,9 +208,14 @@ export default function Dashboard() {
                 <motion.div variants={itemVariants} className="mb-12">
                     <h1 className="text-4xl md:text-5xl font-bold mb-2">
                         Welcome back, <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">{userName}</span>
-                        <span className="ml-4 text-sm bg-white border border-gray-200 px-3 py-1 rounded-full text-gray-500 font-normal">
+                        <motion.span
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", delay: 0.5 }}
+                            className="ml-4 text-sm bg-white border border-gray-200 px-3 py-1 rounded-full text-gray-500 font-normal inline-block"
+                        >
                             {generationCount} Generations
-                        </span>
+                        </motion.span>
                     </h1>
                     <p className="text-gray-500 text-lg">Select a tool to start generating content.</p>
                 </motion.div>
@@ -205,11 +226,13 @@ export default function Dashboard() {
                         <Link key={i} href={tool.href} className="group">
                             <motion.div
                                 variants={itemVariants}
-                                className={`h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-md hover:border-${tool.color}-500/30 transition-all duration-300 relative overflow-hidden`}
+                                whileHover={{ scale: 1.02, y: -5 }}
+                                whileTap={{ scale: 0.98 }}
+                                className={`h-full glass-panel p-8 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-xl hover:border-${tool.color}-500/30 transition-all duration-300 relative overflow-hidden`}
                             >
-                                <div className={`absolute top-0 right-0 p-32 bg-${tool.color}-500/5 blur-[80px] group-hover:bg-${tool.color}-500/10 transition-colors opacity-0 group-hover:opacity-100 duration-500`} />
+                                <div className={`absolute top-0 right-0 p-32 bg-${tool.color}-500/10 blur-[80px] group-hover:bg-${tool.color}-500/20 transition-colors opacity-0 group-hover:opacity-100 duration-500`} />
                                 <div className="relative z-10 space-y-6">
-                                    <div className={`w-14 h-14 rounded-2xl bg-${tool.color}-500/10 flex items-center justify-center text-${tool.color}-600 group-hover:scale-110 transition-transform`}>
+                                    <div className={`w-14 h-14 rounded-2xl bg-${tool.color}-500/10 flex items-center justify-center text-${tool.color}-600 group-hover:bg-${tool.color}-500 group-hover:text-white transition-all duration-300`}>
                                         <tool.icon className="w-7 h-7" />
                                     </div>
                                     <div>
