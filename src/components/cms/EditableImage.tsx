@@ -26,7 +26,7 @@ export default function EditableImage({
     className,
     priority = false
 }: EditableImageProps) {
-    const { isEditMode } = useAdmin();
+    const { isEditMode, isAdmin } = useAdmin();
     const [currentSrc, setCurrentSrc] = useState(defaultSrc);
     const [inputSrc, setInputSrc] = useState(defaultSrc);
     const [isSaving, setIsSaving] = useState(false);
@@ -81,7 +81,7 @@ export default function EditableImage({
         }
     };
 
-    if (isEditMode) {
+    if (isEditMode && isAdmin) {
         return (
             <div className={`relative group ${className} border-2 border-transparent border-dashed hover:border-primary/50 rounded-xl overflow-hidden transition-all`}>
                 <Image

@@ -21,7 +21,7 @@ export default function EditableText({
     as: Component = "p",
     multiline = false
 }: EditableTextProps) {
-    const { isEditMode } = useAdmin();
+    const { isEditMode, isAdmin } = useAdmin();
     const [content, setContent] = useState(defaultContent);
     const [originalContent, setOriginalContent] = useState(content);
     const [isSaving, setIsSaving] = useState(false);
@@ -77,7 +77,7 @@ export default function EditableText({
         }
     };
 
-    if (isEditMode) {
+    if (isEditMode && isAdmin) {
         return (
             <div className={`relative group ${className} min-w-[20px] min-h-[20px] rounded hover:ring-2 hover:ring-primary/50 transition-all cursor-text`} onClick={() => setIsFocused(true)}>
                 {isFocused ? (
