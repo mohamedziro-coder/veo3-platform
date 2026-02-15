@@ -1,4 +1,6 @@
 import { generateSchema } from "@/lib/schema";
+import EditableText from "@/components/cms/EditableText";
+import EditableImage from "@/components/cms/EditableImage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,13 +24,27 @@ export default function UGCPage() {
 
             <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-16">
-                    <span className="text-secondary font-bold tracking-widest uppercase text-sm mb-4 block">UGC Generator</span>
-                    <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6">
-                        Scale Authenticity
-                    </h1>
-                    <p className="text-xl text-muted-foreground">
-                        The performance of UGC without the headache of shipping products or managing creators.
-                    </p>
+                    <EditableText
+                        slug="ugc-generator"
+                        id="hero-label"
+                        defaultContent="UGC Generator"
+                        as="span"
+                        className="text-secondary font-bold tracking-widest uppercase text-sm mb-4 block"
+                    />
+                    <EditableText
+                        slug="ugc-generator"
+                        id="hero-title"
+                        defaultContent="Scale Authenticity"
+                        as="h1"
+                        className="text-5xl md:text-7xl font-black text-foreground mb-6"
+                    />
+                    <EditableText
+                        slug="ugc-generator"
+                        id="hero-desc"
+                        defaultContent="The performance of UGC without the headache of shipping products or managing creators."
+                        as="p"
+                        className="text-xl text-muted-foreground"
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-24">
@@ -42,16 +58,35 @@ export default function UGCPage() {
                                 <li key={i} className="flex items-start gap-4">
                                     <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary font-bold mt-1">✓</div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-foreground">{feat.title}</h3>
-                                        <p className="text-muted-foreground">{feat.desc}</p>
+                                        <EditableText
+                                            slug="ugc-generator"
+                                            id={`feat-title-${i}`}
+                                            defaultContent={feat.title}
+                                            as="h3"
+                                            className="text-xl font-bold text-foreground"
+                                        />
+                                        <EditableText
+                                            slug="ugc-generator"
+                                            id={`feat-desc-${i}`}
+                                            defaultContent={feat.desc}
+                                            as="p"
+                                            className="text-muted-foreground"
+                                        />
                                     </div>
                                 </li>
                             ))}
                         </ul>
                     </div>
                     <div className="order-1 md:order-2 h-[600px] bg-card-bg rounded-[3rem] border border-card-border flex items-center justify-center relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 z-10"></div>
-                        <span className="text-muted-foreground relative z-0">Phone Preview Preview</span>
+                        <EditableImage
+                            slug="ugc-generator"
+                            id="preview-image"
+                            src="https://placehold.co/400x800/222/999?text=Phone+Preview"
+                            alt="Phone Preview"
+                            width={400}
+                            height={800}
+                            className="w-full h-full object-cover opacity-80"
+                        />
                     </div>
                 </div>
             </div>

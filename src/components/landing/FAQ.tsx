@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import EditableText from "@/components/cms/EditableText";
 
 interface FAQItem {
     question: string;
@@ -27,8 +28,20 @@ export default function FAQ({ faqs, itemVariants, staggerContainer }: FAQProps) 
                 className="max-w-4xl mx-auto"
             >
                 <motion.div variants={itemVariants} className="text-center mb-24 space-y-6">
-                    <h2 className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-[1]">Frequently Asked Questions</h2>
-                    <p className="text-xl md:text-2xl text-muted-foreground font-medium">Everything you need to know about Virezo AI.</p>
+                    <EditableText
+                        slug="faq"
+                        id="title"
+                        defaultContent="Frequently Asked Questions"
+                        as="h2"
+                        className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-[1]"
+                    />
+                    <EditableText
+                        slug="faq"
+                        id="subtitle"
+                        defaultContent="Everything you need to know about Virezo AI."
+                        as="p"
+                        className="text-xl md:text-2xl text-muted-foreground font-medium"
+                    />
                 </motion.div>
 
                 <div className="space-y-6">
@@ -42,7 +55,9 @@ export default function FAQ({ faqs, itemVariants, staggerContainer }: FAQProps) 
                                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                                 className="w-full px-10 py-8 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
                             >
-                                <span className="font-black text-foreground text-xl md:text-2xl tracking-tight">{faq.question}</span>
+                                <span className="font-black text-foreground text-xl md:text-2xl tracking-tight">
+                                    <EditableText slug="faq" id={`q-${i}`} defaultContent={faq.question} as="span" />
+                                </span>
                                 <motion.span
                                     animate={{ rotate: openFaq === i ? 45 : 0 }}
                                     transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -62,7 +77,7 @@ export default function FAQ({ faqs, itemVariants, staggerContainer }: FAQProps) 
                                         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                                     >
                                         <div className="px-10 pb-10 text-xl text-muted-foreground leading-relaxed border-t border-card-border pt-6 font-medium">
-                                            {faq.answer}
+                                            <EditableText slug="faq" id={`a-${i}`} defaultContent={faq.answer} as="div" />
                                         </div>
                                     </motion.div>
                                 )}

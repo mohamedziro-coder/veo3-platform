@@ -9,7 +9,7 @@ interface EditableTextProps {
     id: string; // content key
     defaultContent: string;
     className?: string; // used for text styling
-    as?: "h1" | "h2" | "h3" | "p" | "span" | "div";
+    as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "div";
     multiline?: boolean;
 }
 
