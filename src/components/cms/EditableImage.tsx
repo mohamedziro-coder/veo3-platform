@@ -51,6 +51,9 @@ export default function EditableImage({
             const userStr = localStorage.getItem('current_user');
             const user = userStr ? JSON.parse(userStr) : {};
 
+            // For URL input (text), sends as normal
+            // For file input, it's handled in onChange below
+            // This is just a fallback for manual URL entry
             const res = await fetch('/api/content', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -114,18 +117,47 @@ export default function EditableImage({
                                     const reader = new FileReader();
                                     reader.onload = async () => {
                                         const base64 = reader.result as string;
-                                        // Limit is 50MB
-                                        if (base64.length > 50 * 1024 * 1024) {
-                                            alert(`File too large (${(base64.length / 1024 / 1024).toFixed(2)}MB). Limit is 50MB.`);
-                                            setIsSaving(false);
-                                            return;
+
+                                        // Chunked Upload Strategy to bypass 4MB Vercel/Next.js limit
+                                        // We split the base64 string into 1MB chunks and send them sequentially
+                                        const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB chunks
+                                        const totalChunks = Math.ceil(base64.length / CHUNK_SIZE);
+
+                                        const userStr = localStorage.getItem('current_user');
+                                        const user = userStr ? JSON.parse(userStr) : {};
+
+                                        // Loop through chunks
+                                        for (let i = 0; i < totalChunks; i++) {
+                                            const start = i * CHUNK_SIZE;
+                                            const end = Math.min(base64.length, start + CHUNK_SIZE);
+                                            const chunk = base64.substring(start, end);
+
+                                            const res = await fetch('/api/content', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    slug,
+                                                    key: id,
+                                                    content: chunk,
+                                                    type: 'image',
+                                                    email: user.email,
+                                                    chunkIndex: i // 0 = new/overwrite, >0 = append
+                                                })
+                                            });
+
+                                            if (!res.ok) {
+                                                const err = await res.json().catch(() => ({}));
+                                                throw new Error(err.error || `Upload failed at chunk ${i + 1}/${totalChunks}`);
+                                            }
                                         }
+
+                                        // Success for all chunks
                                         setInputSrc(base64);
                                     };
                                     reader.readAsDataURL(file);
                                 } catch (err: any) {
-                                    console.error("Image Read Failed", err);
-                                    alert(`Failed to read image: ${err.message}`);
+                                    console.error("Upload Failed", err);
+                                    alert(`Upload Failed: ${err.message}`);
                                 } finally {
                                     setIsSaving(false);
                                 }

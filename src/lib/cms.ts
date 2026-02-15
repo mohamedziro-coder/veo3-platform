@@ -62,3 +62,19 @@ export async function upsertPageContent(slug: string, key: string, content: stri
 
     return true;
 }
+
+export async function appendPageContent(slug: string, key: string, contentChunk: string) {
+    if (!process.env.POSTGRES_URL) throw new Error("DB not configured");
+    const sql = neon(process.env.POSTGRES_URL);
+
+    try {
+        // Append to existing content
+        await sql`
+            UPDATE page_content 
+            SET content = content || ${contentChunk}, updated_at = NOW()
+            WHERE slug = ${slug} AND key = ${key}
+        `;
+    } catch (e) {
+        throw e;
+    }
+}

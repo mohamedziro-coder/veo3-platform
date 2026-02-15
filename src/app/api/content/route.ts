@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPageContent, upsertPageContent } from '@/lib/cms';
+import { getPageContent, upsertPageContent, appendPageContent } from '@/lib/cms';
 import { getUserByEmail } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
@@ -14,18 +14,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ content });
 }
 
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '50mb',
-        },
-    },
-};
-
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { slug, key, content, type, email } = body;
+        const { slug, key, content, type, email, chunkIndex } = body;
 
         // Verify Admin
         if (!email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -34,7 +26,14 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        await upsertPageContent(slug, key, content, type);
+        if (typeof chunkIndex === 'number' && chunkIndex > 0) {
+            // Append chunk
+            await appendPageContent(slug, key, content);
+        } else {
+            // New upload or first chunk (overwrite)
+            await upsertPageContent(slug, key, content, type);
+        }
+
         return NextResponse.json({ success: true });
 
     } catch (error: any) {
