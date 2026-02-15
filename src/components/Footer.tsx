@@ -53,42 +53,36 @@ const socialLinks = [
 
 export default function Footer() {
     return (
-        <footer className="bg-[#0A0A0B] border-t border-white/5 pt-48 pb-24 overflow-hidden relative">
-            {/* Background Decorative Glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        <footer className="relative overflow-hidden border-t border-card-border bg-card-bg/70 backdrop-blur-xl pt-28 pb-16">
+            <div className="pointer-events-none absolute top-0 left-1/2 h-px w-full -translate-x-1/2 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <div className="pointer-events-none absolute -top-36 right-[-8%] h-[360px] w-[360px] rounded-full bg-primary/10 blur-[110px]" />
+            <div className="pointer-events-none absolute -bottom-40 left-[-8%] h-[360px] w-[360px] rounded-full bg-secondary/10 blur-[110px]" />
 
-            <div className="max-w-[1400px] mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-20 mb-32">
-
-                    {/* Brand Column (Scaled Up) */}
-                    <div className="col-span-2 lg:col-span-1 space-y-10">
-                        <Link href="/" className="flex items-center gap-3 font-black text-3xl tracking-tighter text-white">
-                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-xl">
-                                <Sparkles className="w-7 h-7 fill-white text-white" />
+            <div className="relative z-10 mx-auto max-w-[1400px] px-6">
+                <div className="mb-16 grid grid-cols-2 gap-10 md:grid-cols-4 lg:grid-cols-5 md:gap-14">
+                    <div className="col-span-2 space-y-6 lg:col-span-1">
+                        <Link href="/" className="flex items-center gap-3 text-3xl font-black tracking-tighter text-foreground">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-secondary text-white shadow-xl shadow-primary/25">
+                                <Sparkles className="h-7 w-7 fill-white text-white" />
                             </div>
                             <span>Virezo</span>
                         </Link>
-                        <p className="text-gray-500 text-lg leading-relaxed max-w-sm font-medium">
+                        <p className="max-w-sm text-sm font-medium leading-relaxed text-muted-foreground md:text-base">
                             Defy the limits of video production with AI-powered creative solutions for modern brands and agencies.
                         </p>
                     </div>
 
-                    {/* Links Columns (Scaled Up Typography) */}
                     {footerLinks.map((section) => (
-                        <div key={section.title} className="space-y-10">
-                            <h4 className="text-white text-sm font-black tracking-[0.3em] uppercase opacity-40">
-                                {section.title}
-                            </h4>
-                            <ul className="space-y-6">
+                        <div key={section.title} className="space-y-5">
+                            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-foreground/60">{section.title}</h4>
+                            <ul className="space-y-3.5">
                                 {section.links.map((link) => (
                                     <li key={link.name}>
                                         <Link
                                             href={link.href}
-                                            className="group flex items-center text-gray-400 hover:text-primary transition-all duration-300"
+                                            className="group flex items-center text-sm font-semibold text-muted-foreground transition-all duration-300 hover:text-primary md:text-base"
                                         >
-                                            <motion.span
-                                                className="inline-block transform transition-transform duration-300 group-hover:translate-x-2 text-lg font-bold"
-                                            >
+                                            <motion.span className="inline-block transition-transform duration-300 group-hover:translate-x-1.5">
                                                 {link.name}
                                             </motion.span>
                                         </Link>
@@ -99,28 +93,29 @@ export default function Footer() {
                     ))}
                 </div>
 
-                {/* Bottom Bar (More whitespace) */}
-                <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-10">
-                    <p className="text-gray-500 text-base font-bold">
-                        © {new Date().getFullYear()} Virezo. All rights reserved.
-                    </p>
+                <div className="flex flex-col items-center justify-between gap-6 border-t border-card-border pt-8 md:flex-row">
+                    <p className="text-sm font-semibold text-muted-foreground">(c) {new Date().getFullYear()} Virezo. All rights reserved.</p>
 
-                    <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-3">
                         {socialLinks.map((social) => (
                             <Link
                                 key={social.label}
                                 href={social.href}
-                                className="text-gray-500 hover:text-white transition-all p-3 rounded-xl hover:bg-white/5"
+                                className="rounded-xl p-2.5 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                                 aria-label={social.label}
                             >
-                                <social.icon className="w-6 h-6" />
+                                <social.icon className="h-5 w-5" />
                             </Link>
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-10 text-base font-bold text-gray-500">
-                        <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-                        <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+                    <div className="flex items-center gap-5 text-sm font-semibold text-muted-foreground">
+                        <Link href="/privacy" className="transition-colors hover:text-foreground">
+                            Privacy Policy
+                        </Link>
+                        <Link href="/terms" className="transition-colors hover:text-foreground">
+                            Terms of Service
+                        </Link>
                     </div>
                 </div>
             </div>
