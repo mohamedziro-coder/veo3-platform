@@ -1,64 +1,110 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Check, Sparkles, Globe, Shield, Zap, Star, CreditCard } from 'lucide-react';
+import { Check, Sparkles, Shield, Zap, Star, CreditCard } from 'lucide-react';
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const PLANS = [
     {
-        name: "Starter",
-        price: "Free",
-        description: "Perfect for exploring AI content creation.",
+        id: "starter_credits",
+        name: "Starter Pack",
+        price: "$9",
+        credits: 200,
+        description: "Best for testing and short creative runs.",
         features: [
-            "50 Credits per month",
-            "720p Video Resolution",
-            "Standard Image Generation",
-            "Basic Voice Cloning",
-            "Community Support"
+            "200 One-Time Credits",
+            "Full Video, Image, Voice Tools",
+            "No monthly subscription",
+            "Credits never expire",
+            "Fast checkout with Stripe"
         ],
-        cta: "Get Started",
-        href: "/signup",
+        cta: "Buy 200 Credits",
         popular: false,
         gradient: "from-gray-500 to-gray-700"
     },
     {
-        name: "Pro",
+        id: "pro_credits",
+        name: "Pro Pack",
         price: "$29",
-        period: "/month",
-        description: "For creators who need professional tools.",
+        credits: 1000,
+        description: "Most popular value for active creators.",
         features: [
-            "1000 Credits per month",
-            "4K Video Resolution",
-            "Ultra-HD Image Generation",
-            "Premium Voice Models",
-            "Priority Processing",
-            "Commercial License"
+            "1000 One-Time Credits",
+            "Full Video, Image, Voice Tools",
+            "No monthly subscription",
+            "Credits never expire",
+            "Fast checkout with Stripe"
         ],
-        cta: "Upgrade to Pro",
-        href: "/signup?plan=pro",
+        cta: "Buy 1000 Credits",
         popular: true,
         gradient: "from-blue-500 to-purple-600"
     },
     {
-        name: "Enterprise",
-        price: "Custom",
-        description: "Scalable solutions for teams and businesses.",
+        id: "scale_credits",
+        name: "Scale Pack",
+        price: "$99",
+        credits: 4000,
+        description: "For teams and heavy production workflows.",
         features: [
-            "Unlimited Credits",
-            "Custom AI Models",
-            "API Access",
-            "Dedicated Support Manager",
-            "SSO & Security",
-            "SLA Guarantee"
+            "4000 One-Time Credits",
+            "Full Video, Image, Voice Tools",
+            "No monthly subscription",
+            "Credits never expire",
+            "Priority support"
         ],
-        cta: "Contact Sales",
-        href: "mailto:sales@veoplatform.com",
+        cta: "Buy 4000 Credits",
         popular: false,
         gradient: "from-pink-500 to-orange-500"
     }
 ];
 
 export default function PricingPage() {
+    const router = useRouter();
+    const [loadingPack, setLoadingPack] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleCheckout = async (packId: string) => {
+        try {
+            setError(null);
+            setLoadingPack(packId);
+
+            const userRaw = localStorage.getItem('current_user');
+            if (!userRaw) {
+                router.push('/login');
+                return;
+            }
+
+            const user = JSON.parse(userRaw);
+            if (!user?.email) {
+                router.push('/login');
+                return;
+            }
+
+            const res = await fetch('/api/payments/stripe/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ packId, userEmail: user.email })
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.error || 'Failed to create checkout session');
+            }
+
+            if (!data.url) {
+                throw new Error('Stripe checkout URL not returned');
+            }
+
+            window.location.href = data.url;
+        } catch (e: any) {
+            setError(e.message || 'Checkout failed');
+        } finally {
+            setLoadingPack(null);
+        }
+    };
+
     return (
         <main className="min-h-screen pt-48 pb-32 px-4 md:px-12 bg-[#FAFAFB] dark:bg-background relative overflow-hidden">
             {/* Background Ambience (Grand Scale) */}
@@ -80,12 +126,18 @@ export default function PricingPage() {
                     </motion.div>
 
                     <h1 className="text-5xl md:text-8xl lg:text-[7.5rem] font-black tracking-tight leading-[0.95] mb-8 text-foreground italic md:not-italic">
-                        Simple, <br className="hidden md:block" /> Transparent Pricing
+                        Buy Credits, <br className="hidden md:block" /> No Subscription
                     </h1>
                     <p className="text-xl md:text-3xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium">
-                        Choose the plan that fits your creative needs. Unlock the full potential of Virezo AI.
+                        One-time credit packs for video, image, and voice generation. Credits are added instantly after payment.
                     </p>
                 </div>
+
+                {error && (
+                    <div className="max-w-2xl mx-auto mb-10 rounded-2xl border border-red-300/40 bg-red-500/10 px-6 py-4 text-center text-red-600 font-semibold">
+                        {error}
+                    </div>
+                )}
 
                 {/* Pricing Grid (Luxury Scale) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -107,9 +159,12 @@ export default function PricingPage() {
                                 <h3 className={`text-2xl font-black mb-4 uppercase tracking-[0.1em] ${plan.popular ? 'text-primary' : 'text-foreground'}`}>{plan.name}</h3>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-5xl md:text-7xl font-black text-foreground tracking-tighter">{plan.price}</span>
-                                    {plan.period && <span className="text-xl text-muted-foreground font-bold">{plan.period}</span>}
+                                    <span className="text-xl text-muted-foreground font-bold">one-time</span>
                                 </div>
                                 <p className="text-muted-foreground mt-8 text-lg md:text-xl font-medium leading-relaxed">{plan.description}</p>
+                                <p className="mt-4 inline-flex rounded-full bg-primary/10 px-4 py-1.5 text-sm font-black text-primary tracking-wide">
+                                    {plan.credits} Credits
+                                </p>
                             </div>
 
                             <ul className="space-y-6 mb-12 flex-grow">
@@ -123,15 +178,17 @@ export default function PricingPage() {
                                 ))}
                             </ul>
 
-                            <Link
-                                href={plan.href}
+                            <button
+                                type="button"
+                                onClick={() => handleCheckout(plan.id)}
+                                disabled={loadingPack === plan.id}
                                 className={`w-full py-6 rounded-2xl font-black text-xl transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${plan.popular
                                     ? 'bg-primary text-white hover:bg-primary/90 shadow-primary/30'
                                     : 'bg-white dark:bg-card-bg border border-card-border text-foreground hover:bg-gray-50 dark:hover:bg-muted/50 hover:border-gray-300'
-                                    }`}>
-                                <span>{plan.cta}</span>
+                                    } disabled:opacity-60 disabled:cursor-not-allowed`}>
+                                <span>{loadingPack === plan.id ? 'Redirecting...' : plan.cta}</span>
                                 {plan.popular && <Sparkles className="w-5 h-5 fill-white" />}
-                            </Link>
+                            </button>
                         </div>
                     ))}
                 </div>
