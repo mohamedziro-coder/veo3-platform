@@ -122,13 +122,16 @@ export default function EditableImage({
                                         body: formData
                                     });
 
-                                    if (!res.ok) throw new Error('Upload failed');
+                                    if (!res.ok) {
+                                        const errData = await res.json().catch(() => ({}));
+                                        throw new Error(errData.error || `Upload failed with status ${res.status}`);
+                                    }
 
                                     const data = await res.json();
                                     setInputSrc(data.url);
-                                } catch (err) {
+                                } catch (err: any) {
                                     console.error(err);
-                                    alert("Upload failed. Ensure you are Admin.");
+                                    alert(`Error: ${err.message}`);
                                 } finally {
                                     setIsSaving(false);
                                 }
