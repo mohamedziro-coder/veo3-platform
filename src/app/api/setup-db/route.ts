@@ -88,6 +88,24 @@ export async function GET() {
             );
         `;
 
+        // 6. Create page_content table for Visual Editor (CMS)
+        await sql`
+            CREATE TABLE IF NOT EXISTS page_content (
+                id SERIAL PRIMARY KEY,
+                slug TEXT NOT NULL,
+                key TEXT NOT NULL,
+                content TEXT,
+                type TEXT DEFAULT 'text',
+                updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(slug, key)
+            );
+        `;
+
+        // Create index for faster lookups by slug
+        await sql`
+            CREATE INDEX IF NOT EXISTS idx_page_content_slug ON page_content(slug);
+        `;
+
         return NextResponse.json({ success: true, message: "Database schema updated successfully" });
 
     } catch (error: any) {

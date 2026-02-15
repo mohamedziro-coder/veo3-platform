@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { Sparkles, Play, ArrowRight } from "lucide-react";
 import Counter from "@/components/Counter";
+import EditableText from "@/components/cms/EditableText";
 
 // Lazy-load heavy components
 const Features = dynamic(() => import("@/components/landing/Features"), { ssr: false });
@@ -111,13 +112,19 @@ export default function HomePage() {
             </span>
           </motion.div>
 
+
           {/* Headline (Grand & Immersive) */}
           <motion.h1
             variants={itemVariants}
             className="text-5xl md:text-7xl lg:text-[7.3rem] font-black tracking-tight leading-[0.92] text-foreground"
           >
             Build <span className="text-primary relative inline-block">
-              Eye-Catching Videos
+              <EditableText
+                slug="home"
+                id="hero-title-highlight"
+                defaultContent="Eye-Catching Videos"
+                as="span"
+              />
               <motion.svg
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
@@ -127,16 +134,23 @@ export default function HomePage() {
                 <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="10" fill="none" />
               </motion.svg>
             </span> <br />
-            Without The Editing Headache.
+            <EditableText
+              slug="home"
+              id="hero-title-sub"
+              defaultContent="Without The Editing Headache."
+              as="span"
+            />
           </motion.h1>
 
-          <motion.p
-            variants={itemVariants}
-            className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium"
-          >
-            Turn ideas into broadcast-quality content in seconds.
-            Realistic avatars, native multi-language voiceovers, and a workflow that feels fast.
-          </motion.p>
+          <motion.div variants={itemVariants}>
+            <EditableText
+              slug="home"
+              id="hero-desc"
+              defaultContent="Turn ideas into broadcast-quality content in seconds. Realistic avatars, native multi-language voiceovers, and a workflow that feels fast."
+              className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium"
+              as="p"
+            />
+          </motion.div>
 
           {/* CTAs (Scaled Up) */}
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-5 justify-center pt-8">
