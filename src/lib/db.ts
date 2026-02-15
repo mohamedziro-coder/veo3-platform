@@ -133,34 +133,43 @@ export async function createUser(name: string, email: string, password: string, 
 }
 
 // Verify user login
-export async function verifyUser(email: string, password: string): Promise<any | null> {
+export type VerifyUserResult =
+    | { ok: true; user: User }
+    | { ok: false; reason: 'invalid_credentials' | 'unverified' };
+
+export async function verifyUser(email: string, password: string): Promise<VerifyUserResult> {
     try {
         const sql = getDb();
-        const emailLower = email.toLowerCase();
+        const emailLower = email.trim().toLowerCase();
         const result = await sql`
-            SELECT id, email, name, role, credits, password_hash
+            SELECT id, email, name, role, credits, password_hash, COALESCE(is_verified, FALSE) AS is_verified
             FROM users 
             WHERE LOWER(email) = ${emailLower}
         `;
 
         if (result.length === 0) {
-            return null;
+            return { ok: false, reason: 'invalid_credentials' };
         }
 
-        const user = result[0] as User & { password_hash: string };
+        const user = result[0] as User & { password_hash: string; is_verified?: boolean };
 
         // Verify password
         const isValid = await bcrypt.compare(password, user.password_hash);
         if (!isValid) {
-            return null;
+            return { ok: false, reason: 'invalid_credentials' };
+        }
+
+        // Block login until email verification is completed
+        if (!user.is_verified) {
+            return { ok: false, reason: 'unverified' };
         }
 
         // Return user without password hash
-        const { password_hash, ...userWithoutPassword } = user;
-        return userWithoutPassword as User;
+        const { password_hash, is_verified, ...userWithoutPassword } = user;
+        return { ok: true, user: userWithoutPassword as User };
     } catch (error) {
         console.error('Error verifying user:', error);
-        return null;
+        return { ok: false, reason: 'invalid_credentials' };
     }
 }
 

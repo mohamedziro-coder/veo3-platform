@@ -1,25 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyUserEmail } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
     try {
         const { email, code } = await req.json();
+        const emailNorm = String(email || '').trim().toLowerCase();
+        const codeNorm = String(code || '').trim();
 
-        if (!email || !code) {
+        if (!emailNorm || !codeNorm) {
             return NextResponse.json(
                 { error: 'Email and code are required' },
                 { status: 400 }
             );
         }
 
-        const { neon } = require('@neondatabase/serverless');
+        if (!process.env.POSTGRES_URL) {
+            return NextResponse.json({ error: 'POSTGRES_URL is not configured' }, { status: 500 });
+        }
+
+        const { neon } = await import('@neondatabase/serverless');
         const sql = neon(process.env.POSTGRES_URL);
 
         // Verify code
         const users = await sql`
-            SELECT id, email, verification_token 
+            SELECT id, email, name, role, credits, verification_token 
             FROM users 
-            WHERE email = ${email}
+            WHERE LOWER(email) = ${emailNorm}
         `;
 
         if (users.length === 0) {
@@ -28,22 +33,28 @@ export async function POST(req: NextRequest) {
 
         const user = users[0];
 
-        if (user.verification_token !== code) {
+        if (String(user.verification_token || '').trim() !== codeNorm) {
             return NextResponse.json({ error: 'Invalid verification code' }, { status: 400 });
         }
 
         // Mark as verified
-        await sql`
+        const updated = await sql`
             UPDATE users 
             SET is_verified = TRUE, verification_token = NULL 
             WHERE id = ${user.id}
+            RETURNING id, email, name, role, credits
         `;
+
+        const verifiedUser = updated[0] || user;
 
         return NextResponse.json({
             success: true,
             user: {
-                id: user.id,
-                email: user.email,
+                id: verifiedUser.id,
+                name: verifiedUser.name,
+                email: verifiedUser.email,
+                role: verifiedUser.role,
+                credits: verifiedUser.credits,
                 is_verified: true
             }
         });

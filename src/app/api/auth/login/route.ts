@@ -14,14 +14,22 @@ export async function POST(req: NextRequest) {
         }
 
         // Verify user
-        const user = await verifyUser(email, password);
+        const auth = await verifyUser(email, password);
 
-        if (!user) {
+        if (!auth.ok) {
+            if (auth.reason === 'unverified') {
+                return NextResponse.json(
+                    { error: 'Please verify your email before logging in' },
+                    { status: 403 }
+                );
+            }
             return NextResponse.json(
                 { error: 'Invalid email or password' },
                 { status: 401 }
             );
         }
+
+        const user = auth.user;
 
         // Return user data (frontend will store in localStorage for now)
         return NextResponse.json({
