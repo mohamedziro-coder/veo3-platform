@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { createPortal } from "react-dom";
 
 interface MobileMenuProps {
     isOpen: boolean;
@@ -101,6 +102,11 @@ const linkVariants: Variants = {
 
 export default function MobileMenu({ isOpen, setIsOpen, links }: MobileMenuProps) {
     const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         if (isOpen) {
@@ -120,67 +126,69 @@ export default function MobileMenu({ isOpen, setIsOpen, links }: MobileMenuProps
     return (
         <div className="md:hidden">
             <MenuToggle isOpen={isOpen} toggle={() => setIsOpen(!isOpen)} />
-
-            <AnimatePresence mode="wait">
-                {isOpen && (
-                    <motion.div
-                        variants={menuVariants}
-                        initial="closed"
-                        animate="open"
-                        exit="closed"
-                        className="fixed inset-0 z-[10500] flex flex-col bg-background/95 backdrop-blur-2xl"
-                    >
-                        <div className="flex items-center justify-between border-b border-card-border px-6 py-5">
-                            <div className="flex items-center gap-3 text-2xl font-black tracking-tighter text-foreground">
-                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-white shadow-md shadow-primary/25">
-                                    <Sparkles className="h-5 w-5 fill-white" />
+            {mounted &&
+                createPortal(
+                    <AnimatePresence mode="wait">
+                        {isOpen && (
+                            <motion.div
+                                variants={menuVariants}
+                                initial="closed"
+                                animate="open"
+                                exit="closed"
+                                className="fixed inset-0 z-[2147483647] flex flex-col bg-background/95 backdrop-blur-2xl"
+                            >
+                                <div className="flex items-center justify-between border-b border-card-border px-6 py-5">
+                                    <div className="flex items-center gap-3 text-2xl font-black tracking-tighter text-foreground">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-secondary text-white shadow-md shadow-primary/25">
+                                            <Sparkles className="h-5 w-5 fill-white" />
+                                        </div>
+                                        <span>Virezo</span>
+                                    </div>
                                 </div>
-                                <span>Virezo</span>
-                            </div>
-                        </div>
 
-                        <nav className="flex flex-1 flex-col items-center justify-center gap-8 px-8 text-center">
-                            {links.map((link, i) => (
-                                <motion.div key={i} variants={linkVariants}>
-                                    {link.isButton ? (
-                                        <Link
-                                            href={link.href}
-                                            onClick={() => setIsOpen(false)}
-                                            className="inline-block rounded-2xl bg-primary px-10 py-4 text-xl font-black text-white shadow-lg shadow-primary/30 transition-all active:scale-95 hover:bg-primary/90"
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    ) : (
-                                        <Link
-                                            href={link.href}
-                                            onClick={() => setIsOpen(false)}
-                                            className={`block text-3xl font-black tracking-tight transition-all active:scale-95 ${
-                                                pathname === link.href || (link.href.startsWith("/#") && pathname === "/")
-                                                    ? "text-primary"
-                                                    : "text-foreground hover:text-primary"
-                                            }`}
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    )}
+                                <nav className="flex flex-1 flex-col items-center justify-center gap-8 px-8 text-center">
+                                    {links.map((link, i) => (
+                                        <motion.div key={i} variants={linkVariants}>
+                                            {link.isButton ? (
+                                                <Link
+                                                    href={link.href}
+                                                    onClick={() => setIsOpen(false)}
+                                                    className="inline-block rounded-2xl bg-primary px-10 py-4 text-xl font-black text-white shadow-lg shadow-primary/30 transition-all active:scale-95 hover:bg-primary/90"
+                                                >
+                                                    {link.label}
+                                                </Link>
+                                            ) : (
+                                                <Link
+                                                    href={link.href}
+                                                    onClick={() => setIsOpen(false)}
+                                                    className={`block text-3xl font-black tracking-tight transition-all active:scale-95 ${pathname === link.href || (link.href.startsWith("/#") && pathname === "/")
+                                                        ? "text-primary"
+                                                        : "text-foreground hover:text-primary"
+                                                        }`}
+                                                >
+                                                    {link.label}
+                                                </Link>
+                                            )}
+                                        </motion.div>
+                                    ))}
+                                </nav>
+
+                                <motion.div variants={linkVariants} className="flex items-center justify-center gap-6 border-t border-card-border px-6 py-5 text-sm font-medium text-muted-foreground">
+                                    <Link href="/blogs" onClick={() => setIsOpen(false)} className="hover:text-foreground">
+                                        Blog
+                                    </Link>
+                                    <Link href="/privacy" onClick={() => setIsOpen(false)} className="hover:text-foreground">
+                                        Privacy
+                                    </Link>
+                                    <Link href="/terms" onClick={() => setIsOpen(false)} className="hover:text-foreground">
+                                        Terms
+                                    </Link>
                                 </motion.div>
-                            ))}
-                        </nav>
-
-                        <motion.div variants={linkVariants} className="flex items-center justify-center gap-6 border-t border-card-border px-6 py-5 text-sm font-medium text-muted-foreground">
-                            <Link href="/blogs" onClick={() => setIsOpen(false)} className="hover:text-foreground">
-                                Blog
-                            </Link>
-                            <Link href="/privacy" onClick={() => setIsOpen(false)} className="hover:text-foreground">
-                                Privacy
-                            </Link>
-                            <Link href="/terms" onClick={() => setIsOpen(false)} className="hover:text-foreground">
-                                Terms
-                            </Link>
-                        </motion.div>
-                    </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>,
+                    document.body
                 )}
-            </AnimatePresence>
         </div>
     );
 }
