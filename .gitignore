@@ -16,6 +16,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# project-specific generated files
+debug_*.txt
+debug_*.js
+test_output*.txt
+models_list.*
+logs/
+
 # OS files
 .DS_Store
 Thumbs.db

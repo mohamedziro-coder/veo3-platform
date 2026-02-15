@@ -55,20 +55,16 @@ To run this project, you need to set up the following environment variables. Cop
 
 Run `node scripts/verify-full-env.js` to check if your environment is correctly configured.
 
+## Repository Cleanup
 
-## Configuration
+During development the project generates a number of log and debug files at the repository root (e.g. `debug_*.txt`, `test_output*.txt`, `models_list.txt`). These are not part of the application and are ignored by Git.
 
-To run this project, you need to set up the following environment variables. Copy `.env.example` to `.env.local` and fill in the values:
+A helper script is available to archive or remove them:
 
-- `GEMINI_API_KEY`: Your Google Gemini API Key.
-- `GOOGLE_PROJECT_ID`: Your Google Cloud Project ID.
-- `GOOGLE_LOCATION`: Google Cloud region (e.g., `us-central1`).
-- `GCS_BUCKET_NAME`: Google Cloud Storage bucket name for temporary images/videos.
-- `GOOGLE_APPLICATION_CREDENTIALS_JSON`: JSON content of your Service Account Key (for Veo/Vertex AI access).
-- `POSTGRES_URL`: Connection string for your Neon Database.
-- `RESEND_API_KEY`: (Optional) For email notifications.
+```bash
+npm run cleanup           # moves matching files into a `logs/` directory
+npm run cleanup -- --delete  # permanently deletes them instead
+```
 
-## Troubleshooting
-
-Run `node scripts/verify-full-env.js` to check if your environment is correctly configured.
+The `logs/` folder itself is gitignored so you can run the task freely.
 
