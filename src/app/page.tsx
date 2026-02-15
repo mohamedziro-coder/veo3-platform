@@ -22,7 +22,7 @@ export default function HomePage() {
     },
     {
       question: "How does the AI UGC Generator work?",
-      answer: "It's simple: just paste your product link. Our AI analyzes the page, identifies key selling points, writes a high-conversion script, and generates a polished video with a lifelike avatar—all in under a minute."
+      answer: "It's simple: just paste your product link. Our AI analyzes the page, identifies key selling points, writes a high-conversion script, and generates a polished video with a lifelike avatar, all in under a minute."
     },
     {
       question: "Do I have commercial rights to the videos?",
@@ -81,7 +81,7 @@ export default function HomePage() {
   ];
 
   return (
-    <main className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary">
+    <main className="min-h-screen text-foreground font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary">
       {/* FAQ Schema for SEO */}
       <script
         type="application/ld+json"
@@ -89,64 +89,65 @@ export default function HomePage() {
       />
 
       {/* 1. HERO SECTION (Scaled Up) */}
-      <section className="relative min-h-screen flex flex-col justify-center pt-32 pb-48 px-6 md:px-12 overflow-hidden">
+      <section className="relative min-h-screen flex flex-col justify-center pt-32 pb-40 px-6 md:px-12 overflow-hidden">
         {/* Subtle Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-          <div className="absolute -top-[20%] -right-[10%] w-[60vw] h-[60vw] bg-secondary/5 rounded-full blur-[150px]" />
-          <div className="absolute top-[20%] -left-[10%] w-[50vw] h-[50vw] bg-primary/5 rounded-full blur-[150px]" />
+          <div className="absolute -top-[26%] -right-[12%] w-[62vw] h-[62vw] bg-primary/10 rounded-full blur-[140px]" />
+          <div className="absolute top-[24%] -left-[14%] w-[55vw] h-[55vw] bg-secondary/10 rounded-full blur-[140px]" />
+          <div className="absolute bottom-[-20%] left-[35%] w-[45vw] h-[45vw] bg-accent/10 rounded-full blur-[140px]" />
         </div>
 
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="max-w-[1400px] mx-auto text-center space-y-12"
+          className="max-w-[1220px] mx-auto text-center space-y-12"
         >
           {/* Badge */}
           <motion.div variants={itemVariants} className="flex justify-center">
-            <span className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-primary/5 border border-primary/10 text-sm font-bold text-primary cursor-default hover:bg-primary/10 transition-colors uppercase tracking-[0.2em] backdrop-blur-sm">
+            <span className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full glass-panel text-sm font-bold text-primary cursor-default transition-colors uppercase tracking-[0.16em]">
               <Sparkles className="w-5 h-5 fill-current animate-pulse" />
-              <span>The Next Gen of AI Video</span>
+              <span>AI Video Platform</span>
             </span>
           </motion.div>
 
           {/* Headline (Grand & Immersive) */}
           <motion.h1
             variants={itemVariants}
-            className="text-6xl md:text-8xl lg:text-[8.5rem] font-black tracking-tight leading-[0.9] text-foreground"
+            className="text-5xl md:text-7xl lg:text-[7.3rem] font-black tracking-tight leading-[0.92] text-foreground"
           >
-            Create <span className="text-primary relative inline-block">
-              Viral Videos
+            Build <span className="text-primary relative inline-block">
+              Eye-Catching Videos
               <motion.svg
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
                 transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute w-full h-4 -bottom-2 left-0 text-secondary opacity-40" viewBox="0 0 100 10" preserveAspectRatio="none"
+                className="absolute w-full h-4 -bottom-2 left-0 text-secondary opacity-45" viewBox="0 0 100 10" preserveAspectRatio="none"
               >
                 <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="10" fill="none" />
               </motion.svg>
             </span> <br />
-            With Artificial Intelligence.
+            Without The Editing Headache.
           </motion.h1>
 
           <motion.p
             variants={itemVariants}
-            className="text-xl md:text-3xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium"
+            className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium"
           >
             Turn ideas into broadcast-quality content in seconds.
-            Realistic avatars, native multi-language voiceovers, and infinite creativity.
+            Realistic avatars, native multi-language voiceovers, and a workflow that feels fast.
           </motion.p>
 
           {/* CTAs (Scaled Up) */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 justify-center pt-10">
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-5 justify-center pt-8">
             <Link
               href="/signup"
-              className="px-12 py-6 rounded-2xl bg-primary text-white font-black text-xl hover:bg-blue-600 transition-all shadow-[0_0_40px_-10px_var(--color-primary)] flex items-center justify-center gap-3 transform hover:-translate-y-1 hover:scale-105 active:scale-95"
+              className="px-10 py-5 rounded-2xl bg-primary text-white font-black text-lg md:text-xl hover:bg-blue-600 transition-all shadow-[0_14px_38px_-14px_var(--color-primary)] flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:scale-95"
             >
               Start Creating Free
               <ArrowRight className="w-6 h-6" />
             </Link>
-            <button className="px-12 py-6 rounded-2xl bg-card-bg border border-card-border text-foreground font-black text-xl hover:bg-muted transition-all flex items-center justify-center gap-3 shadow-sm transform hover:-translate-y-1 active:scale-95">
+            <button className="px-10 py-5 rounded-2xl soft-card text-foreground font-black text-lg md:text-xl hover:bg-muted transition-all flex items-center justify-center gap-3 transform hover:-translate-y-0.5 active:scale-95">
               <Play className="w-6 h-6 text-primary fill-current" />
               Watch Demo
             </button>
@@ -155,15 +156,15 @@ export default function HomePage() {
       </section>
 
       {/* 2. STATS SECTION (Scaled Up Spacing) */}
-      <section className="py-48 px-6 bg-[#09090B] overflow-hidden border-y border-card-border">
+      <section className="py-28 px-6 overflow-hidden border-y border-card-border/80">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={staggerContainer}
-          className="max-w-[1400px] mx-auto"
+          className="max-w-[1200px] mx-auto"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { label: "Active users", value: "5,000+" },
               { label: "Creatives generated", value: "50,000+" },
@@ -173,12 +174,12 @@ export default function HomePage() {
               <motion.div
                 key={i}
                 variants={itemVariants}
-                className="p-12 rounded-[2.5rem] bg-white/[0.02] border border-white/5 flex flex-col items-center justify-center text-center group transition-all hover:bg-white/[0.05] hover:shadow-2xl hover:border-primary/20 backdrop-blur-xl"
+                className="soft-card p-8 md:p-9 rounded-[1.7rem] flex flex-col items-center justify-center text-center group transition-all hover:-translate-y-1 hover:border-primary/35"
               >
-                <span className="text-5xl md:text-7xl font-black text-primary mb-4 tracking-tighter">
+                <span className="text-4xl md:text-5xl font-black text-primary mb-3 tracking-tighter">
                   <Counter value={stat.value} />
                 </span>
-                <span className="text-sm font-black text-muted-foreground uppercase tracking-[0.25em]">{stat.label}</span>
+                <span className="text-xs md:text-sm font-black text-muted-foreground uppercase tracking-[0.18em]">{stat.label}</span>
               </motion.div>
             ))}
           </div>
@@ -195,3 +196,4 @@ export default function HomePage() {
     </main>
   );
 }
+

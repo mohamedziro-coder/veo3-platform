@@ -156,7 +156,7 @@ export default function Navigation() {
             <div className="fixed top-6 left-6 z-50">
                 <Link
                     href="/"
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-card-bg/80 border-card-border/50 text-muted-foreground hover:text-foreground transition-colors"
+                    className="glass-panel flex items-center gap-2 px-4 py-2 rounded-full text-muted-foreground hover:text-foreground transition-colors"
                 >
                     <Home className="w-4 h-4" />
                     <span>Back to Home</span>
@@ -169,38 +169,38 @@ export default function Navigation() {
     if (!isLoggedIn || isLandingPage) {
         return (
             <>
-                <div className="fixed top-0 inset-x-0 z-[999]">
-                    <div className="flex items-center justify-between px-6 py-10 md:px-12 max-w-[1400px] mx-auto">
-                        {/* Logo (Grand Scale) */}
-                        <div className="flex items-center gap-3 font-black text-2xl tracking-tighter">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white shadow-lg">
-                                <Sparkles className="w-6 h-6 fill-white" />
+                <div className="fixed top-0 inset-x-0 z-[999] bg-card-bg/70 backdrop-blur-xl border-b border-card-border/70">
+                    <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+                        {/* Logo (Standard Scale) */}
+                        <div className="flex items-center gap-2.5 font-bold text-xl tracking-tighter">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white shadow-md shadow-primary/30">
+                                <Sparkles className="w-5 h-5 fill-white" />
                             </div>
-                            <span>Virezo</span>
+                            <span className="text-foreground">Virezo</span>
                         </div>
 
-                        {/* Desktop Menu (Grand Scale) */}
-                        <div className="hidden md:flex items-center gap-12 text-base font-bold text-gray-600">
-                            <Link href="/#features" className="hover:text-gray-900 transition-colors">Features</Link>
-                            <Link href="/#how-it-works" className="hover:text-gray-900 transition-colors">How it Works</Link>
-                            <Link href="/blogs" className="hover:text-gray-900 transition-colors">Blog</Link>
-                            <Link href="/pricing" className="hover:text-gray-900 transition-colors">Pricing</Link>
+                        {/* Desktop Menu (Standard Scale) */}
+                        <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-muted-foreground">
+                            <Link href="/#features" className="hover:text-foreground transition-colors">Features</Link>
+                            <Link href="/#how-it-works" className="hover:text-foreground transition-colors">How it Works</Link>
+                            <Link href="/blogs" className="hover:text-foreground transition-colors">Blog</Link>
+                            <Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
                         </div>
 
-                        {/* Auth Buttons (Grand Scale) */}
-                        <div className="hidden md:flex items-center gap-6">
-                            <Link href="/login" className="text-base font-bold text-foreground hover:text-muted-foreground transition-colors">
+                        {/* Auth Buttons (Standard Scale) */}
+                        <div className="hidden md:flex items-center gap-4">
+                            <Link href="/login" className="text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors">
                                 Sign In
                             </Link>
                             <Link
                                 href="/signup"
-                                className="px-8 py-4 rounded-2xl bg-primary text-white text-base font-black hover:bg-primary/90 transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-primary/20"
+                                className="px-5 py-2 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-all shadow-md shadow-primary/25"
                             >
                                 Get Started
                             </Link>
                         </div>
 
-                        {/* Mobile Menu Toggle - Fixed to the right */}
+                        {/* Mobile Menu Toggle */}
                         <div className="md:hidden">
                             <MobileMenu
                                 isOpen={mobileMenuOpen}
@@ -226,7 +226,7 @@ export default function Navigation() {
             {/* Desktop Navigation (Top Pill) - Only show if Desktop */}
             {isDesktop && (
                 <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 items-center gap-4 w-full max-w-fit px-4 flex">
-                    <nav className="relative bg-card-bg/80 backdrop-blur-xl border border-card-border rounded-full p-1.5 flex items-center gap-1 shadow-lg ring-1 ring-white/10">
+                    <nav className="relative bg-card-bg/82 backdrop-blur-2xl border border-card-border rounded-full p-1.5 flex items-center gap-1 shadow-lg shadow-slate-900/10">
                         {appLinks.map((link) => {
                             const isActive = link.active;
 
@@ -236,18 +236,18 @@ export default function Navigation() {
                                     href={link.href}
                                     className={cn(
                                         "relative flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 z-10",
-                                        isActive ? "text-white" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                                        isActive ? "text-white" : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                                     )}
                                 >
                                     {isActive && (
                                         <motion.div
                                             layoutId="activeTabDesktop"
-                                            className="absolute inset-0 bg-primary rounded-full -z-10"
+                                            className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full -z-10"
                                             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                         />
                                     )}
 
-                                    <link.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-gray-500")} />
+                                    <link.icon className={cn("w-4 h-4", isActive ? "text-white" : "text-muted-foreground")} />
                                     <span className="font-medium text-sm tracking-wide">{link.label}</span>
                                 </Link>
                             );
@@ -256,7 +256,7 @@ export default function Navigation() {
 
                     {/* Desktop User Profile / Credits */}
                     <div className="flex items-center gap-2 pl-2">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs font-bold text-primary whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/25 text-xs font-bold text-primary whitespace-nowrap">
                             <Sparkles className="w-3 h-3" />
                             <span>{credits} <span>Credits</span></span>
                         </div>
@@ -265,7 +265,7 @@ export default function Navigation() {
                                 localStorage.removeItem('current_user');
                                 window.location.href = '/';
                             }}
-                            className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 hover:bg-red-500/20 transition-colors"
+                            className="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-500 hover:bg-rose-500/20 transition-colors"
                             title="Sign Out"
                         >
                             <LogOut className="w-4 h-4" />
@@ -279,14 +279,14 @@ export default function Navigation() {
                 <>
                     {/* Mobile Top Bar with Credits */}
                     <div className="fixed top-6 right-6 z-50">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-card-border text-xs font-bold text-foreground shadow-md">
+                        <div className="glass-panel flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-foreground">
                             <Sparkles className="w-3 h-3 text-primary" />
                             <span>{credits}</span>
                         </div>
                     </div>
 
                     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-sm">
-                        <nav className="relative bg-card-bg/90 backdrop-blur-2xl border border-card-border rounded-full p-2 flex items-center justify-between shadow-xl ring-1 ring-white/10">
+                        <nav className="relative bg-card-bg/92 backdrop-blur-2xl border border-card-border rounded-full p-2 flex items-center justify-between shadow-xl shadow-slate-900/20">
                             {appLinks.map((link) => {
                                 const isActive = link.active;
 
@@ -296,13 +296,13 @@ export default function Navigation() {
                                         href={link.href}
                                         className={cn(
                                             "relative flex flex-col items-center justify-center w-12 h-12 rounded-full transition-all duration-300 z-10",
-                                            isActive ? "text-white" : "text-gray-500 hover:text-gray-700"
+                                            isActive ? "text-white" : "text-muted-foreground hover:text-foreground"
                                         )}
                                     >
                                         {isActive && (
                                             <motion.div
                                                 layoutId="activeTabMobile"
-                                                className="absolute inset-0 bg-primary rounded-full -z-10"
+                                                className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full -z-10"
                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                             />
                                         )}
@@ -310,13 +310,13 @@ export default function Navigation() {
                                     </Link>
                                 );
                             })}
-                            <div className="w-px h-6 bg-gray-200 mx-1" />
+                            <div className="w-px h-6 bg-border mx-1" />
                             <button
                                 onClick={() => {
                                     localStorage.removeItem('current_user');
                                     window.location.href = '/';
                                 }}
-                                className="w-10 h-10 rounded-full flex items-center justify-center text-red-500 hover:bg-red-50 active:scale-95 transition-all"
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-rose-500 hover:bg-rose-500/10 active:scale-95 transition-all"
                             >
                                 <LogOut className="w-5 h-5" />
                             </button>
