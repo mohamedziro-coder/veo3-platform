@@ -65,7 +65,12 @@ export async function getUserByEmail(email: string): Promise<User | null> {
         `;
         const user = result[0] as User | undefined;
         if (!user) return null;
-        return { ...user, role: getEffectiveRole(user.email) };
+
+        // Allow DB role to persist, but override if matches Primary Admin
+        const isSuperAdmin = user.email.trim().toLowerCase() === getPrimaryAdminEmail();
+        const finalRole = isSuperAdmin ? 'admin' : user.role;
+
+        return { ...user, role: finalRole };
     } catch (error) {
         console.error('Error getting user:', error);
         return null;

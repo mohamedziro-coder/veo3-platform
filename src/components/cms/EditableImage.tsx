@@ -99,12 +99,51 @@ export default function EditableImage({
 
                 {isFocused && (
                     <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-                        <label className="text-white text-sm font-bold mb-2">Image URL</label>
+                        <label className="text-white text-sm font-bold mb-2">Image URL or Upload</label>
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+
+                                setIsSaving(true);
+                                try {
+                                    const userStr = localStorage.getItem('current_user');
+                                    const user = userStr ? JSON.parse(userStr) : {};
+
+                                    const formData = new FormData();
+                                    formData.append('file', file);
+                                    formData.append('email', user.email);
+
+                                    const res = await fetch('/api/upload', {
+                                        method: 'POST',
+                                        body: formData
+                                    });
+
+                                    if (!res.ok) throw new Error('Upload failed');
+
+                                    const data = await res.json();
+                                    setInputSrc(data.url);
+                                } catch (err) {
+                                    console.error(err);
+                                    alert("Upload failed. Ensure you are Admin.");
+                                } finally {
+                                    setIsSaving(false);
+                                }
+                            }}
+                            className="mb-4 text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary/90"
+                        />
+
+                        <div className="text-xs text-muted-foreground uppercase tracking-widest mb-2">OR PASTE URL</div>
+
                         <input
                             type="text"
                             value={inputSrc}
                             onChange={(e) => setInputSrc(e.target.value)}
                             className="w-full bg-card-bg/20 border border-white/20 rounded p-2 text-white text-sm mb-4 focus:outline-none focus:border-primary"
+                            placeholder="https://..."
                         />
                         <div className="flex gap-4">
                             <button
