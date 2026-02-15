@@ -5,12 +5,23 @@ import Navigation from "@/components/Navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Virezo 3 Video Generator",
-  description: "Generate premium UGC videos with Virezo 3 and Gemini",
+import { constructMetadata } from "@/lib/seo";
+
+export const metadata = constructMetadata({
+  title: "Virezo 3 - #1 AI Video Generator Platform",
+  description: "Create viral UGC videos, realistic avatars, and professional voiceovers in seconds. The most advanced AI video platform for creators and businesses.",
+  image: "/og-image.png", // Ensure this image exists in public folder
+});
+
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "white" },
+    { media: "(prefers-color-scheme: dark)", color: "black" },
+  ],
 };
 
 import Providers from "@/components/Providers";
+import JsonLd from "@/components/seo/JsonLd";
 import ScrollProgress from "@/components/ScrollProgress";
 
 import Footer from "@/components/Footer";
@@ -41,6 +52,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} bg-background text-foreground antialiased min-h-screen`}>
         <Providers>
+          <JsonLd />
           <ScrollProgress />
           <div className="fixed inset-0 -z-10 h-full w-full bg-background"></div>
           <Navigation />
