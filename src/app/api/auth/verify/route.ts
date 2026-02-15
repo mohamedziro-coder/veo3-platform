@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const PRIMARY_ADMIN_EMAIL = 'm.amine.elamraoui1@gmail.com';
+
+function getEffectiveRole(email: string): 'admin' | 'user' {
+    const allowedAdmin = (process.env.PRIMARY_ADMIN_EMAIL || PRIMARY_ADMIN_EMAIL).trim().toLowerCase();
+    return email.trim().toLowerCase() === allowedAdmin ? 'admin' : 'user';
+}
+
 export async function POST(req: NextRequest) {
     try {
         const { email, code } = await req.json();
@@ -53,7 +60,7 @@ export async function POST(req: NextRequest) {
                 id: verifiedUser.id,
                 name: verifiedUser.name,
                 email: verifiedUser.email,
-                role: verifiedUser.role,
+                role: getEffectiveRole(verifiedUser.email),
                 credits: verifiedUser.credits,
                 is_verified: true
             }

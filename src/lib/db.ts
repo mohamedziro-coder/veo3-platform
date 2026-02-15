@@ -9,6 +9,16 @@ function getDb() {
     return neon(process.env.POSTGRES_URL);
 }
 
+const PRIMARY_ADMIN_EMAIL = 'm.amine.elamraoui1@gmail.com';
+
+function getPrimaryAdminEmail(): string {
+    return (process.env.PRIMARY_ADMIN_EMAIL || PRIMARY_ADMIN_EMAIL).trim().toLowerCase();
+}
+
+function getEffectiveRole(email: string): 'admin' | 'user' {
+    return email.trim().toLowerCase() === getPrimaryAdminEmail() ? 'admin' : 'user';
+}
+
 // User types
 export interface User {
     id: number;
@@ -53,7 +63,9 @@ export async function getUserByEmail(email: string): Promise<User | null> {
             FROM users 
             WHERE LOWER(email) = ${emailLower}
         `;
-        return result[0] as User || null;
+        const user = result[0] as User | undefined;
+        if (!user) return null;
+        return { ...user, role: getEffectiveRole(user.email) };
     } catch (error) {
         console.error('Error getting user:', error);
         return null;
@@ -103,9 +115,8 @@ export async function createUser(name: string, email: string, password: string, 
         // Hash password
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // Determine role (admin if specific email or matches env var)
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@onlinetools.com';
-        const role = (emailLower === adminEmail.toLowerCase() || emailLower === 'admin@onlinetools.com') ? 'admin' : 'user';
+        // Determine role from the single allowed admin email.
+        const role = getEffectiveRole(emailLower);
 
         // Insert user
         // Try to insert with signup_ip. If it fails (e.g. column missing), fallback to old insert.
@@ -166,7 +177,13 @@ export async function verifyUser(email: string, password: string): Promise<Verif
 
         // Return user without password hash
         const { password_hash, is_verified, ...userWithoutPassword } = user;
-        return { ok: true, user: userWithoutPassword as User };
+        return {
+            ok: true,
+            user: {
+                ...(userWithoutPassword as User),
+                role: getEffectiveRole(userWithoutPassword.email)
+            }
+        };
     } catch (error) {
         console.error('Error verifying user:', error);
         return { ok: false, reason: 'invalid_credentials' };
@@ -182,7 +199,10 @@ export async function getAllUsers(): Promise<User[]> {
             FROM users 
             ORDER BY created_at DESC
         `;
-        return result as User[];
+        return (result as User[]).map((user) => ({
+            ...user,
+            role: getEffectiveRole(user.email)
+        }));
     } catch (error) {
         console.error('Error getting all users:', error);
         return [];
@@ -437,8 +457,8 @@ export async function deductUserCredits(email: string, amount: number): Promise<
 
         const user = userResult[0];
 
-        // Admin users have unlimited credits - don't deduct
-        if (user.role === 'admin') {
+        // Only the primary admin email has unlimited credits.
+        if (emailLower === getPrimaryAdminEmail()) {
             return user.credits; // Return current credits without deduction
         }
 
