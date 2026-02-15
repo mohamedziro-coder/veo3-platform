@@ -53,7 +53,7 @@ export async function GET() {
                     {
                         maxAgeSeconds: 3600,
                         method: ['GET', 'PUT', 'POST', 'OPTIONS'],
-                        origin: ['*'],
+                        origin: ['*', 'http://localhost:3000'], // Explicitly add localhost
                         responseHeader: ['Content-Type', 'Authorization', 'x-goog-resumable'],
                     },
                 ]);

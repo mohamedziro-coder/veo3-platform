@@ -133,11 +133,10 @@ export default function EditableImage({
                                     const { uploadUrl, publicUrl } = await signRes.json();
 
                                     // 2. Upload directly to GCS (Bypass Next.js server limits)
+                                    // Note: We don't send Content-Type header to avoid preflight strictness, 
+                                    // and we removed it from the signature.
                                     const uploadRes = await fetch(uploadUrl, {
                                         method: 'PUT',
-                                        headers: {
-                                            'Content-Type': file.type,
-                                        },
                                         body: file
                                     });
 

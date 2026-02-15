@@ -195,7 +195,7 @@ export async function getUploadUrl(filename: string, contentType: string): Promi
             version: 'v4',
             action: 'write',
             expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-            contentType,
+            // contentType, // Relaxed constraint to prevent CORS header mismatch
         });
 
         // Set the file to be publicly readable (optional, but good for CMS)
