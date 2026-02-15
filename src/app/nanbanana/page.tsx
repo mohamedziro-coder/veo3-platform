@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Sparkles, Download, Wand2 } from "lucide-react";
+import { Sparkles, Download, Wand2, Lightbulb, CheckCircle2 } from "lucide-react";
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 const GENERATION_COST = 0; // Free for now or updated later
 
@@ -35,6 +35,12 @@ export default function NanbananaPage() {
     }, []);
 
     const canAfford = currentCredits >= COSTS.IMAGE;
+    const promptIdeas = [
+        "Luxury perfume bottle on wet black stone, cinematic light, 8k product shot",
+        "Streetwear model in Casablanca medina, golden hour, editorial fashion photo",
+        "Minimalist tech desk setup, soft shadows, realistic texture, clean composition",
+        "Moroccan dessert table, warm tones, shallow depth of field, premium food style",
+    ];
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
@@ -192,6 +198,30 @@ export default function NanbananaPage() {
                 )}
             </motion.div>
 
+            <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-5 md:p-6"
+            >
+                <div className="flex items-center gap-2 mb-4 text-gray-900">
+                    <Lightbulb className="w-4 h-4 text-amber-500" />
+                    <h3 className="text-sm font-bold uppercase tracking-wider">Prompt Ideas</h3>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                    {promptIdeas.map((idea, idx) => (
+                        <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setPrompt(idea)}
+                            className="text-left rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-600 hover:border-primary/40 hover:bg-blue-50/50 transition-colors"
+                        >
+                            {idea}
+                        </button>
+                    ))}
+                </div>
+            </motion.div>
+
             {/* Loading State */}
             {isGenerating && (
                 <motion.div
@@ -254,6 +284,26 @@ export default function NanbananaPage() {
                     </div>
                 </motion.div>
             )}
+
+            <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                    <h4 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">For Better Results</h4>
+                    <ul className="space-y-2 text-sm text-gray-600">
+                        <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />Mention camera style (close-up, wide, portrait).</li>
+                        <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />Add lighting (soft light, sunset, studio).</li>
+                        <li className="flex items-start gap-2"><CheckCircle2 className="w-4 h-4 mt-0.5 text-green-600" />Specify quality keywords (realistic, ultra-detailed).</li>
+                    </ul>
+                </div>
+                <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                    <h4 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">Workflow</h4>
+                    <ul className="space-y-2 text-sm text-gray-600">
+                        <li>1. Write a precise prompt with subject + style.</li>
+                        <li>2. Generate 2-3 variants and compare quickly.</li>
+                        <li>3. Download best frame and use it in video flow.</li>
+                        <li>4. Reuse top prompts for campaign consistency.</li>
+                    </ul>
+                </div>
+            </div>
 
         </main>
     );

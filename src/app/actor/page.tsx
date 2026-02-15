@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ShieldCheck, ArrowLeft } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Film, Users, Wand2 } from "lucide-react";
 import Link from "next/link";
 import ActorLibrary from "@/components/ActorLibrary";
 
@@ -55,6 +55,41 @@ export default function ActorStudioPage() {
                     </div>
                 </div>
 
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 }}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10"
+                >
+                    <div className="rounded-2xl border border-card-border bg-card-bg/70 p-5">
+                        <div className="inline-flex items-center gap-2 text-primary font-semibold text-sm mb-2">
+                            <Users className="w-4 h-4" />
+                            Consistent Characters
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            Keep the same face and style across multiple videos so your brand looks stable.
+                        </p>
+                    </div>
+                    <div className="rounded-2xl border border-card-border bg-card-bg/70 p-5">
+                        <div className="inline-flex items-center gap-2 text-primary font-semibold text-sm mb-2">
+                            <Film className="w-4 h-4" />
+                            Faster Production
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            Save actors once, then reuse them in future projects without re-uploading each time.
+                        </p>
+                    </div>
+                    <div className="rounded-2xl border border-card-border bg-card-bg/70 p-5">
+                        <div className="inline-flex items-center gap-2 text-primary font-semibold text-sm mb-2">
+                            <Wand2 className="w-4 h-4" />
+                            Better Storytelling
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            Match each script with the right persona to improve trust and content performance.
+                        </p>
+                    </div>
+                </motion.div>
+
                 {/* Inline Actor Library */}
                 <ActorLibrary
                     isOpen={true}
@@ -66,6 +101,27 @@ export default function ActorStudioPage() {
                     }}
                     isInline={true}
                 />
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10 pb-16">
+                    <div className="rounded-2xl border border-card-border bg-card-bg/70 p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-3">How To Use Actor Studio</h3>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li>1. Upload a clear portrait with good lighting.</li>
+                            <li>2. Name your actor by niche (fitness, beauty, tech...).</li>
+                            <li>3. Reuse that actor in video pages for visual consistency.</li>
+                            <li>4. Keep 2-3 actor variants for different target audiences.</li>
+                        </ul>
+                    </div>
+                    <div className="rounded-2xl border border-card-border bg-card-bg/70 p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-3">Best Practices</h3>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li>Use close-up images with neutral background.</li>
+                            <li>Avoid sunglasses or heavy filters in source photos.</li>
+                            <li>Use the same actor per campaign to improve recognition.</li>
+                            <li>Refresh actor set every few months for new creatives.</li>
+                        </ul>
+                    </div>
+                </div>
 
             </div>
         </main>
