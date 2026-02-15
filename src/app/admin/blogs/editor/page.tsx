@@ -2,12 +2,13 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Save, Globe, Image as ImageIcon, Sparkles, Wand2 } from "lucide-react";
+import { ArrowLeft, Save, Image as ImageIcon, Sparkles, Wand2, Upload, Trash2 } from "lucide-react";
 
 function BlogEditor() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const blogId = searchParams.get('id');
+    const [fileInputKey, setFileInputKey] = useState(0);
 
     const [isLoading, setIsLoading] = useState(false);
     const [isOptimizing, setIsOptimizing] = useState(false);
@@ -232,6 +233,34 @@ function BlogEditor() {
         }
     };
 
+    const handleUploadCoverImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            alert("Please choose a valid image file.");
+            return;
+        }
+
+        const toBase64 = (selectedFile: File) =>
+            new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(selectedFile);
+            });
+
+        try {
+            const base64Image = await toBase64(file);
+            setFormData((prev) => ({ ...prev, cover_image: base64Image }));
+            // Reset input value so same file can be selected again if needed
+            setFileInputKey((prev) => prev + 1);
+        } catch (error) {
+            console.error("Image upload error:", error);
+            alert("Failed to process uploaded image.");
+        }
+    };
+
     if (isFetching) return <div className="min-h-screen flex items-center justify-center">Loading editor...</div>;
 
     return (
@@ -319,16 +348,9 @@ function BlogEditor() {
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
                                 <ImageIcon className="w-4 h-4" />
-                                Cover Image URL
+                                Cover Image
                             </label>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={formData.cover_image}
-                                    onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
-                                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
-                                    placeholder="https://..."
-                                />
+                            <div className="flex flex-wrap gap-2">
                                 <button
                                     type="button"
                                     onClick={() => setShowImageGenModal(true)}
@@ -337,6 +359,27 @@ function BlogEditor() {
                                     <Wand2 className="w-4 h-4" />
                                     Generate
                                 </button>
+                                <label className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-4 py-3 rounded-xl flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap border border-gray-200">
+                                    <Upload className="w-4 h-4" />
+                                    Upload
+                                    <input
+                                        key={fileInputKey}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleUploadCoverImage}
+                                        className="hidden"
+                                    />
+                                </label>
+                                {formData.cover_image && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, cover_image: "" })}
+                                        className="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-4 py-3 rounded-xl flex items-center gap-2 transition-colors border border-red-200 whitespace-nowrap"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                        Remove
+                                    </button>
+                                )}
                             </div>
                             {formData.cover_image && (
                                 <img src={formData.cover_image} alt="Preview" className="h-40 w-full object-cover rounded-xl mt-2 border border-gray-100" />
