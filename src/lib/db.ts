@@ -322,12 +322,40 @@ export async function setUserResetCode(email: string, code: string, expiryMinute
         const expiry = new Date();
         expiry.setMinutes(expiry.getMinutes() + expiryMinutes);
 
-        const result = await sql`
-            UPDATE users 
-            SET verification_token = ${normalizedCode}, reset_code_expiry = ${expiry} 
-            WHERE LOWER(email) = ${emailLower}
-            RETURNING id
-        `;
+        let result: any[] = [];
+        try {
+            result = await sql`
+                UPDATE users 
+                SET verification_token = ${normalizedCode}, reset_code_expiry = ${expiry} 
+                WHERE LOWER(email) = ${emailLower}
+                RETURNING id
+            `;
+        } catch (e: any) {
+            const msg = e?.message || '';
+            if (msg.includes('reset_code_expiry') || msg.includes('verification_token') || msg.includes('column') || msg.includes('does not exist')) {
+                // Auto-migrate missing auth/reset columns, then retry once.
+                await sql`
+                    DO $$ 
+                    BEGIN 
+                        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='verification_token') THEN 
+                            ALTER TABLE users ADD COLUMN verification_token TEXT; 
+                        END IF; 
+                        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='reset_code_expiry') THEN 
+                            ALTER TABLE users ADD COLUMN reset_code_expiry TIMESTAMP WITH TIME ZONE; 
+                        END IF; 
+                    END $$;
+                `;
+
+                result = await sql`
+                    UPDATE users 
+                    SET verification_token = ${normalizedCode}, reset_code_expiry = ${expiry} 
+                    WHERE LOWER(email) = ${emailLower}
+                    RETURNING id
+                `;
+            } else {
+                throw e;
+            }
+        }
 
         // Ensure a user row was actually updated
         return result.length > 0;
