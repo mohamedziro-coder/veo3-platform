@@ -214,6 +214,44 @@ export async function getUploadUrl(filename: string, contentType: string): Promi
 }
 
 /**
+ * Generate a V4 Signed URL for RESUMABLE upload (initiate session)
+ */
+export async function getResumableUploadUrl(filename: string): Promise<{ uploadUrl: string; publicUrl: string }> {
+    try {
+        const config = await getVertexConfigAsync();
+        const storage = new Storage({
+            credentials: config.GOOGLE_APPLICATION_CREDENTIALS_JSON
+                ? JSON.parse(config.GOOGLE_APPLICATION_CREDENTIALS_JSON)
+                : undefined
+        });
+
+        let bucketName = process.env.GCS_BUCKET_NAME || config.GCS_BUCKET_NAME;
+        if (!bucketName) throw new Error('GCS_BUCKET_NAME not configured');
+        bucketName = bucketName.replace(/^gs:\/\//, '').trim();
+
+        const bucket = storage.bucket(bucketName);
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substring(7);
+        const filePath = `cms-uploads/${timestamp}-${randomId}-${filename}`;
+        const file = bucket.file(filePath);
+
+        const [url] = await file.getSignedUrl({
+            version: 'v4',
+            action: 'resumable',
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+        });
+
+        return {
+            uploadUrl: url, // Client POSTs to this with x-goog-resumable: start
+            publicUrl: `https://storage.googleapis.com/${bucketName}/${filePath}`
+        };
+    } catch (error: any) {
+        console.error('[GCS] Failed to generate resumable URL:', error);
+        throw new Error(`Failed to generate resumable URL: ${error.message}`);
+    }
+}
+
+/**
  * Get public URL from GCS URI (converts gs:// to https://)
  */
 export function gcsUriToHttps(gcsUri: string): string {

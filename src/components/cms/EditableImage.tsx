@@ -114,8 +114,10 @@ export default function EditableImage({
                                     const userStr = localStorage.getItem('current_user');
                                     const user = userStr ? JSON.parse(userStr) : {};
 
-                                    // 1. Get Signed URL
-                                    const signRes = await fetch('/api/upload/sign', {
+                                    // 1. Get Signed URL (Resumable for >4MB, Simple for <4MB)
+                                    const endpoint = file.size > 4 * 1024 * 1024 ? '/api/upload/resumable' : '/api/upload/sign';
+
+                                    const signRes = await fetch(endpoint, {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({
@@ -132,16 +134,45 @@ export default function EditableImage({
 
                                     const { uploadUrl, publicUrl } = await signRes.json();
 
-                                    // 2. Upload directly to GCS (Bypass Next.js server limits)
-                                    // Note: We don't send Content-Type header to avoid preflight strictness, 
-                                    // and we removed it from the signature.
-                                    const uploadRes = await fetch(uploadUrl, {
-                                        method: 'PUT',
-                                        body: file
-                                    });
+                                    // Check file size for strategy
+                                    if (file.size > 4 * 1024 * 1024) {
+                                        // Large File: Use Resumable Upload (Bypasses 413 & CORS limits better)
+                                        // 1. Initiate Session
+                                        const initRes = await fetch(uploadUrl, {
+                                            method: 'POST',
+                                            headers: {
+                                                'x-goog-resumable': 'start'
+                                            }
+                                        });
 
-                                    if (!uploadRes.ok) {
-                                        throw new Error(`Direct upload failed: ${uploadRes.statusText}`);
+                                        if (!initRes.ok) throw new Error(`Resumable init failed: ${initRes.status}`);
+
+                                        const sessionUri = initRes.headers.get('location');
+                                        if (!sessionUri) throw new Error('No session URI from GCS');
+
+                                        // 2. Upload to Session URI using XHR for better large file handling
+                                        await new Promise<void>((resolve, reject) => {
+                                            const xhr = new XMLHttpRequest();
+                                            xhr.open('PUT', sessionUri);
+                                            xhr.onload = () => {
+                                                if (xhr.status >= 200 && xhr.status < 300) resolve();
+                                                else reject(new Error(`Upload failed: ${xhr.status}`));
+                                            };
+                                            xhr.onerror = () => reject(new Error('Network Error during upload'));
+                                            xhr.send(file);
+                                        });
+
+                                    } else {
+                                        // Small File: Direct PUT (Standard Signed URL)
+                                        // Note: We don't send Content-Type header to avoid preflight strictness
+                                        const uploadRes = await fetch(uploadUrl, {
+                                            method: 'PUT',
+                                            body: file
+                                        });
+
+                                        if (!uploadRes.ok) {
+                                            throw new Error(`Direct upload failed: ${uploadRes.statusText}`);
+                                        }
                                     }
 
                                     // 3. Update State
