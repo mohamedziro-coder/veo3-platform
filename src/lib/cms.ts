@@ -26,12 +26,39 @@ export async function upsertPageContent(slug: string, key: string, content: stri
 
     const sql = neon(process.env.POSTGRES_URL);
 
-    await sql`
+    try {
+        await sql`
         INSERT INTO page_content (slug, key, content, type)
         VALUES (${slug}, ${key}, ${content}, ${type})
         ON CONFLICT (slug, key) 
         DO UPDATE SET content = ${content}, updated_at = NOW();
      `;
+    } catch (e: any) {
+        // If table doesn't exist (Postgres error 42P01), create it and retry
+        if (e.code === '42P01' || e.message.includes('page_content" does not exist')) {
+            console.log("Creating missing page_content table...");
+            await sql`
+                CREATE TABLE IF NOT EXISTS page_content (
+                    id SERIAL PRIMARY KEY,
+                    slug TEXT NOT NULL,
+                    key TEXT NOT NULL,
+                    content TEXT,
+                    type TEXT DEFAULT 'text',
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(slug, key)
+                );
+            `;
+            // Retry upsert
+            await sql`
+                INSERT INTO page_content (slug, key, content, type)
+                VALUES (${slug}, ${key}, ${content}, ${type})
+                ON CONFLICT (slug, key) 
+                DO UPDATE SET content = ${content}, updated_at = NOW();
+             `;
+        } else {
+            throw e;
+        }
+    }
 
     return true;
 }
