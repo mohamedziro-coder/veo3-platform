@@ -148,8 +148,28 @@ export default function EditableImage({
                                     setInputSrc(publicUrl);
 
                                 } catch (err: any) {
-                                    console.error(err);
-                                    alert(`Upload Error: ${err.message}`);
+                                    console.error("GCS Upload Failed, trying Base64 fallback...", err);
+
+                                    // Fallback: Convert to Base64 and save directly to DB
+                                    // This bypasses GCS/CORS entirely for smaller images (< 4MB)
+                                    try {
+                                        const reader = new FileReader();
+                                        reader.onload = async () => {
+                                            const base64 = reader.result as string;
+                                            if (base64.length > 4 * 1024 * 1024) {
+                                                alert(`Upload Error: File too large for database fallback (${(base64.length / 1024 / 1024).toFixed(2)}MB > 4MB). fix CORS to upload larger files.`);
+                                                setIsSaving(false);
+                                                return;
+                                            }
+                                            setInputSrc(base64);
+                                            // Auto-save will happen when user clicks Save, or we can trigger it:
+                                            // But here we just set inputSrc, user still needs to click Save.
+                                            // To match previous behavior where upload = set, this is fine.
+                                        };
+                                        reader.readAsDataURL(file);
+                                    } catch (fallbackErr) {
+                                        alert(`Upload Error: ${err.message}`);
+                                    }
                                 } finally {
                                     setIsSaving(false);
                                 }
