@@ -17,7 +17,7 @@ export default function Navbar() {
           <span>Virezo</span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8 text-base font-bold text-gray-400">
+        <div className="hidden md:flex items-center gap-8 text-base font-bold text-gray-600">
           <Link href="#features" className="hover:text-white transition-colors">
             Features
           </Link>
@@ -38,13 +38,13 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <Link
             href="/login"
-            className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
+            className="text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
           >
             Sign in
           </Link>
           <Link
             href="/signup"
-            className="px-6 py-2 rounded-2xl bg-primary text-white font-black text-sm hover:bg-primary/90 transition-all"
+            className="px-6 py-2 rounded-2xl bg-primary/90 text-white font-black text-sm hover:bg-primary/70 transition-all"
           >
             Get Started
           </Link>

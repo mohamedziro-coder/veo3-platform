@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 md:px-12 bg-gradient-to-br from-primary to-secondary">
+    <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 md:px-12 bg-gradient-to-br from-primary/80 to-secondary/80">
       <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-tight text-white max-w-3xl">
         Create <span className="text-secondary">Viral Videos</span> with AI
       </h1>

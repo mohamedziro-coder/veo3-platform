@@ -2,20 +2,27 @@
 
 :root {
   /* Clean / SaaS Palette (Light Mode Tokens) - Scaled Up */
-  --background: #FFFFFF;
-  --foreground: #1A1A1A;
+  /* soft off-white background instead of pure white reduces glare */
+  --background: #F9FAFB;
+  --foreground: #333333; /* slightly muted black for comfortable reading */
 
-  --primary: #4A90E2;
+  /* electric violet primary for accent keeps the energy but isn’t harsh */
+  --primary: #6B0F9C;
   --secondary: #50E3C2;
   --accent: #F8E71C;
 
-  --muted: #F5F5F5;
-  --muted-foreground: #333333;
+  --muted: #F3F4F6; /* gentle gray for surfaces */
+  --muted-foreground: #4B5563;
 
-  --border: #E5E5E5;
+  /* softer border color */
+  --border: #D1D5DB;
+
+  /* link and interactive colours for comfortable reading */
+  --link-color: var(--primary);
+  --link-hover: #502e8c;
 
   --card-bg: #FFFFFF;
-  --card-border: #E5E5E5;
+  --card-border: #D1D5DB;
 
   /* Theme Aliases */
   --bg-color: var(--background);
@@ -104,6 +111,20 @@ body {
   line-height: var(--leading-normal);
   overflow-x: hidden;
   transition: background-color var(--theme-transition), color var(--theme-transition);
+}
+
+/* comfortable link colours */
+a,
+a button {
+  color: var(--link-color, var(--primary));
+  text-decoration: none;
+  transition: color var(--theme-transition), opacity .2s;
+}
+a:hover,
+a:focus,
+button:hover {
+  color: var(--link-hover, #502e8c);
+  opacity: .8;
 }
 
 /* Force sections to respect theme background */
