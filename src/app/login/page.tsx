@@ -210,6 +210,35 @@ export default function LoginPage() {
                             </p>
                         </div>
                     </motion.div>
+
+                    {/* --- NEW TRUST & HELP SECTIONS --- */}
+                    <div className="mt-16 max-w-4xl text-center">
+                        <div className="flex flex-col md:flex-row justify-center gap-12 text-muted-foreground opacity-70">
+                            <div className="flex items-center justify-center gap-2">
+                                <span className="text-xl">🔒</span>
+                                <span className="text-sm font-medium">Bank-level 256-bit Encryption</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                                <span className="text-xl">🛡️</span>
+                                <span className="text-sm font-medium">SOC-2 Type II Compliant</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                                <span className="text-xl">🇪🇺</span>
+                                <span className="text-sm font-medium">GDPR Ready</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-12 pt-12 border-t border-card-border/50">
+                            <h3 className="text-lg font-bold text-foreground mb-4">Having trouble?</h3>
+                            <div className="flex justify-center gap-6 text-sm">
+                                <Link href="/forgot-password" className="text-muted-foreground hover:text-primary transition-colors">Reset Password</Link>
+                                <span className="text-muted-foreground/30">•</span>
+                                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact Support</Link>
+                                <span className="text-muted-foreground/30">•</span>
+                                <Link href="/status" className="text-muted-foreground hover:text-primary transition-colors">System Status</Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

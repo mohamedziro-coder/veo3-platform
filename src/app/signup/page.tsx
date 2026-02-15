@@ -259,6 +259,30 @@ export default function SignupPage() {
                             </p>
                         </div>
                     </motion.div>
+
+                    {/* --- NEW TRUST & HELP SECTIONS --- */}
+                    <div className="mt-16 max-w-4xl text-center">
+                        <div className="flex flex-col md:flex-row justify-center gap-12 text-muted-foreground opacity-70">
+                            <div className="flex items-center justify-center gap-2">
+                                <span className="text-xl">✨</span>
+                                <span className="text-sm font-medium">Join 50,000+ Creators</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                                <span className="text-xl">💳</span>
+                                <span className="text-sm font-medium">No Credit Card Required</span>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                                <span className="text-xl">🚀</span>
+                                <span className="text-sm font-medium">Instant Access</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-12 pt-12 border-t border-card-border/50">
+                            <p className="text-sm text-muted-foreground">
+                                By signing up, you agree to our <Link href="/terms" className="underline hover:text-primary">Terms</Link> and <Link href="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>

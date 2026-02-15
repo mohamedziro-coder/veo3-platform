@@ -191,6 +191,96 @@ export default function HomePage() {
       <HowItWorks itemVariants={itemVariants} staggerContainer={staggerContainer} />
       <Demos demos={demos} />
       <Testimonials itemVariants={itemVariants} staggerContainer={staggerContainer} />
+
+      {/* --- NEW TRUST & COMPARISON SECTIONS --- */}
+
+      {/* 1. Comparison Table (Us vs Them) */}
+      <section className="py-24 px-6 relative overflow-hidden bg-gradient-to-b from-transparent to-primary/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black text-foreground mb-6">Why Creators Switch to Virezo</h2>
+            <p className="text-xl text-muted-foreground">Stop wasting hours on traditional editing.</p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr className="border-b border-card-border">
+                  <th className="p-6 text-lg font-bold text-muted-foreground">Feature</th>
+                  <th className="p-6 text-xl font-black text-primary bg-primary/5 rounded-t-2xl">Virezo AI</th>
+                  <th className="p-6 text-lg font-bold text-muted-foreground">Traditional Editors</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { feature: "Production Time", us: "Minutes", them: "Days or Weeks" },
+                  { feature: "Cost per Video", us: "< $5", them: "$500+" },
+                  { feature: "Actor Availability", us: "24/7 Digital Actors", them: "Scheduling Nightmares" },
+                  { feature: "Language Support", us: "30+ Instant Dubs", them: "Manual Translation" },
+                  { feature: "Scalability", us: "Infinite", them: "Limited by Humans" }
+                ].map((row, i) => (
+                  <tr key={i} className="border-b border-card-border last:border-0 hover:bg-white/50 transition-colors">
+                    <td className="p-6 font-medium text-foreground">{row.feature}</td>
+                    <td className="p-6 font-bold text-primary bg-primary/5">{row.us}</td>
+                    <td className="p-6 text-muted-foreground">{row.them}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Security & Privacy (EU Focus) */}
+      <section className="py-24 px-6">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-green-100 text-green-700 text-sm font-bold mb-6">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              GDPR Compliant
+            </div>
+            <h2 className="text-4xl font-black text-foreground mb-6">Enterprise-Grade Security</h2>
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+              Your data is safe with us. We adhere to strict EU data protection laws, ensuring your video content and personal information are encrypted and never shared.
+            </p>
+            <ul className="space-y-4">
+              {[
+                "SOC-2 Type II Certified Infrastructure",
+                "End-to-End Encryption (AES-256)",
+                "Data Residency Options (EU/US)",
+                "Strict Access Controls"
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-foreground font-medium">
+                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs">✓</div>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-card-bg border border-card-border p-8 rounded-[2.5rem] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -z-10" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-6 bg-background rounded-2xl border border-card-border">
+                <div className="text-3xl mb-2">🔒</div>
+                <div className="font-bold">Secure</div>
+              </div>
+              <div className="p-6 bg-background rounded-2xl border border-card-border">
+                <div className="text-3xl mb-2">🇪🇺</div>
+                <div className="font-bold">EU Hosted</div>
+              </div>
+              <div className="p-6 bg-background rounded-2xl border border-card-border">
+                <div className="text-3xl mb-2">⚡</div>
+                <div className="font-bold">Fast</div>
+              </div>
+              <div className="p-6 bg-background rounded-2xl border border-card-border">
+                <div className="text-3xl mb-2">👤</div>
+                <div className="font-bold">Private</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <FAQ faqs={faqs} itemVariants={itemVariants} staggerContainer={staggerContainer} />
       <FinalCTA itemVariants={itemVariants} staggerContainer={staggerContainer} />
     </main>
