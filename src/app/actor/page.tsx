@@ -206,3 +206,7 @@ export default function ActorStudioPage() {
                     </div>
 
                 </div>
+            </div>
+        </main>
+    );
+}
