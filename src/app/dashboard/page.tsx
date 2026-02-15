@@ -11,14 +11,17 @@ import Modal from "@/components/Modal";
 
 export default function Dashboard() {
     const router = useRouter();
+    const SUPPORT_PHONE = "212718502063";
 
     // All hooks must be declared BEFORE any conditional return
     const [isAdmin, setIsAdmin] = useState(false);
     const [userName, setUserName] = useState("Creator");
+    const [userEmail, setUserEmail] = useState("");
     const [activities, setActivities] = useState<any[]>([]);
     const [generationCount, setGenerationCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedActivity, setSelectedActivity] = useState<any>(null);
+    const [showFreeCreditsPopup, setShowFreeCreditsPopup] = useState(false);
 
     // Download handler function
     const handleDownload = async (url: string, filename: string) => {
@@ -61,6 +64,13 @@ export default function Dashboard() {
                 const user = JSON.parse(userStr);
                 setUserName(user.name || "Creator");
                 setIsAdmin(user.role === 'admin');
+                setUserEmail(user.email || "");
+
+                // Show free 50 credits activation popup once per browser
+                const freePopupSeen = localStorage.getItem('free_50_popup_seen');
+                if (!freePopupSeen && user?.email) {
+                    setShowFreeCreditsPopup(true);
+                }
 
                 // Fetch User Activity from Database
                 const activityResponse = await fetch(`/api/activity?email=${encodeURIComponent(user.email)}`);
@@ -174,8 +184,22 @@ export default function Dashboard() {
 
     const displayTools = isAdmin ? [...tools, adminTool] : tools;
 
+    const openFreeCreditsWhatsapp = () => {
+        const msg = [
+            "Hello Virezo Support,",
+            "",
+            "I want to activate my FREE 50 credits welcome pack.",
+            userEmail ? `My account email: ${userEmail}` : "",
+        ].filter(Boolean).join("\n");
+
+        const url = `https://wa.me/${SUPPORT_PHONE}?text=${encodeURIComponent(msg)}`;
+        window.open(url, "_blank", "noopener,noreferrer");
+        localStorage.setItem('free_50_popup_seen', '1');
+        setShowFreeCreditsPopup(false);
+    };
+
     return (
-        <main className="min-h-screen bg-gray-50 text-gray-900 pt-24 px-6 relative overflow-hidden">
+        <main className="min-h-screen bg-gray-50 text-gray-900 pt-24 pb-36 md:pb-12 px-6 relative overflow-hidden">
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none">
                 <motion.div
@@ -312,6 +336,43 @@ export default function Dashboard() {
                     </div>
                 </motion.div>
             </motion.div>
+
+            {showFreeCreditsPopup && (
+                <div className="fixed inset-0 z-[12000] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
+                    <div className="w-full max-w-lg rounded-3xl border border-card-border bg-card-bg p-7 md:p-8 shadow-2xl">
+                        <h3 className="text-2xl font-black text-foreground mb-2">Free 50 Credits Gift</h3>
+                        <p className="text-muted-foreground mb-5">
+                            Welcome! To activate your free 50 credits, contact support on WhatsApp and send your account email.
+                        </p>
+
+                        <div className="rounded-2xl border border-card-border bg-muted/50 p-4 mb-6">
+                            <p className="text-sm text-muted-foreground mb-2">Support WhatsApp</p>
+                            <p className="text-lg font-black text-foreground">+212 718 502 063</p>
+                            {userEmail && <p className="text-sm text-muted-foreground mt-2">Email: {userEmail}</p>}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <button
+                                type="button"
+                                onClick={openFreeCreditsWhatsapp}
+                                className="flex-1 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold py-3"
+                            >
+                                Activate on WhatsApp
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    localStorage.setItem('free_50_popup_seen', '1');
+                                    setShowFreeCreditsPopup(false);
+                                }}
+                                className="flex-1 rounded-xl border border-card-border text-foreground font-bold py-3 hover:bg-muted"
+                            >
+                                Later
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Activity Details Modal */}
             <Modal

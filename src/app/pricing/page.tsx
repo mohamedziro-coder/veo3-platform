@@ -17,6 +17,22 @@ type Plan = {
 
 const PLANS: Plan[] = [
     {
+        id: "free_credits",
+        name: "Free Welcome Pack",
+        price: "Free",
+        credits: 50,
+        description: "New users can activate 50 free credits via support.",
+        features: [
+            "50 Free One-Time Credits",
+            "For newly registered users",
+            "Activation via WhatsApp support",
+            "Send your account email to activate",
+            "No payment required",
+        ],
+        cta: "Activate Free 50 Credits",
+        popular: false,
+    },
+    {
         id: "starter_credits",
         name: "Starter Pack",
         price: "$9",
@@ -127,7 +143,7 @@ export default function PricingPage() {
                         Buy Credits, <br className="hidden md:block" /> No Subscription
                     </h1>
                     <p className="text-xl md:text-3xl text-muted-foreground max-w-4xl mx-auto leading-relaxed font-medium">
-                        Choose your credits pack, then contact support on WhatsApp to complete payment and activation.
+                        Choose your credits pack. You can also activate a free 50-credit welcome pack via WhatsApp support.
                     </p>
                 </div>
 
@@ -230,4 +246,3 @@ export default function PricingPage() {
         </main>
     );
 }
-
