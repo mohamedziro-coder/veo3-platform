@@ -152,9 +152,9 @@ export default function Dashboard() {
             color: "purple"
         },
         {
-            title: "Nanbanana Image",
+            title: "Nanobanana Image",
             desc: "Generate ultra-realistic images with Gemini 2.5 Flash.",
-            href: "/nanbanana",
+            href: "/nanobanana",
             icon: ImageIcon,
             color: "yellow"
         },

@@ -67,7 +67,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                 alert("Generation failed: " + (data.error || "Unknown error"));
             }
         } catch (e) {
-            alert("Failed to connect to Nanbanana API");
+            alert("Failed to connect to Nanobanana API");
         } finally {
             setIsGenerating(false);
         }
@@ -99,7 +99,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
         if (!generatedImage) return;
         const link = document.createElement('a');
         link.href = generatedImage;
-        link.download = `nanbanana-remix-${Date.now()}.png`;
+        link.download = `nanobanana-remix-${Date.now()}.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -213,7 +213,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                                 <button
                                     onClick={(e) => handleEditClick(actor, e)}
                                     className="p-3 rounded-xl bg-gray-100 text-gray-500 hover:bg-accent hover:text-black transition-all"
-                                    title="Remix with Nanbanana"
+                                    title="Remix with Nanobanana"
                                 >
                                     <Edit2 className="w-4 h-4" />
                                 </button>
@@ -235,7 +235,7 @@ export default function ActorLibrary({ isOpen, onClose, onSelect, isInline = fal
                                 {/* Left: Preview */}
                                 <div className="flex-1 space-y-4">
                                     <h3 className="text-2xl font-bold flex items-center gap-2 text-gray-900">
-                                        <span className="text-secondary">Nanbanana</span> Studio
+                                        <span className="text-secondary">Nanobanana</span> Studio
                                     </h3>
                                     <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 relative group">
                                         <img

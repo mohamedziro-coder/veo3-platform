@@ -8,7 +8,7 @@ import { Sparkles, Download, Wand2, Lightbulb, CheckCircle2 } from "lucide-react
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 const GENERATION_COST = 0; // Free for now or updated later
 
-export default function NanbananaPage() {
+export default function NanobananaPage() {
     const router = useRouter();
 
     // All hooks must be declared BEFORE any conditional return
@@ -67,7 +67,7 @@ export default function NanbananaPage() {
         // Re-check credits at moment of generation to be safe
         const freshCredits = getUserCredits();
         if (freshCredits < COSTS.IMAGE) {
-            setError(`Ma3andekch credits kafin (${freshCredits} available, ${COSTS.IMAGE} required)`);
+            setError(`Insufficient credits (${freshCredits} available, ${COSTS.IMAGE} required)`);
             return;
         }
 
@@ -151,10 +151,10 @@ export default function NanbananaPage() {
                     </span>
                 </div>
                 <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-gray-900 drop-shadow-sm">
-                    Nanbanana 2.5
+                    Nanobanana 2.5
                 </h1>
                 <p className="text-gray-500 max-w-lg mx-auto text-base md:text-lg">
-                    Sawb tsawar khayaliya b jowda 3aliya.
+                    Generate high-quality creative images in seconds.
                     <br />
                     <span className="text-sm opacity-60">(Powered by Imagen 3 - Vertex AI)</span>
                 </p>
@@ -169,7 +169,7 @@ export default function NanbananaPage() {
             >
                 <div className="relative group">
                     <textarea
-                        placeholder="Wsef taswira li bghiti... (Matalan: 'Un chat cyberpunk dans une ville néon au Maroc')"
+                        placeholder="Describe the image you want... (e.g., 'A cyberpunk cat in a neon city in Morocco')"
                         value={prompt}
                         onChange={(e) => setPrompt(e.target.value)}
                         className="relative w-full px-6 py-6 rounded-2xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-lg resize-none min-h-[120px] shadow-sm"
@@ -182,11 +182,11 @@ export default function NanbananaPage() {
                     className="w-full py-5 rounded-2xl bg-gradient-to-r from-yellow-600 to-orange-600 font-bold text-white text-xl shadow-xl shadow-orange-900/20 hover:shadow-orange-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3"
                 >
                     {isGenerating ? (
-                        "Keyrsem..."
+                        "Generating..."
                     ) : (
                         <>
                             <Wand2 className="w-6 h-6" />
-                            Générer (Sawb) - {COSTS.IMAGE} Credits
+                            Generate Image - {COSTS.IMAGE} Credits
                         </>
                     )}
                 </button>
@@ -232,8 +232,8 @@ export default function NanbananaPage() {
                     <div className="relative rounded-3xl overflow-hidden border border-gray-200 shadow-xl bg-white aspect-[4/3] flex flex-col items-center justify-center gap-4">
                         <div className="absolute inset-0 bg-gray-50 animate-pulse" />
                         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin relative z-10" />
-                        <p className="text-gray-900 font-bold text-lg animate-pulse relative z-10">Keyrsem f'tasswira dyalk...</p>
-                        <p className="text-gray-500 text-sm relative z-10">Katakhod ta9riban 5-10 tawani</p>
+                        <p className="text-gray-900 font-bold text-lg animate-pulse relative z-10">Generating your image...</p>
+                        <p className="text-gray-500 text-sm relative z-10">This usually takes around 5-10 seconds</p>
                     </div>
                 </motion.div>
             )}
@@ -278,7 +278,7 @@ export default function NanbananaPage() {
                                 className="flex items-center gap-2 bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors"
                             >
                                 <Download className="w-4 h-4" />
-                                Telecharger
+                                Download
                             </button>
                         </div>
                     </div>

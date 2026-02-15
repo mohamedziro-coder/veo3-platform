@@ -131,10 +131,10 @@ export default function Navigation() {
             active: pathname === "/video",
         },
         {
-            href: "/nanbanana",
+            href: "/nanobanana",
             label: "Image",
             icon: ImageIcon,
-            active: pathname === "/nanbanana",
+            active: pathname === "/nanobanana",
         },
         {
             href: "/voice",
