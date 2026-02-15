@@ -151,8 +151,10 @@ export default function EditableImage({
                                             }
                                         }
 
-                                        // Success for all chunks
+                                        // Success for all chunks - update display and close overlay
                                         setInputSrc(base64);
+                                        setCurrentSrc(base64);
+                                        setIsFocused(false);
                                     };
                                     reader.readAsDataURL(file);
                                 } catch (err: any) {
