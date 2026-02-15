@@ -114,49 +114,62 @@ export default function EditableImage({
 
                                 setIsSaving(true);
                                 try {
-                                    const reader = new FileReader();
-                                    reader.onload = async () => {
-                                        const base64 = reader.result as string;
+                                    const userStr = localStorage.getItem('current_user');
+                                    const user = userStr ? JSON.parse(userStr) : {};
 
-                                        // Chunked Upload Strategy to bypass 4MB Vercel/Next.js limit
-                                        // We split the base64 string into 1MB chunks and send them sequentially
-                                        const CHUNK_SIZE = 1 * 1024 * 1024; // 1MB chunks
-                                        const totalChunks = Math.ceil(base64.length / CHUNK_SIZE);
+                                    // Step 1: Get signed upload URL from server
+                                    const signRes = await fetch('/api/upload/cms-image', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            filename: file.name,
+                                            contentType: file.type,
+                                            email: user.email
+                                        })
+                                    });
 
-                                        const userStr = localStorage.getItem('current_user');
-                                        const user = userStr ? JSON.parse(userStr) : {};
+                                    if (!signRes.ok) {
+                                        const err = await signRes.json().catch(() => ({}));
+                                        throw new Error(err.error || 'Failed to get upload URL');
+                                    }
 
-                                        // Loop through chunks
-                                        for (let i = 0; i < totalChunks; i++) {
-                                            const start = i * CHUNK_SIZE;
-                                            const end = Math.min(base64.length, start + CHUNK_SIZE);
-                                            const chunk = base64.substring(start, end);
+                                    const { uploadUrl, publicUrl } = await signRes.json();
 
-                                            const res = await fetch('/api/content', {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                body: JSON.stringify({
-                                                    slug,
-                                                    key: id,
-                                                    content: chunk,
-                                                    type: 'image',
-                                                    email: user.email,
-                                                    chunkIndex: i // 0 = new/overwrite, >0 = append
-                                                })
-                                            });
-
-                                            if (!res.ok) {
-                                                const err = await res.json().catch(() => ({}));
-                                                throw new Error(err.error || `Upload failed at chunk ${i + 1}/${totalChunks}`);
-                                            }
+                                    // Step 2: Upload file directly to GCS
+                                    const uploadRes = await fetch(uploadUrl, {
+                                        method: 'PUT',
+                                        body: file,
+                                        headers: {
+                                            'Content-Type': file.type,
                                         }
+                                    });
 
-                                        // Success for all chunks - update display and close overlay
-                                        setInputSrc(base64);
-                                        setCurrentSrc(base64);
-                                        setIsFocused(false);
-                                    };
-                                    reader.readAsDataURL(file);
+                                    if (!uploadRes.ok) {
+                                        throw new Error(`Upload to GCS failed: ${uploadRes.statusText}`);
+                                    }
+
+                                    // Step 3: Save public URL to database
+                                    const saveRes = await fetch('/api/content', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            slug,
+                                            key: id,
+                                            content: publicUrl,
+                                            type: 'image',
+                                            email: user.email
+                                        })
+                                    });
+
+                                    if (!saveRes.ok) {
+                                        const err = await saveRes.json().catch(() => ({}));
+                                        throw new Error(err.error || 'Failed to save URL to database');
+                                    }
+
+                                    // Success - update display
+                                    setInputSrc(publicUrl);
+                                    setCurrentSrc(publicUrl);
+                                    setIsFocused(false);
                                 } catch (err: any) {
                                     console.error("Upload Failed", err);
                                     alert(`Upload Failed: ${err.message}`);
