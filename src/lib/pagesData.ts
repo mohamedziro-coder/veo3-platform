@@ -139,13 +139,16 @@ export const pagesData: Record<string, PageContent> = {
     // COMPANY
     "about": {
         title: "About Virezo",
-        subtitle: "We're on a mission to democratize broadcast-quality video production for everyone.",
+        subtitle: "Virezo helps creators, brands, and agencies produce high-performing AI video content at scale. We combine automation, creative strategy, and reliable infrastructure so teams can move from idea to publish-ready assets in minutes.",
         cta: "Join Our Journey",
         visualType: "orb",
         features: [
-            { icon: Target, title: "Our Vision", description: "A world where creativity isn't limited by production budgets." },
-            { icon: Rocket, title: "The Team", description: "Built by media buyers and AI researchers who know what works." },
-            { icon: Globe, title: "Global Presence", description: "Supporting creators in over 100 countries across the globe." }
+            { icon: Target, title: "Our Vision", description: "A world where creative quality is never blocked by budget, team size, or production timelines." },
+            { icon: Rocket, title: "Built for Speed", description: "From script to final asset in a single workflow, reducing launch time from days to minutes." },
+            { icon: Users, title: "Operator-Led Team", description: "Designed by performance marketers, creators, and AI engineers focused on real campaign outcomes." },
+            { icon: BarChart3, title: "Performance Mindset", description: "Every feature is built to support testing velocity, conversion lift, and stronger ROAS." },
+            { icon: ShieldCheck, title: "Reliable Platform", description: "Secure infrastructure, stable generation pipelines, and predictable output quality for daily production." },
+            { icon: Globe, title: "Global Reach", description: "Trusted by users across multiple regions, with multilingual workflows for international campaigns." }
         ]
     },
     "mission": {
