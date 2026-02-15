@@ -1,5 +1,5 @@
 import { Storage } from '@google-cloud/storage';
-import { getVertexConfigAsync } from './config';
+import { getVertexConfigAsync } from '@/lib/config';
 
 /**
  * Upload base64 image to Google Cloud Storage
