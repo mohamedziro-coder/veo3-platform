@@ -41,7 +41,7 @@ export default function DynamicAntigravityPage({ params }: { params: Promise<{ s
     const VisualIcon = content.features[0].icon;
 
     return (
-        <main className="min-h-screen bg-[#0A0A0B] text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary relative">
+        <main className="min-h-screen bg-background text-foreground font-sans overflow-hidden selection:bg-primary/20 selection:text-primary relative">
             {/* 1. ANTIGRAVITY ATMOSPHERE (Pulsing Glow Orbs) */}
             <div className="fixed inset-0 pointer-events-none -z-10">
                 <motion.div
@@ -86,21 +86,21 @@ export default function DynamicAntigravityPage({ params }: { params: Promise<{ s
                         animate="visible"
                         className="space-y-12 lg:col-span-7"
                     >
-                        <motion.div variants={itemVariants} className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-primary font-bold text-sm uppercase tracking-[0.2em] backdrop-blur-md">
+                        <motion.div variants={itemVariants} className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-card-bg/70 border border-card-border text-primary font-bold text-sm uppercase tracking-[0.2em] backdrop-blur-md">
                             <Sparkles className="w-5 h-5 fill-current" />
                             <span>Virezo {path.split('/')[0]}</span>
                         </motion.div>
 
                         <motion.h1
                             variants={itemVariants}
-                            className="text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tight leading-[0.95] text-white"
+                            className="text-6xl md:text-8xl lg:text-[7.5rem] font-black tracking-tight leading-[0.95] text-foreground"
                         >
                             {content.title}
                         </motion.h1>
 
                         <motion.p
                             variants={itemVariants}
-                            className="text-xl md:text-2xl text-gray-400 max-w-2xl leading-relaxed font-medium"
+                            className="text-xl md:text-2xl text-muted-foreground max-w-2xl leading-relaxed font-medium"
                         >
                             {content.subtitle}
                         </motion.p>
@@ -115,7 +115,7 @@ export default function DynamicAntigravityPage({ params }: { params: Promise<{ s
                             </Link>
                             <Link
                                 href="/contact"
-                                className="px-12 py-6 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xl hover:bg-white/10 transition-all flex items-center justify-center backdrop-blur-md"
+                                className="px-12 py-6 rounded-2xl bg-card-bg/75 border border-card-border text-foreground font-bold text-xl hover:bg-muted transition-all flex items-center justify-center backdrop-blur-md"
                             >
                                 Book a Demo
                             </Link>
@@ -183,15 +183,15 @@ export default function DynamicAntigravityPage({ params }: { params: Promise<{ s
                                     }
                                 }}
                                 whileHover={{ y: -15, transition: { duration: 0.4 } }}
-                                className="group p-12 rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-xl hover:bg-white/10 hover:border-primary/20 transition-all duration-500 relative overflow-hidden"
+                                className="group p-12 rounded-[3rem] bg-card-bg/70 border border-card-border backdrop-blur-xl hover:bg-card-bg hover:border-primary/20 transition-all duration-500 relative overflow-hidden"
                             >
                                 <div className="absolute top-0 right-0 w-48 h-48 bg-primary/5 blur-[70px] group-hover:bg-primary/25 transition-all rounded-full -mr-24 -mt-24" />
 
                                 <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-10 group-hover:scale-110 transition-transform duration-500">
                                     <feature.icon className="w-10 h-10" />
                                 </div>
-                                <h3 className="text-3xl font-bold text-white mb-6 tracking-tight">{feature.title}</h3>
-                                <p className="text-xl text-gray-400 leading-relaxed font-medium">{feature.description}</p>
+                                <h3 className="text-3xl font-bold text-foreground mb-6 tracking-tight">{feature.title}</h3>
+                                <p className="text-xl text-muted-foreground leading-relaxed font-medium">{feature.description}</p>
                             </motion.div>
                         ))}
                     </motion.div>

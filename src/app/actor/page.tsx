@@ -25,14 +25,14 @@ export default function ActorStudioPage() {
     // Show loading while checking auth (AFTER all hooks)
     if (isPageLoading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
 
     return (
-        <main className="min-h-screen bg-black text-white pt-24 px-6 relative overflow-hidden">
+        <main className="min-h-screen bg-background text-foreground pt-24 px-6 relative overflow-hidden">
             {/* Background Ambience */}
             <div className="fixed inset-0 pointer-events-none">
                 <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-green-900/10 rounded-full blur-[120px]" />
@@ -43,15 +43,15 @@ export default function ActorStudioPage() {
 
                 {/* Header */}
                 <div className="flex items-center gap-6 mb-12">
-                    <Link href="/dashboard" className="p-3 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
+                    <Link href="/dashboard" className="p-3 rounded-full bg-card-bg/70 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground border border-card-border">
                         <ArrowLeft className="w-6 h-6" />
                     </Link>
                     <div>
                         <h1 className="text-4xl md:text-5xl font-bold flex items-center gap-3">
-                            <ShieldCheck className="w-10 h-10 text-green-400" />
+                            <ShieldCheck className="w-10 h-10 text-secondary" />
                             Actor Studio
                         </h1>
-                        <p className="text-gray-400 text-lg mt-2">Manage your consistent AI personas and upload custom characters.</p>
+                        <p className="text-muted-foreground text-lg mt-2">Manage your consistent AI personas and upload custom characters.</p>
                     </div>
                 </div>
 

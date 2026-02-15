@@ -142,8 +142,19 @@ li {
 [data-theme="dark"] .bg-gray-50,
 [data-theme="dark"] .bg-gray-100,
 [data-theme="dark"] .bg-gray-200,
-[data-theme="dark"] .bg-gray-50\/50 {
+[data-theme="dark"] .bg-gray-50\/50,
+[data-theme="dark"] .bg-slate-50,
+[data-theme="dark"] .bg-slate-100,
+[data-theme="dark"] .bg-zinc-50,
+[data-theme="dark"] .bg-zinc-100,
+[data-theme="dark"] .bg-neutral-50,
+[data-theme="dark"] .bg-neutral-100 {
   background-color: var(--muted) !important;
+}
+
+[data-theme="dark"] .bg-gray-900,
+[data-theme="dark"] .bg-black {
+  background-color: var(--background) !important;
 }
 
 [data-theme="dark"] .text-gray-900,
@@ -155,14 +166,36 @@ li {
 [data-theme="dark"] .text-gray-700,
 [data-theme="dark"] .text-gray-600,
 [data-theme="dark"] .text-gray-500,
-[data-theme="dark"] .text-gray-400 {
+[data-theme="dark"] .text-gray-400,
+[data-theme="dark"] .text-slate-600,
+[data-theme="dark"] .text-slate-500,
+[data-theme="dark"] .text-zinc-600,
+[data-theme="dark"] .text-zinc-500 {
   color: var(--muted-foreground) !important;
 }
 
 [data-theme="dark"] .border-gray-200,
 [data-theme="dark"] .border-gray-100,
-[data-theme="dark"] .border-white\/5 {
+[data-theme="dark"] .border-gray-300,
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-zinc-200,
+[data-theme="dark"] .border-white\/5,
+[data-theme="dark"] .border-white\/10 {
   border-color: var(--border) !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: color-mix(in oklab, var(--card-bg) 92%, transparent) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--muted-foreground) !important;
+  opacity: 0.85;
 }
 
 /* Force section-like layout backgrounds to respect dark mode */
@@ -177,6 +210,7 @@ li {
 [data-theme="dark"] main[class*="bg-["],
 [data-theme="dark"] section[class*="bg-["],
 [data-theme="dark"] footer[class*="bg-["],
-[data-theme="dark"] header[class*="bg-["] {
+[data-theme="dark"] header[class*="bg-["],
+[data-theme="dark"] div[class*="bg-["][class*="min-h-screen"] {
   background-color: var(--background) !important;
 }
