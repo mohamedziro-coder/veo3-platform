@@ -133,12 +133,15 @@ li {
 /* Better dark-mode compatibility with existing Tailwind utility classes */
 [data-theme="dark"] .bg-white,
 [data-theme="dark"] .bg-white\/80,
-[data-theme="dark"] .bg-white\/90 {
+[data-theme="dark"] .bg-white\/90,
+[data-theme="dark"] .bg-white\/95,
+[data-theme="dark"] .bg-white\/60 {
   background-color: var(--card-bg) !important;
 }
 
 [data-theme="dark"] .bg-gray-50,
 [data-theme="dark"] .bg-gray-100,
+[data-theme="dark"] .bg-gray-200,
 [data-theme="dark"] .bg-gray-50\/50 {
   background-color: var(--muted) !important;
 }
@@ -160,4 +163,20 @@ li {
 [data-theme="dark"] .border-gray-100,
 [data-theme="dark"] .border-white\/5 {
   border-color: var(--border) !important;
+}
+
+/* Force section-like layout backgrounds to respect dark mode */
+[data-theme="dark"] main,
+[data-theme="dark"] section,
+[data-theme="dark"] footer,
+[data-theme="dark"] header {
+  background-color: transparent !important;
+}
+
+/* Override hardcoded arbitrary Tailwind bg values on layout containers */
+[data-theme="dark"] main[class*="bg-["],
+[data-theme="dark"] section[class*="bg-["],
+[data-theme="dark"] footer[class*="bg-["],
+[data-theme="dark"] header[class*="bg-["] {
+  background-color: var(--background) !important;
 }
