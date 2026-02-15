@@ -461,17 +461,82 @@ export default function VideoPage() {
 
                 {/* Result Section */}
                 <AnimatePresence>
-                    {(videoUrl || isLoading) && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="w-full"
-                        >
-                            <VideoPlayer videoUrl={videoUrl} isLoading={isLoading} />
-                        </motion.div>
-                    )}
                 </AnimatePresence>
+
+                {/* --- NEW CONTENT SECTIONS --- */}
+
+                {/* How It Works */}
+                <div className="mt-32 w-full max-w-6xl">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6">How It Works</h2>
+                        <p className="text-xl text-gray-500">Create professional videos in 3 simple steps.</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[
+                            { title: "1. Upload", desc: "Upload your product image or start frame.", icon: "📤" },
+                            { title: "2. Describe", desc: "Tell AI how you want it to move (zoom, rotate, float).", icon: "✨" },
+                            { title: "3. Generate", desc: "Watch as we render a 4K fluid video in seconds.", icon: "🎬" }
+                        ].map((step, i) => (
+                            <div key={i} className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm text-center">
+                                <div className="text-5xl mb-6">{step.icon}</div>
+                                <h3 className="text-2xl font-black text-gray-900 mb-3">{step.title}</h3>
+                                <p className="text-gray-500 font-medium">{step.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Features Grid */}
+                <div className="mt-32 w-full max-w-6xl">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6">Why Use Virezo Video?</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="bg-purple-50 p-10 rounded-[2.5rem] border border-purple-100">
+                            <h3 className="text-2xl font-black text-purple-900 mb-4">Physics-Based Animation</h3>
+                            <p className="text-purple-700 font-medium text-lg leading-relaxed">
+                                Our "Antigravity" engine simulates real-world physics. Objects float, bounce, and rotate with incredible realism, making your product look premium.
+                            </p>
+                        </div>
+                        <div className="bg-blue-50 p-10 rounded-[2.5rem] border border-blue-100">
+                            <h3 className="text-2xl font-black text-blue-900 mb-4">4K Resolution Support</h3>
+                            <p className="text-blue-700 font-medium text-lg leading-relaxed">
+                                Don't settle for blurry social clips. We output crystal clear video suitable for large displays, YouTube, and high-quality ads.
+                            </p>
+                        </div>
+                        <div className="bg-amber-50 p-10 rounded-[2.5rem] border border-amber-100">
+                            <h3 className="text-2xl font-black text-amber-900 mb-4">Commercial Rights</h3>
+                            <p className="text-amber-700 font-medium text-lg leading-relaxed">
+                                Every video you generate belongs to you. Full usage rights for TV spots, paid ads, and commercial resale.
+                            </p>
+                        </div>
+                        <div className="bg-green-50 p-10 rounded-[2.5rem] border border-green-100">
+                            <h3 className="text-2xl font-black text-green-900 mb-4">Fast Rendering</h3>
+                            <p className="text-green-700 font-medium text-lg leading-relaxed">
+                                Powered by H100 GPU clusters, most videos generate in under 60 seconds, so you can iterate quickly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* FAQ */}
+                <div className="mt-32 w-full max-w-4xl">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-900">Common Questions</h2>
+                    </div>
+                    <div className="space-y-4">
+                        {[
+                            { q: "How much does a video cost?", a: "Standard videos cost around 50-100 credits depending on length and resolution." },
+                            { q: "Can I edit the video after generation?", a: "Yes, you can download the video and use it in any editor like Premiere, CapCut, or After Effects." },
+                            { q: "What file format do I get?", a: "We provide high-quality MP4 files compatible with all major platforms." }
+                        ].map((item, i) => (
+                            <div key={i} className="bg-white border border-gray-200 p-6 rounded-2xl">
+                                <h4 className="font-bold text-gray-900 text-lg mb-2">{item.q}</h4>
+                                <p className="text-gray-500">{item.a}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
             </motion.div>
         </main>

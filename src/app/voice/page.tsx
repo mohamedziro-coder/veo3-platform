@@ -416,50 +416,80 @@ export default function VoicePage() {
 
                 {/* Audio Player Result */}
                 <AnimatePresence>
-                    {audioUrl && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            className="w-full max-w-3xl"
-                        >
-                            <div className="bg-white border border-gray-200 shadow-xl rounded-2xl p-6 flex items-center gap-6">
-                                <button
-                                    onClick={togglePlayback}
-                                    className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform shadow-xl shadow-white/10"
-                                >
-                                    {isPlaying ? <Square className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-1" />}
-                                </button>
-
-                                <div className="flex-1 space-y-2">
-                                    <div className="h-12 flex items-center gap-1 opacity-50">
-                                        {/* Fake Visualizer */}
-                                        {[...Array(40)].map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className={`w-1 rounded-full bg-cyan-400 transition-all duration-100 ${isPlaying ? "animate-pulse" : ""}`}
-                                                style={{
-                                                    height: isPlaying ? `${Math.max(20, (Math.sin(i * 0.5) + 1) * 40 + 20)}%` : "20%",
-                                                    animationDelay: `${i * 0.05}s`
-                                                }}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <a
-                                    href={audioUrl}
-                                    download="veo-voice.mp3"
-                                    className="p-4 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-900"
-                                >
-                                    <Download className="w-5 h-5" />
-                                </a>
-
-                                <audio ref={audioRef} src={audioUrl} className="hidden" />
-                            </div>
-                        </motion.div>
-                    )}
                 </AnimatePresence>
+
+                {/* --- NEW CONTENT SECTIONS --- */}
+
+                <div className="mt-40 w-full max-w-6xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
+                                Human-Level <br /> <span className="text-cyan-600">Voice Synthesis</span>
+                            </h2>
+                            <p className="text-xl text-gray-500 mb-8 leading-relaxed">
+                                Stop using robotic text-to-speech. Our Neural2 engine captures breath, intonation, and emotion, making it indistinguishable from a real human recording.
+                            </p>
+                            <ul className="space-y-4">
+                                {["Hyper-realistic breathing & pausing", "Emotion control (Happy, Serious, Calm)", "Multi-language & local dialects", "Instant generation"].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-lg font-medium text-gray-700">
+                                        <div className="w-6 h-6 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-600 text-xs">✓</div>
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl shadow-cyan-900/10 border border-gray-100 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                            {/* Fake waveform viz */}
+                            <div className="flex items-center justify-center gap-1 h-32 mb-6">
+                                {[...Array(20)].map((_, i) => (
+                                    <div key={i} className="w-2 bg-gradient-to-t from-blue-500 to-cyan-400 rounded-full" style={{ height: `${Math.random() * 100}%` }} />
+                                ))}
+                            </div>
+                            <div className="text-center">
+                                <div className="text-2xl font-black text-gray-900">Crystal Clear Audio</div>
+                                <div className="text-gray-400 font-mono text-sm mt-1">48kHz • 320kbps • Stereo</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Use Cases */}
+                <div className="mt-32 w-full max-w-6xl">
+                    <h2 className="text-4xl font-black text-center text-gray-900 mb-16">Perfect For...</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[
+                            { title: "YouTube Videos", icon: "📺" },
+                            { title: "Audiobooks", icon: "📚" },
+                            { title: "Game Characters", icon: "🎮" },
+                            { title: "Marketing Ads", icon: "📣" }
+                        ].map((card, i) => (
+                            <div key={i} className="bg-white p-8 rounded-[2rem] border border-gray-100 hover:shadow-xl transition-all text-center group">
+                                <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform">{card.icon}</div>
+                                <h3 className="text-xl font-bold text-gray-900">{card.title}</h3>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* FAQ */}
+                <div className="mt-32 w-full max-w-4xl pb-20">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-black text-gray-900">Voice Studio FAQ</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {[
+                            { q: "Can I use these voices on YouTube?", a: "Yes! You have full commercial rights to monetize any content created with our platform." },
+                            { q: "Do you support custom voice cloning?", a: "Currently in beta. Contact our enterprise support if you need to clone your own voice." },
+                            { q: "How many languages are supported?", a: "We support 25+ languages incuding Arabic, French, Spanish, German, and Japanese." },
+                            { q: "Is it expensive?", a: "No, it's significantly cheaper than hiring a voice actor. You pay only for the seconds you generate." }
+                        ].map((item, i) => (
+                            <div key={i} className="bg-white border border-gray-200 p-6 rounded-2xl">
+                                <h4 className="font-bold text-gray-900 text-lg mb-2">{item.q}</h4>
+                                <p className="text-gray-500 text-sm leading-relaxed">{item.a}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
             </motion.div>
         </main>

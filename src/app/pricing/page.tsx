@@ -152,8 +152,8 @@ export default function PricingPage() {
                         <div
                             key={plan.id}
                             className={`relative rounded-[3.5rem] p-14 border transition-all duration-500 flex flex-col h-full ${plan.popular
-                                    ? "bg-white dark:bg-card-bg border-primary/40 shadow-[0_40px_80px_-20px_rgba(74,144,226,0.25)] scale-[1.05] z-10"
-                                    : "bg-white/60 dark:bg-card-bg/60 border-card-border hover:border-primary/30 hover:bg-white dark:hover:bg-card-bg hover:shadow-2xl"
+                                ? "bg-white dark:bg-card-bg border-primary/40 shadow-[0_40px_80px_-20px_rgba(74,144,226,0.25)] scale-[1.05] z-10"
+                                : "bg-white/60 dark:bg-card-bg/60 border-card-border hover:border-primary/30 hover:bg-white dark:hover:bg-card-bg hover:shadow-2xl"
                                 }`}
                         >
                             {plan.popular && (
@@ -189,8 +189,8 @@ export default function PricingPage() {
                                 type="button"
                                 onClick={() => setSelectedPlan(plan)}
                                 className={`w-full py-6 rounded-2xl font-black text-xl transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 ${plan.popular
-                                        ? "bg-primary text-white hover:bg-primary/90 shadow-primary/30"
-                                        : "bg-white dark:bg-card-bg border border-card-border text-foreground hover:bg-gray-50 dark:hover:bg-muted/50 hover:border-gray-300"
+                                    ? "bg-primary text-white hover:bg-primary/90 shadow-primary/30"
+                                    : "bg-white dark:bg-card-bg border border-card-border text-foreground hover:bg-gray-50 dark:hover:bg-muted/50 hover:border-gray-300"
                                     }`}
                             >
                                 <span>{plan.cta}</span>
@@ -200,7 +200,27 @@ export default function PricingPage() {
                     ))}
                 </div>
 
-                <div className="max-w-[1400px] mx-auto mt-48 text-center relative z-10 border-t border-card-border pt-24">
+                {/* FAQ Section */}
+                <div className="mt-32 border-t border-card-border pt-24">
+                    <h2 className="text-4xl md:text-5xl font-black text-center mb-16 text-foreground">Frequently Asked Questions</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                        {[
+                            { question: "Do credits expire?", answer: "Never. Your credits are valid forever until you use them. You can buy a pack today and use it next year." },
+                            { question: "Can I get a refund?", answer: "We offer a 7-day money-back guarantee if you haven't used more than 10% of your purchased credits." },
+                            { question: "Is there a monthly fee?", answer: "No hidden fees. You only pay for the credits you buy. No recurring subscription charges." },
+                            { question: "What counts as 1 credit?", answer: "Different tools use different amounts. For example, 1 generated image might be 5 credits, while 10 seconds of video might be 50 credits. Check the dashboard for exact rates." },
+                            { question: "Can I upgrade later?", answer: "Yes! You can buy a larger pack anytime. Your new credits will simply be added to your existing balance." },
+                            { question: "Is verification required?", answer: "For security, we might ask for simple email verification before large purchases to prevent fraud." },
+                        ].map((faq, i) => (
+                            <div key={i} className="bg-card-bg p-8 rounded-3xl border border-card-border">
+                                <h3 className="text-xl font-black text-foreground mb-3">{faq.question}</h3>
+                                <p className="text-muted-foreground font-medium">{faq.answer}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="max-w-[1400px] mx-auto mt-32 text-center relative z-10 border-t border-card-border pt-24">
                     <p className="text-sm md:text-base font-black text-muted-foreground uppercase tracking-[0.3em] mb-12">Trusted by Creators from</p>
                     <div className="flex flex-wrap justify-center gap-12 md:gap-24 opacity-40 grayscale hover:grayscale-0 transition-all duration-1000">
                         <div className="flex items-center gap-3 text-2xl md:text-4xl font-black text-foreground"><Shield className="w-8 h-8 md:w-10 md:h-10 text-primary" /> Google</div>
