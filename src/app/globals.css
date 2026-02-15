@@ -60,6 +60,10 @@ body {
   min-height: 100%;
 }
 
+html {
+  font-size: 15px;
+}
+
 body {
   color: var(--text-color) !important;
   background:
@@ -124,4 +128,36 @@ li {
   background: color-mix(in oklab, var(--card-bg) 92%, transparent);
   border: 1px solid color-mix(in oklab, var(--card-border) 82%, transparent);
   box-shadow: 0 10px 32px rgba(10, 25, 50, 0.08);
+}
+
+/* Better dark-mode compatibility with existing Tailwind utility classes */
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-white\/80,
+[data-theme="dark"] .bg-white\/90 {
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .bg-gray-50,
+[data-theme="dark"] .bg-gray-100,
+[data-theme="dark"] .bg-gray-50\/50 {
+  background-color: var(--muted) !important;
+}
+
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-black {
+  color: var(--foreground) !important;
+}
+
+[data-theme="dark"] .text-gray-700,
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-400 {
+  color: var(--muted-foreground) !important;
+}
+
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-white\/5 {
+  border-color: var(--border) !important;
 }
