@@ -22,10 +22,10 @@ export default function ForgotPasswordPage() {
         setMessage(null);
         setError(null);
         try {
-            const res = await fetch('/api/auth/send-code', {
+            const res = await fetch('/api/auth/forgot-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, purpose: 'reset' })
+                body: JSON.stringify({ email })
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || 'Failed to send code');

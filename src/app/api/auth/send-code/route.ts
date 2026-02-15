@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateVerificationToken, getUserByEmail } from '@/lib/db';
+import { updateVerificationToken, getUserByEmail, setUserResetCode } from '@/lib/db';
 import { Resend } from 'resend';
 
 export async function POST(req: NextRequest) {
@@ -10,45 +10,52 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, error: "Email is required" }, { status: 400 });
         }
 
+        const user = await getUserByEmail(email);
+        if (!user) {
+            return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+        }
+
         // Generate a random 6-digit code
         const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Store token in DB for verification or password reset
-        await updateVerificationToken(email, code);
-
-        // Optionally send the code via email (if Resend key is present)
-        try {
-            const apiKey = process.env.RESEND_API_KEY;
-            if (apiKey) {
-                const resend = new Resend(apiKey);
-                const user = await getUserByEmail(email);
-                const subject = purpose === 'reset' ? 'Password Reset Code - Virezo' : 'Verification Code - Virezo';
-                const bodyMsg = purpose === 'reset' ? 'Use the following code to reset your password:' : 'Use the following code to verify your account:';
-
-                await resend.emails.send({
-                    from: 'Virezo <noreply@onlinetooladvisor.com>',
-                    to: email,
-                    subject,
-                    html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;"><h1>${user?.name || 'Virezo User'}</h1><p>${bodyMsg}</p><div style="background: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;"><span style="font-size: 32px; letter-spacing: 5px; font-weight: bold; color: #333;">${code}</span></div></div>`
-                });
-            } else {
-                console.warn('RESEND_API_KEY not set; skipping actual email send');
+        // Store token in DB:
+        // - reset flow uses expiring code
+        // - verify flow uses verification_token
+        if (purpose === 'reset') {
+            const stored = await setUserResetCode(email, code, 15);
+            if (!stored) {
+                return NextResponse.json({ success: false, error: "Failed to store reset code" }, { status: 500 });
             }
-        } catch (e) {
-            console.warn('Email send failed, continuing (token stored):', e);
+        } else {
+            const stored = await updateVerificationToken(email, code);
+            if (!stored) {
+                return NextResponse.json({ success: false, error: "Failed to store verification code" }, { status: 500 });
+            }
         }
 
-        // SIMULATION: Log the code to the console (Server-side) for debugging
-        console.log("==========================================");
-        console.log(`[EMAIL SIMULATION] Sending ${purpose || 'verify'} code to ${email}`);
-        console.log(`[CODE] ${code}`);
-        console.log("==========================================");
+        // Send via Resend (required)
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            return NextResponse.json({ success: false, error: "RESEND_API_KEY is not configured" }, { status: 500 });
+        }
 
-        // Return success and debugCode for development/testing only
+        const resend = new Resend(apiKey);
+        const subject = purpose === 'reset' ? 'Password Reset Code - Virezo' : 'Verification Code - Virezo';
+        const bodyMsg = purpose === 'reset' ? 'Use the following code to reset your password:' : 'Use the following code to verify your account:';
+        const mail = await resend.emails.send({
+            from: 'Virezo <noreply@onlinetooladvisor.com>',
+            to: email,
+            subject,
+            html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;"><h1>${user.name || 'Virezo User'}</h1><p>${bodyMsg}</p><div style="background: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;"><span style="font-size: 32px; letter-spacing: 5px; font-weight: bold; color: #333;">${code}</span></div><p style="color:#666;font-size:13px;">This code expires in 15 minutes.</p></div>`
+        });
+
+        if (mail && typeof mail === 'object' && 'error' in mail && mail.error) {
+            return NextResponse.json({ success: false, error: "Failed to send email via Resend" }, { status: 502 });
+        }
+
         return NextResponse.json({
             success: true,
-            message: "Code sent successfully",
-            debugCode: code // Remove this in production!
+            message: "Code sent successfully"
         });
 
     } catch (error) {
