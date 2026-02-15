@@ -63,15 +63,16 @@ export default function EditableImage({
                 })
             });
 
-            if (res.ok) {
-                setCurrentSrc(inputSrc);
-                setIsFocused(false);
-            } else {
-                alert("Failed to save image");
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || `Save failed with status ${res.status}`);
             }
-        } catch (e) {
+
+            setCurrentSrc(inputSrc);
+            setIsFocused(false);
+        } catch (e: any) {
             console.error(e);
-            alert("Error saving image");
+            alert(`Error saving: ${e.message}`);
         } finally {
             setIsSaving(false);
         }
