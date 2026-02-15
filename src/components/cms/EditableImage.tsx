@@ -114,25 +114,43 @@ export default function EditableImage({
                                     const userStr = localStorage.getItem('current_user');
                                     const user = userStr ? JSON.parse(userStr) : {};
 
-                                    const formData = new FormData();
-                                    formData.append('file', file);
-                                    formData.append('email', user.email);
-
-                                    const res = await fetch('/api/upload', {
+                                    // 1. Get Signed URL
+                                    const signRes = await fetch('/api/upload/sign', {
                                         method: 'POST',
-                                        body: formData
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            filename: file.name,
+                                            contentType: file.type,
+                                            email: user.email
+                                        })
                                     });
 
-                                    if (!res.ok) {
-                                        const errData = await res.json().catch(() => ({}));
-                                        throw new Error(errData.error || `Upload failed with status ${res.status}`);
+                                    if (!signRes.ok) {
+                                        const err = await signRes.json().catch(() => ({}));
+                                        throw new Error(err.error || `Sign failed: ${signRes.status}`);
                                     }
 
-                                    const data = await res.json();
-                                    setInputSrc(data.url);
+                                    const { uploadUrl, publicUrl } = await signRes.json();
+
+                                    // 2. Upload directly to GCS (Bypass Next.js server limits)
+                                    const uploadRes = await fetch(uploadUrl, {
+                                        method: 'PUT',
+                                        headers: {
+                                            'Content-Type': file.type,
+                                        },
+                                        body: file
+                                    });
+
+                                    if (!uploadRes.ok) {
+                                        throw new Error(`Direct upload failed: ${uploadRes.statusText}`);
+                                    }
+
+                                    // 3. Update State
+                                    setInputSrc(publicUrl);
+
                                 } catch (err: any) {
                                     console.error(err);
-                                    alert(`Error: ${err.message}`);
+                                    alert(`Upload Error: ${err.message}`);
                                 } finally {
                                     setIsSaving(false);
                                 }
