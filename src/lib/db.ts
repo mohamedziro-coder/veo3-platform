@@ -317,15 +317,20 @@ export async function updateVerificationToken(email: string, token: string): Pro
 export async function setUserResetCode(email: string, code: string, expiryMinutes: number = 15): Promise<boolean> {
     try {
         const sql = getDb();
+        const emailLower = email.trim().toLowerCase();
+        const normalizedCode = String(code).trim();
         const expiry = new Date();
         expiry.setMinutes(expiry.getMinutes() + expiryMinutes);
 
-        await sql`
+        const result = await sql`
             UPDATE users 
-            SET verification_token = ${code}, reset_code_expiry = ${expiry} 
-            WHERE LOWER(email) = ${email.toLowerCase()}
+            SET verification_token = ${normalizedCode}, reset_code_expiry = ${expiry} 
+            WHERE LOWER(email) = ${emailLower}
+            RETURNING id
         `;
-        return true;
+
+        // Ensure a user row was actually updated
+        return result.length > 0;
     } catch (error) {
         console.error('Error setting user reset code:', error);
         return false;
@@ -336,7 +341,8 @@ export async function setUserResetCode(email: string, code: string, expiryMinute
 export async function verifyResetCode(email: string, code: string): Promise<boolean> {
     try {
         const sql = getDb();
-        const emailLower = email.toLowerCase();
+        const emailLower = email.trim().toLowerCase();
+        const normalizedCode = String(code).trim();
         const result = await sql`
             SELECT verification_token, reset_code_expiry 
             FROM users 
@@ -347,7 +353,7 @@ export async function verifyResetCode(email: string, code: string): Promise<bool
 
         const { verification_token, reset_code_expiry } = result[0];
 
-        if (!verification_token || verification_token !== code) return false;
+        if (!verification_token || String(verification_token).trim() !== normalizedCode) return false;
         if (!reset_code_expiry || new Date(reset_code_expiry) < new Date()) return false;
 
         return true;

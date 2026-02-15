@@ -23,7 +23,10 @@ export async function POST(req: NextRequest) {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
 
         // 3. Store reset code with 15-minute expiry
-        await setUserResetCode(email, code, 15);
+        const stored = await setUserResetCode(email, code, 15);
+        if (!stored) {
+            return NextResponse.json({ success: false, error: "Failed to store reset code" }, { status: 500 });
+        }
 
         // 4. Send reset code via Resend (required)
         const apiKey = process.env.RESEND_API_KEY;
