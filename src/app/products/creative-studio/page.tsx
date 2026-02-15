@@ -1,5 +1,6 @@
 import { generateSchema } from "@/lib/schema";
 import { Metadata } from "next";
+import EditableImage from "@/components/cms/EditableImage";
 
 export const metadata: Metadata = {
     title: "Creative Studio - Virezo Products",
@@ -33,9 +34,16 @@ export default function CreativeStudioPage() {
                 </div>
 
                 <div className="bg-card-bg border border-card-border rounded-3xl p-4 md:p-8 mb-20">
-                    <div className="aspect-video bg-black/50 rounded-2xl flex items-center justify-center border border-white/10">
-                        <span className="text-muted-foreground">Editor UI Preview</span>
-                    </div>
+                    <EditableImage
+                        slug="creative-studio"
+                        id="editor-preview"
+                        src="https://placehold.co/1200x800/1a1a1a/666666?text=Click+to+Upload+Editor+Preview"
+                        alt="Editor UI Preview"
+                        width={1200}
+                        height={800}
+                        className="w-full h-auto rounded-2xl border border-white/10"
+                        priority
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
