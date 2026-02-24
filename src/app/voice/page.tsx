@@ -6,55 +6,64 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Play, Square, Download, Wand2, Volume2, AlertCircle } from "lucide-react";
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 
-// Voice options - defined outside component to avoid recreation
-const VOICE_OPTIONS = [
-    // Moroccan Arabic (Darija) - ar-MA
-    { id: "ar-XA-Wavenet-B", name: "Moroccan Arabic (Male 1)", lang: "ar-MA", type: "Wavenet (Native)" },
-    { id: "ar-XA-Wavenet-A", name: "Moroccan Arabic (Female 1)", lang: "ar-MA", type: "Wavenet (Native)" },
-    { id: "ar-XA-Wavenet-C", name: "Moroccan Arabic (Male 2)", lang: "ar-MA", type: "Wavenet (Deep)" },
-    { id: "ar-XA-Wavenet-D", name: "Moroccan Arabic (Female 2)", lang: "ar-MA", type: "Wavenet (Soft)" },
-
-    // English
-    { id: "en-US-Journey-F", name: "English US (Premium Female)", lang: "en-US", type: "Journey" },
-    { id: "en-US-Journey-D", name: "English US (Premium Male)", lang: "en-US", type: "Journey" },
-    { id: "en-GB-Neural2-A", name: "English UK (Female)", lang: "en-GB", type: "Neural2" },
-    { id: "en-GB-Neural2-B", name: "English UK (Male)", lang: "en-GB", type: "Neural2" },
-
-    // French
-    { id: "fr-FR-Neural2-A", name: "French (Female)", lang: "fr-FR", type: "Neural2" },
-    { id: "fr-FR-Neural2-B", name: "French (Male)", lang: "fr-FR", type: "Neural2" },
-
-    // German
-    { id: "de-DE-Neural2-A", name: "German (Female)", lang: "de-DE", type: "Neural2" },
-    { id: "de-DE-Neural2-B", name: "German (Male)", lang: "de-DE", type: "Neural2" },
-    { id: "de-DE-Neural2-C", name: "German (Male Deep)", lang: "de-DE", type: "Neural2" },
-    { id: "de-DE-Neural2-D", name: "German (Female Soft)", lang: "de-DE", type: "Neural2" },
-
-    // Spanish
-    { id: "es-ES-Neural2-A", name: "Spanish (Female)", lang: "es-ES", type: "Neural2" },
-    { id: "es-ES-Neural2-B", name: "Spanish (Male)", lang: "es-ES", type: "Neural2" },
-    { id: "es-ES-Neural2-C", name: "Spanish (Female Soft)", lang: "es-ES", type: "Neural2" },
-    { id: "es-ES-Neural2-D", name: "Spanish (Male Deep)", lang: "es-ES", type: "Neural2" },
+// Runway preset voices mapped by language + gender
+const LANGUAGES = [
+    { code: "en", label: "English 🇬🇧" },
+    { code: "ar", label: "Arabic 🇸🇦" },
+    { code: "fr", label: "French 🇫🇷" },
+    { code: "es", label: "Spanish 🇪🇸" },
+    { code: "de", label: "German 🇩🇪" },
+    { code: "it", label: "Italian 🇮🇹" },
+    { code: "pt", label: "Portuguese 🇧🇷" },
+    { code: "nl", label: "Dutch 🇳🇱" },
+    { code: "ru", label: "Russian 🇷🇺" },
+    { code: "ja", label: "Japanese 🇯🇵" },
+    { code: "zh", label: "Chinese 🇨🇳" },
+    { code: "hi", label: "Hindi 🇮🇳" },
+    { code: "tr", label: "Turkish 🇹🇷" },
+    { code: "ko", label: "Korean 🇰🇷" },
 ];
+
+// Map lang+gender → Runway preset voice
+const VOICE_MAP: Record<string, { man: string; woman: string }> = {
+    en: { man: "James", woman: "Leslie" },
+    ar: { man: "Liam", woman: "Maya" },
+    fr: { man: "Bernard", woman: "Olivia" },
+    es: { man: "Noah", woman: "Claudia" },
+    de: { man: "Martin", woman: "Marlene" },
+    it: { man: "Elias", woman: "Paula" },
+    pt: { man: "Frank", woman: "Mariah" },
+    nl: { man: "Mark", woman: "Lara" },
+    ru: { man: "Ragnar", woman: "Sandra" },
+    ja: { man: "Arjun", woman: "Serene" },
+    zh: { man: "Kendrick", woman: "Kiana" },
+    hi: { man: "Arjun", woman: "Rina" },
+    tr: { man: "Elias", woman: "Eleanor" },
+    ko: { man: "James", woman: "Katie" },
+};
+
+function resolveVoice(lang: string, gender: "man" | "woman"): string {
+    return VOICE_MAP[lang]?.[gender] || (gender === "man" ? "James" : "Leslie");
+}
 
 export default function VoicePage() {
     const router = useRouter();
 
-    // All hooks must be declared BEFORE any conditional return
     const [isPageLoading, setIsPageLoading] = useState(true);
     const [text, setText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [selectedVoice, setSelectedVoice] = useState("ar-XA-Wavenet-B");
+    const [selectedLang, setSelectedLang] = useState("en");
+    const [selectedGender, setSelectedGender] = useState<"man" | "woman">("woman");
     const [speakingRate, setSpeakingRate] = useState(1.0);
     const [pitch, setPitch] = useState(0.0);
-    const [useGemini, setUseGemini] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     const currentCredits = getUserCredits();
     const canAfford = currentCredits >= COSTS.VOICE;
+
 
     useEffect(() => {
         const user = localStorage.getItem('current_user');
@@ -107,16 +116,16 @@ export default function VoicePage() {
         setIsPlaying(false);
 
         try {
+            const voicePreset = resolveVoice(selectedLang, selectedGender);
             const response = await fetch("/api/generate-audio", {
                 method: "POST",
                 body: JSON.stringify({
                     text,
-                    voiceId: selectedVoice,
-                    languageCode: VOICE_OPTIONS.find(v => v.id === selectedVoice)?.lang || "ar-MA",
+                    voiceId: voicePreset,
+                    languageCode: selectedLang,
                     speakingRate,
                     pitch,
-                    useGemini,
-                    userEmail: JSON.parse(localStorage.getItem('current_user') || '{}').email // Send email for auth
+                    userEmail: JSON.parse(localStorage.getItem('current_user') || '{}').email
                 }),
                 headers: { "Content-Type": "application/json" }
             });
@@ -253,25 +262,45 @@ export default function VoicePage() {
                 <motion.div variants={itemVariants} className="w-full bg-white border border-gray-200 shadow-xl rounded-[2rem] p-1 md:p-2 relative overflow-hidden">
                     <div className="bg-white rounded-[1.8rem] overflow-hidden p-6 md:p-8 space-y-6">
 
-                        {/* Voice Selector */}
-                        <div className="space-y-3">
-                            <label className="text-sm font-semibold text-gray-700 ml-1">Choose Voice Account</label>
-                            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                                {VOICE_OPTIONS.map((voice) => (
+                        {/* Language + Gender Dropdowns */}
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            {/* Language */}
+                            <div className="flex-1 space-y-1">
+                                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Language</label>
+                                <select
+                                    value={selectedLang}
+                                    onChange={(e) => setSelectedLang(e.target.value)}
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none transition-all text-sm cursor-pointer"
+                                >
+                                    {LANGUAGES.map((l) => (
+                                        <option key={l.code} value={l.code}>{l.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Gender */}
+                            <div className="w-full sm:w-44 space-y-1">
+                                <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Voice Type</label>
+                                <div className="flex rounded-xl border border-gray-200 overflow-hidden">
                                     <button
-                                        key={voice.id}
-                                        onClick={() => setSelectedVoice(voice.id)}
-                                        className={`flex-shrink-0 px-4 py-3 rounded-xl text-sm font-medium transition-all flex flex-col items-start gap-1 min-w-[140px] border ${selectedVoice === voice.id
-                                            ? "bg-primary text-white border-primary shadow-md"
-                                            : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                                        onClick={() => setSelectedGender("man")}
+                                        className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${selectedGender === "man"
+                                                ? "bg-primary text-white"
+                                                : "bg-white text-gray-500 hover:bg-gray-50"
                                             }`}
                                     >
-                                        <span>{voice.name}</span>
-                                        <span className={`text-[10px] uppercase tracking-wider ${selectedVoice === voice.id ? 'text-blue-100' : 'text-gray-400'}`}>
-                                            {voice.type} {voice.type.includes('Native') && '✨'}
-                                        </span>
+                                        👨 Man
                                     </button>
-                                ))}
+                                    <button
+                                        onClick={() => setSelectedGender("woman")}
+                                        className={`flex-1 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-1.5 border-l border-gray-200 ${selectedGender === "woman"
+                                                ? "bg-primary text-white"
+                                                : "bg-white text-gray-500 hover:bg-gray-50"
+                                            }`}
+                                    >
+                                        👩 Woman
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -353,28 +382,16 @@ export default function VoicePage() {
                         </div>
                     </div>
 
-                    {/* Gemini Enhancement Toggle */}
-                    <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                                    <Wand2 className="w-5 h-5 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-semibold text-gray-900">Gemini Text Enhancement</h3>
-                                    <p className="text-xs text-gray-500">Improve text quality with AI before voice generation</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setUseGemini(!useGemini)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${useGemini ? 'bg-purple-600' : 'bg-gray-300'
-                                    }`}
-                            >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${useGemini ? 'translate-x-6' : 'translate-x-1'
-                                        }`}
-                                />
-                            </button>
+                    {/* Voice Preview Info */}
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-100 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+                            <Mic className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-gray-800">
+                                {selectedGender === "man" ? "👨" : "👩"} {LANGUAGES.find(l => l.code === selectedLang)?.label} — {selectedGender === "man" ? "Male" : "Female"} Voice
+                            </p>
+                            <p className="text-xs text-gray-500">Preset: <span className="font-mono text-blue-600">{resolveVoice(selectedLang, selectedGender)}</span></p>
                         </div>
                     </div>
 
