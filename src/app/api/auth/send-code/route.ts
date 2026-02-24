@@ -5,12 +5,13 @@ import { Resend } from 'resend';
 export async function POST(req: NextRequest) {
     try {
         const { email, purpose } = await req.json();
+        const emailNorm = String(email || "").trim().toLowerCase();
 
-        if (!email) {
+        if (!emailNorm) {
             return NextResponse.json({ success: false, error: "Email is required" }, { status: 400 });
         }
 
-        const user = await getUserByEmail(email);
+        const user = await getUserByEmail(emailNorm);
         if (!user) {
             return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
         }
@@ -22,12 +23,12 @@ export async function POST(req: NextRequest) {
         // - reset flow uses expiring code
         // - verify flow uses verification_token
         if (purpose === 'reset') {
-            const stored = await setUserResetCode(email, code, 15);
+            const stored = await setUserResetCode(user.email, code, 15);
             if (!stored) {
                 return NextResponse.json({ success: false, error: "Failed to store reset code" }, { status: 500 });
             }
         } else {
-            const stored = await updateVerificationToken(email, code);
+            const stored = await updateVerificationToken(user.email, code);
             if (!stored) {
                 return NextResponse.json({ success: false, error: "Failed to store verification code" }, { status: 500 });
             }
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
         const bodyMsg = purpose === 'reset' ? 'Use the following code to reset your password:' : 'Use the following code to verify your account:';
         const mail = await resend.emails.send({
             from: 'Virezo <noreply@onlinetooladvisor.com>',
-            to: email,
+            to: user.email,
             subject,
             html: `<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;"><h1>${user.name || 'Virezo User'}</h1><p>${bodyMsg}</p><div style="background: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;"><span style="font-size: 32px; letter-spacing: 5px; font-weight: bold; color: #333;">${code}</span></div><p style="color:#666;font-size:13px;">This code expires in 15 minutes.</p></div>`
         });

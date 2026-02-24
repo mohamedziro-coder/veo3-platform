@@ -10,14 +10,19 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isResendingCode, setIsResendingCode] = useState(false);
 
     const [error, setError] = useState<string | null>(null);
+    const [resendMessage, setResendMessage] = useState<string | null>(null);
+    const [verificationLink, setVerificationLink] = useState<string | null>(null);
     const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
+        setResendMessage(null);
+        setVerificationLink(null);
 
         try {
             // Call login API
@@ -30,6 +35,13 @@ export default function LoginPage() {
             const data = await response.json();
 
             if (!response.ok) {
+                if (response.status === 403 && data?.verificationRequired) {
+                    const pendingEmail = String(data.email || email).trim().toLowerCase();
+                    setEmail(pendingEmail);
+                    setVerificationLink(data.verificationLink || `/verify?email=${encodeURIComponent(pendingEmail)}`);
+                    setError(data.error || "Please verify your email before logging in");
+                    return;
+                }
                 throw new Error(data.error || 'Login failed');
             }
 
@@ -42,10 +54,43 @@ export default function LoginPage() {
             window.dispatchEvent(new Event('storage'));
 
             router.push("/dashboard");
-        } catch (err: any) {
-            setError(err.message || "Invalid email or password");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Invalid email or password";
+            setError(message);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleResendVerificationCode = async () => {
+        const emailNorm = email.trim().toLowerCase();
+        if (!emailNorm) {
+            setError("Enter your email first to resend a verification code.");
+            return;
+        }
+
+        setIsResendingCode(true);
+        setResendMessage(null);
+        setError("Please verify your email before logging in");
+
+        try {
+            const response = await fetch('/api/auth/send-code', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailNorm, purpose: 'verify' }),
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data?.success) {
+                throw new Error(data?.error || 'Failed to resend verification code');
+            }
+
+            setResendMessage("Verification code sent. Check your inbox.");
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Failed to resend verification code";
+            setError(message);
+        } finally {
+            setIsResendingCode(false);
         }
     };
 
@@ -85,7 +130,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
                             <p className="text-lg text-muted-foreground font-medium leading-relaxed">
-                                "Use specific prompts for better results. Instead of 'a cat', try 'a cinematic shot of a futuristic cyber-cat in neon rain'."
+                                Use specific prompts for better results. Instead of a cat, try a cinematic shot of a futuristic cyber-cat in neon rain.
                             </p>
                         </div>
                     </motion.div>
@@ -162,9 +207,41 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
-                            {error && (
-                                <div className="p-6 rounded-[1.5rem] bg-red-500/10 border border-red-500/20 text-red-600 text-lg font-bold text-center">
-                                    {error}
+                            {(error || verificationLink) && (
+                                <div
+                                    className={
+                                        verificationLink
+                                            ? "p-6 rounded-[1.5rem] bg-amber-500/10 border border-amber-500/30 text-amber-700 text-center"
+                                            : "p-6 rounded-[1.5rem] bg-red-500/10 border border-red-500/20 text-red-600 text-center"
+                                    }
+                                >
+                                    <p className={verificationLink ? "text-base font-bold" : "text-lg font-bold"}>
+                                        {error || "Please verify your email before logging in"}
+                                    </p>
+
+                                    {verificationLink && (
+                                        <>
+                                            <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                                                <Link
+                                                    href={verificationLink}
+                                                    className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-black text-white hover:bg-primary/90 transition-colors"
+                                                >
+                                                    Verify Email
+                                                </Link>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleResendVerificationCode}
+                                                    disabled={isResendingCode}
+                                                    className="inline-flex items-center justify-center rounded-xl border border-amber-500/40 px-4 py-2 text-sm font-black text-amber-700 hover:bg-amber-500/10 transition-colors disabled:opacity-60"
+                                                >
+                                                    {isResendingCode ? "Sending..." : "Resend Code"}
+                                                </button>
+                                            </div>
+                                            {resendMessage && (
+                                                <p className="mt-3 text-sm font-semibold text-emerald-600">{resendMessage}</p>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                             )}
 
@@ -203,7 +280,7 @@ export default function LoginPage() {
 
                         <div className="mt-12 pt-12 border-t border-card-border text-center">
                             <p className="text-lg text-muted-foreground font-medium">
-                                Don't have an account?{" "}
+                                Do not have an account?{" "}
                                 <Link href="/signup" className="text-primary hover:text-primary/80 font-black transition-colors">
                                     Sign Up
                                 </Link>

@@ -32,7 +32,7 @@ export default function Navigation() {
 
     // Check if we are on the Landing Page or Auth pages
     const isLandingPage = pathname === "/" || pathname === "/pricing";
-    const isAuthPage = pathname === "/login" || pathname === "/signup";
+    const isAuthPage = pathname === "/login" || pathname === "/signup" || pathname === "/verify";
 
     // Check if user is admin & get credits
     const [isLoggedIn, setIsLoggedIn] = useState(false);

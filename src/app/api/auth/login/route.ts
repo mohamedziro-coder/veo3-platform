@@ -4,9 +4,10 @@ import { verifyUser } from '@/lib/db';
 export async function POST(req: NextRequest) {
     try {
         const { email, password } = await req.json();
+        const emailNorm = String(email || '').trim().toLowerCase();
 
         // Validation
-        if (!email || !password) {
+        if (!emailNorm || !password) {
             return NextResponse.json(
                 { error: 'Email and password are required' },
                 { status: 400 }
@@ -14,12 +15,17 @@ export async function POST(req: NextRequest) {
         }
 
         // Verify user
-        const auth = await verifyUser(email, password);
+        const auth = await verifyUser(emailNorm, password);
 
         if (!auth.ok) {
             if (auth.reason === 'unverified') {
                 return NextResponse.json(
-                    { error: 'Please verify your email before logging in' },
+                    {
+                        error: 'Please verify your email before logging in',
+                        verificationRequired: true,
+                        verificationLink: `/verify?email=${encodeURIComponent(emailNorm)}`,
+                        email: emailNorm
+                    },
                     { status: 403 }
                 );
             }
@@ -43,10 +49,11 @@ export async function POST(req: NextRequest) {
             }
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Login failed';
         console.error('Login error:', error);
         return NextResponse.json(
-            { error: error.message || 'Login failed' },
+            { error: message },
             { status: 500 }
         );
     }

@@ -345,12 +345,14 @@ export async function getUserActivity(email: string): Promise<Activity[]> {
 export async function updateVerificationToken(email: string, token: string): Promise<boolean> {
     try {
         const sql = getDb();
-        await sql`
+        const emailLower = email.trim().toLowerCase();
+        const result = await sql`
             UPDATE users 
             SET verification_token = ${token}, is_verified = FALSE 
-            WHERE email = ${email}
+            WHERE LOWER(email) = ${emailLower}
+            RETURNING id
         `;
-        return true;
+        return result.length > 0;
     } catch (error) {
         console.error('Error updating verification token:', error);
         return false;
