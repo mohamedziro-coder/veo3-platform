@@ -9,14 +9,27 @@ import { constructMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = {
   ...constructMetadata({
-    title: "Virezo.pro | AI Video Generation SaaS",
-    description: "Create realistic talking avatars, UGC ads, and text-to-video campaigns in minutes. Built for agencies, ecommerce brands, and performance teams.",
+    title: "Virezo.pro | AI Avatar Video Generator & UGC Video Creation Platform",
+    description: "Generate broadcast-quality AI avatar videos in 30+ languages for under $5. The GDPR-compliant, EU-hosted AI video software for B2B marketing teams, agencies, and e-commerce brands. No cameras. No editors. No waiting.",
     image: "/og-image.png",
   }),
   verification: {
     google: "oF9KhROMYa0WscVAQxJez07wpLoLOKdt7IrrBgY6UfI",
   },
+  keywords: [
+    "AI avatar video generator",
+    "UGC video creation",
+    "text to video AI",
+    "AI video software",
+    "AI video generation",
+    "GDPR compliant AI video",
+    "multilingual AI video",
+    "B2B video generation",
+    "AI UGC ads",
+    "European AI video platform"
+  ],
 };
+
 
 export const viewport: Viewport = {
   themeColor: [
