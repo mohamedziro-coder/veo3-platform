@@ -3,7 +3,6 @@
 import { motion, Variants } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
-import EditableText from "@/components/cms/EditableText";
 
 interface FinalCTAProps {
     itemVariants: Variants;
@@ -45,32 +44,21 @@ export default function FinalCTA({ itemVariants, staggerContainer }: FinalCTAPro
                 className="max-w-[1400px] mx-auto text-center"
             >
                 <motion.div variants={itemVariants} className="inline-flex px-6 py-3 rounded-full bg-white/5 border border-white/10 text-primary font-bold text-sm uppercase tracking-[0.25em] mb-12 backdrop-blur-md">
-                    <EditableText slug="final-cta" id="label" defaultContent="Join the top 1%" as="span" />
+                    <span>Join the top 1%</span>
                 </motion.div>
 
                 <motion.div
                     variants={itemVariants}
                     className="text-6xl md:text-8xl lg:text-[8.5rem] font-black text-white mb-10 tracking-[0.02em] md:tracking-[-0.03em] leading-[0.9]"
                 >
-                    <EditableText
-                        slug="final-cta"
-                        id="title"
-                        defaultContent="Ready to 10x Your ROI?"
-                        as="h2"
-                        multiline
-                    />
+                    <h2>Ready to 10x Your ROI?</h2>
                 </motion.div>
 
                 <motion.div
                     variants={itemVariants}
                     className="text-xl md:text-3xl text-gray-400 mb-16 max-w-4xl mx-auto leading-relaxed font-medium"
                 >
-                    <EditableText
-                        slug="final-cta"
-                        id="subtitle"
-                        defaultContent="Stop manual testing. Start automating your creative strategy today."
-                        as="p"
-                    />
+                    <p>Stop manual testing. Start automating your creative strategy today.</p>
                 </motion.div>
 
                 <motion.div variants={itemVariants} className="flex flex-col items-center gap-14">
@@ -94,7 +82,7 @@ export default function FinalCTA({ itemVariants, staggerContainer }: FinalCTAPro
                                 <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                     <Check className="w-4 h-4 stroke-[4px]" />
                                 </div>
-                                <EditableText slug="final-cta" id={`guarantee-${i}`} defaultContent={item} as="span" />
+                                <span>{item}</span>
                             </div>
                         ))}
                     </div>
@@ -110,10 +98,10 @@ export default function FinalCTA({ itemVariants, staggerContainer }: FinalCTAPro
                             className="p-8 rounded-3xl border border-white/10 bg-transparent transition-all duration-400 group cursor-default"
                         >
                             <div className="text-3xl font-black text-white mb-2 group-hover:text-primary transition-colors">
-                                <EditableText slug="final-cta" id={`box-l1-${i}`} defaultContent={box.label1} as="span" />
+                                <span>{box.label1}</span>
                             </div>
                             <div className="text-xs text-gray-500 font-black uppercase tracking-[0.2em]">
-                                <EditableText slug="final-cta" id={`box-l2-${i}`} defaultContent={box.label2} as="span" />
+                                <span>{box.label2}</span>
                             </div>
                         </motion.div>
                     ))}

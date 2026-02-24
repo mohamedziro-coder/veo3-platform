@@ -1,5 +1,4 @@
 import { generateSchema } from "@/lib/schema";
-import EditableText from "@/components/cms/EditableText";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -21,13 +20,9 @@ export default function CreativeTestingPage() {
             />
 
             <div className="max-w-5xl mx-auto">
-                <EditableText
-                    slug="creative-testing"
-                    id="hero-title"
-                    defaultContent="The Scientific Method for Viral Videos"
-                    as="h1"
-                    className="text-5xl md:text-6xl font-black text-foreground mb-12"
-                />
+                <h1 className="text-5xl md:text-6xl font-black text-foreground mb-12">
+                    The Scientific Method for Viral Videos
+                </h1>
 
                 <div className="space-y-20">
                     {[
@@ -37,24 +32,10 @@ export default function CreativeTestingPage() {
                         { step: "04", title: "Scale", desc: "Doubledown on the winner." }
                     ].map((s, i) => (
                         <div key={i} className="flex items-start gap-8">
-                            <div className="text-6xl font-black text-primary/20">
-                                <EditableText slug="creative-testing" id={`step-num-${i}`} defaultContent={s.step} as="span" />
-                            </div>
+                            <div className="text-6xl font-black text-primary/20">{s.step}</div>
                             <div>
-                                <EditableText
-                                    slug="creative-testing"
-                                    id={`step-title-${i}`}
-                                    defaultContent={s.title}
-                                    as="h3"
-                                    className="text-3xl font-bold text-foreground mb-2"
-                                />
-                                <EditableText
-                                    slug="creative-testing"
-                                    id={`step-desc-${i}`}
-                                    defaultContent={s.desc}
-                                    as="p"
-                                    className="text-xl text-muted-foreground"
-                                />
+                                <h3 className="text-3xl font-bold text-foreground mb-2">{s.title}</h3>
+                                <p className="text-xl text-muted-foreground">{s.desc}</p>
                             </div>
                         </div>
                     ))}

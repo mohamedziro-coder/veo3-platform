@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Sparkles, Twitter, Linkedin, Instagram, Github } from "lucide-react";
 import { motion } from "framer-motion";
-import EditableText from "@/components/cms/EditableText";
+
 
 const footerLinks = [
     {
@@ -68,13 +68,7 @@ export default function Footer() {
                             </div>
                             <span>Virezo</span>
                         </Link>
-                        <EditableText
-                            slug="footer"
-                            id="description"
-                            defaultContent="Defy the limits of video production with AI-powered creative solutions for modern brands and agencies."
-                            as="p"
-                            className="max-w-sm text-sm font-medium leading-relaxed text-muted-foreground md:text-base"
-                        />
+                        <p className="max-w-sm text-sm font-medium leading-relaxed text-muted-foreground md:text-base">Defy the limits of video production with AI-powered creative solutions for modern brands and agencies.</p>
                     </div>
 
                     {footerLinks.map((section) => (

@@ -3,7 +3,6 @@
 import { motion, Variants } from "framer-motion";
 import { Quote, Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import EditableText from "@/components/cms/EditableText";
 
 interface TestimonialsProps {
     itemVariants: Variants;
@@ -42,20 +41,12 @@ export default function Testimonials({ itemVariants, staggerContainer }: Testimo
                 className="max-w-[1400px] mx-auto space-y-32"
             >
                 <motion.div variants={itemVariants} className="text-center space-y-8">
-                    <EditableText
-                        slug="testimonials"
-                        id="title"
-                        defaultContent="Loved by High-Growth Brands"
-                        as="h2"
-                        className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-[1]"
-                    />
-                    <EditableText
-                        slug="testimonials"
-                        id="subtitle"
-                        defaultContent="Real results from marketers scaling past 7-figures."
-                        as="p"
-                        className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto font-medium"
-                    />
+                    <h2 className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-[1]">
+                        Loved by High-Growth Brands
+                    </h2>
+                    <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto font-medium">
+                        Real results from marketers scaling past 7-figures.
+                    </p>
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -78,12 +69,7 @@ export default function Testimonials({ itemVariants, staggerContainer }: Testimo
                                     </div>
                                 </div>
                                 <div className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-medium mb-12 italic">
-                                    "<EditableText
-                                        slug="testimonials"
-                                        id={`quote-${i}`}
-                                        defaultContent={testimonial.text}
-                                        as="span"
-                                    />"
+                                    &quot;{testimonial.text}&quot;
                                 </div>
                             </div>
 
@@ -92,20 +78,8 @@ export default function Testimonials({ itemVariants, staggerContainer }: Testimo
                                     {testimonial.initials}
                                 </div>
                                 <div>
-                                    <EditableText
-                                        slug="testimonials"
-                                        id={`name-${i}`}
-                                        defaultContent={testimonial.name}
-                                        as="div"
-                                        className="text-xl font-bold text-foreground"
-                                    />
-                                    <EditableText
-                                        slug="testimonials"
-                                        id={`role-${i}`}
-                                        defaultContent={testimonial.role}
-                                        as="div"
-                                        className="text-base text-muted-foreground font-medium"
-                                    />
+                                    <div className="text-xl font-bold text-foreground">{testimonial.name}</div>
+                                    <div className="text-base text-muted-foreground font-medium">{testimonial.role}</div>
                                 </div>
                             </div>
                         </motion.div>

@@ -1,7 +1,6 @@
 import { generateSchema } from "@/lib/schema";
-import EditableText from "@/components/cms/EditableText";
 import { Metadata } from "next";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 
 export const metadata: Metadata = {
     title: "Contact Us - Virezo",
@@ -20,20 +19,10 @@ export default function ContactPage() {
 
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20">
                 <div>
-                    <EditableText
-                        slug="contact"
-                        id="hero-title"
-                        defaultContent="Get in Touch"
-                        as="h1"
-                        className="text-5xl font-black text-foreground mb-8"
-                    />
-                    <EditableText
-                        slug="contact"
-                        id="hero-desc"
-                        defaultContent="Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
-                        as="p"
-                        className="text-xl text-muted-foreground mb-12"
-                    />
+                    <h1 className="text-5xl font-black text-foreground mb-8">Get in Touch</h1>
+                    <p className="text-xl text-muted-foreground mb-12">
+                        {"Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."}
+                    </p>
 
                     <div className="space-y-8">
                         <div className="flex items-start gap-4">
@@ -42,20 +31,8 @@ export default function ContactPage() {
                             </div>
                             <div>
                                 <h3 className="text-lg font-bold text-foreground">Email</h3>
-                                <EditableText
-                                    slug="contact"
-                                    id="email-1"
-                                    defaultContent="support@virezo.com"
-                                    as="p"
-                                    className="text-muted-foreground"
-                                />
-                                <EditableText
-                                    slug="contact"
-                                    id="email-2"
-                                    defaultContent="sales@virezo.com"
-                                    as="p"
-                                    className="text-muted-foreground"
-                                />
+                                <p className="text-muted-foreground">support@virezo.com</p>
+                                <p className="text-muted-foreground">sales@virezo.com</p>
                             </div>
                         </div>
                         <div className="flex items-start gap-4">
@@ -64,20 +41,8 @@ export default function ContactPage() {
                             </div>
                             <div>
                                 <h3 className="text-lg font-bold text-foreground">Office</h3>
-                                <EditableText
-                                    slug="contact"
-                                    id="office-addr-1"
-                                    defaultContent="123 AI Boulevard"
-                                    as="p"
-                                    className="text-muted-foreground"
-                                />
-                                <EditableText
-                                    slug="contact"
-                                    id="office-addr-2"
-                                    defaultContent="San Francisco, CA 94105"
-                                    as="p"
-                                    className="text-muted-foreground"
-                                />
+                                <p className="text-muted-foreground">123 AI Boulevard</p>
+                                <p className="text-muted-foreground">San Francisco, CA 94105</p>
                             </div>
                         </div>
                     </div>

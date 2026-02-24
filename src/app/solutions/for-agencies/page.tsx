@@ -1,5 +1,4 @@
 import { generateSchema } from "@/lib/schema";
-import EditableText from "@/components/cms/EditableText";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -22,28 +21,9 @@ export default function AgenciesPage() {
 
             <div className="max-w-6xl mx-auto mb-24">
                 <div className="text-center max-w-3xl mx-auto mb-20">
-                    <EditableText
-                        slug="for-agencies"
-                        id="hero-label"
-                        defaultContent="For Agencies"
-                        as="span"
-                        className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block"
-                    />
-                    <EditableText
-                        slug="for-agencies"
-                        id="hero-title"
-                        defaultContent="Scale Creative Without Headcount"
-                        as="h1"
-                        className="text-5xl md:text-7xl font-black text-foreground mb-6"
-                        multiline
-                    />
-                    <EditableText
-                        slug="for-agencies"
-                        id="hero-desc"
-                        defaultContent="Deliver high-performing video ads for all your clients in minutes. White-label options and team collaboration included."
-                        as="p"
-                        className="text-xl text-muted-foreground"
-                    />
+                    <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">For Agencies</span>
+                    <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6">Scale Creative Without Headcount</h1>
+                    <p className="text-xl text-muted-foreground">Deliver high-performing video ads for all your clients in minutes. White-label options and team collaboration included.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32">
@@ -53,36 +33,16 @@ export default function AgenciesPage() {
                         { icon: "💰", title: "Higher Margins", desc: "Reduce production costs by 90% and keep the difference." }
                     ].map((feat, i) => (
                         <div key={i} className="bg-card-bg p-8 rounded-3xl border border-card-border hover:border-primary/50 transition-colors">
-                            <div className="text-4xl mb-4">
-                                <EditableText slug="for-agencies" id={`feat-icon-${i}`} defaultContent={feat.icon} as="span" />
-                            </div>
-                            <EditableText
-                                slug="for-agencies"
-                                id={`feat-title-${i}`}
-                                defaultContent={feat.title}
-                                as="h3"
-                                className="text-2xl font-bold text-foreground mb-2"
-                            />
-                            <EditableText
-                                slug="for-agencies"
-                                id={`feat-desc-${i}`}
-                                defaultContent={feat.desc}
-                                as="p"
-                                className="text-muted-foreground"
-                            />
+                            <div className="text-4xl mb-4">{feat.icon}</div>
+                            <h3 className="text-2xl font-bold text-foreground mb-2">{feat.title}</h3>
+                            <p className="text-muted-foreground">{feat.desc}</p>
                         </div>
                     ))}
                 </div>
 
                 <div className="bg-gradient-to-r from-primary to-blue-600 rounded-[3rem] p-12 md:p-20 text-center text-white relative overflow-hidden">
                     <div className="relative z-10">
-                        <EditableText
-                            slug="for-agencies"
-                            id="cta-title"
-                            defaultContent="Ready to scale your agency?"
-                            as="h2"
-                            className="text-4xl md:text-5xl font-black mb-6"
-                        />
+                        <h2 className="text-4xl md:text-5xl font-black mb-6">Ready to scale your agency?</h2>
                         <button className="px-12 py-4 rounded-xl bg-white text-primary font-black text-lg hover:bg-white/90 transition-colors">
                             Book a Demo
                         </button>

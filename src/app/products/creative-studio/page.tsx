@@ -1,7 +1,6 @@
 import { generateSchema } from "@/lib/schema";
 import { Metadata } from "next";
-import EditableImage from "@/components/cms/EditableImage";
-import EditableText from "@/components/cms/EditableText";
+import Image from "next/image";
 
 export const metadata: Metadata = {
     title: "Creative Studio - Virezo Products",
@@ -24,35 +23,16 @@ export default function CreativeStudioPage() {
 
             <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-16">
-                    <EditableText
-                        slug="creative-studio"
-                        id="hero-label"
-                        defaultContent="Creative Studio"
-                        as="span"
-                        className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block"
-                    />
-                    <EditableText
-                        slug="creative-studio"
-                        id="hero-title"
-                        defaultContent="The Editor That Thinks Like You"
-                        as="h1"
-                        className="text-5xl md:text-7xl font-black text-foreground mb-6"
-                        multiline
-                    />
-                    <EditableText
-                        slug="creative-studio"
-                        id="hero-desc"
-                        defaultContent="Drag, drop, and dream. Our timeline-based editor is infused with generative AI tools to speed up your workflow by 10x."
-                        as="p"
-                        className="text-xl text-muted-foreground max-w-3xl mx-auto"
-                    />
+                    <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block">Creative Studio</span>
+                    <h1 className="text-5xl md:text-7xl font-black text-foreground mb-6">The Editor That Thinks Like You</h1>
+                    <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                        Drag, drop, and dream. Our timeline-based editor is infused with generative AI tools to speed up your workflow by 10x.
+                    </p>
                 </div>
 
                 <div className="bg-card-bg border border-card-border rounded-3xl p-4 md:p-8 mb-20">
-                    <EditableImage
-                        slug="creative-studio"
-                        id="editor-preview"
-                        src="https://placehold.co/1200x800/1a1a1a/666666?text=Click+to+Upload+Editor+Preview"
+                    <Image
+                        src="https://placehold.co/1200x800/1a1a1a/666666?text=Editor+Preview"
                         alt="Editor UI Preview"
                         width={1200}
                         height={800}
@@ -68,20 +48,8 @@ export default function CreativeStudioPage() {
                         { title: "Audio Clean", desc: "Remove background noise and enhance speech instantly." }
                     ].map((feat, i) => (
                         <div key={i} className="p-8 rounded-3xl bg-card-bg/50 border border-card-border">
-                            <EditableText
-                                slug="creative-studio"
-                                id={`feat-title-${i}`}
-                                defaultContent={feat.title}
-                                as="h3"
-                                className="text-xl font-bold text-foreground mb-2"
-                            />
-                            <EditableText
-                                slug="creative-studio"
-                                id={`feat-desc-${i}`}
-                                defaultContent={feat.desc}
-                                as="p"
-                                className="text-muted-foreground"
-                            />
+                            <h3 className="text-xl font-bold text-foreground mb-2">{feat.title}</h3>
+                            <p className="text-muted-foreground">{feat.desc}</p>
                         </div>
                     ))}
                 </div>

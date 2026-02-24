@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { Sparkles, Play, ArrowRight } from "lucide-react";
 import Counter from "@/components/Counter";
-import EditableText from "@/components/cms/EditableText";
+
 
 // Lazy-load heavy components
 const Features = dynamic(() => import("@/components/landing/Features"), { ssr: false });
@@ -119,12 +119,7 @@ export default function HomePage() {
             className="text-5xl md:text-7xl lg:text-[7.3rem] font-black tracking-tight leading-[0.92] text-foreground"
           >
             Build <span className="text-primary relative inline-block">
-              <EditableText
-                slug="home"
-                id="hero-title-highlight"
-                defaultContent="Eye-Catching Videos"
-                as="span"
-              />
+              <span>Eye-Catching Videos</span>
               <motion.svg
                 initial={{ width: 0 }}
                 animate={{ width: "100%" }}
@@ -134,22 +129,13 @@ export default function HomePage() {
                 <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="10" fill="none" />
               </motion.svg>
             </span> <br />
-            <EditableText
-              slug="home"
-              id="hero-title-sub"
-              defaultContent="Without The Editing Headache."
-              as="span"
-            />
+            <span>Without The Editing Headache.</span>
           </motion.h1>
 
           <motion.div variants={itemVariants}>
-            <EditableText
-              slug="home"
-              id="hero-desc"
-              defaultContent="Turn ideas into broadcast-quality content in seconds. Realistic avatars, native multi-language voiceovers, and a workflow that feels fast."
-              className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium"
-              as="p"
-            />
+            <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
+              Turn ideas into broadcast-quality content in seconds. Realistic avatars, native multi-language voiceovers, and a workflow that feels fast.
+            </p>
           </motion.div>
 
           {/* CTAs (Scaled Up) */}
