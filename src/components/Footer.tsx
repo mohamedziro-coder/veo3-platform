@@ -12,8 +12,8 @@ const footerLinks = [
             { name: "Creative Studio", href: "/products/creative-studio" },
             { name: "Snapchat Ads Automation", href: "/products/snapchat-automation" },
             { name: "UGC Video Generator", href: "/products/ugc-generator" },
-            { name: "Talking Avatars", href: "/actor" }, // Kept as /actor (Feature Page)
-            { name: "AI Voiceovers", href: "/voice" }, // Kept as /voice (Feature Page)
+            { name: "Talking Avatars", href: "/products/talking-avatars" },
+            { name: "AI Voiceovers", href: "/products/ai-voiceovers" },
         ],
     },
     {
