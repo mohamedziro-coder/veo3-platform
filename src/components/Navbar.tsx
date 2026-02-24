@@ -18,11 +18,11 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-base font-bold text-gray-600">
-          <Link href="#features" className="hover:text-white transition-colors">
+          <Link href="/#features" className="hover:text-white transition-colors">
             Features
           </Link>
           <Link
-            href="#how-it-works"
+            href="/#how-it-works"
             className="hover:text-white transition-colors"
           >
             How it Works
