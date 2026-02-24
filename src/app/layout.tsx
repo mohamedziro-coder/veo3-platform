@@ -7,11 +7,16 @@ const inter = Inter({ subsets: ["latin"] });
 
 import { constructMetadata } from "@/lib/seo";
 
-export const metadata = constructMetadata({
-  title: "Virezo.pro | AI Video Generation SaaS",
-  description: "Create realistic talking avatars, UGC ads, and text-to-video campaigns in minutes. Built for agencies, ecommerce brands, and performance teams.",
-  image: "/og-image.png",
-});
+export const metadata: Metadata = {
+  ...constructMetadata({
+    title: "Virezo.pro | AI Video Generation SaaS",
+    description: "Create realistic talking avatars, UGC ads, and text-to-video campaigns in minutes. Built for agencies, ecommerce brands, and performance teams.",
+    image: "/og-image.png",
+  }),
+  verification: {
+    google: "oF9KhROMYa0WscVAQxJez07wpLoLOKdt7IrrBgY6UfI",
+  },
+};
 
 export const viewport: Viewport = {
   themeColor: [
