@@ -224,11 +224,28 @@ export async function getAllUsers(): Promise<User[]> {
     }
 }
 
-// Delete user
+// Delete user (with manual cascade to avoid FK constraint errors)
 export async function deleteUser(email: string): Promise<boolean> {
     try {
         const sql = getDb();
-        await sql`DELETE FROM users WHERE email = ${email}`;
+        const emailLower = email.trim().toLowerCase();
+
+        // 1. Delete activity logs for this user first
+        try {
+            await sql`DELETE FROM activity WHERE LOWER(user_email) = ${emailLower}`;
+        } catch (e) {
+            console.warn('[deleteUser] Could not delete activity rows:', e);
+        }
+
+        // 2. Nullify blog author references (preserve blogs, just orphan them)
+        try {
+            await sql`UPDATE blogs SET author_email = NULL WHERE LOWER(author_email) = ${emailLower}`;
+        } catch (e) {
+            console.warn('[deleteUser] Could not nullify blog author:', e);
+        }
+
+        // 3. Delete the user
+        await sql`DELETE FROM users WHERE LOWER(email) = ${emailLower}`;
         return true;
     } catch (error) {
         console.error('Error deleting user:', error);
