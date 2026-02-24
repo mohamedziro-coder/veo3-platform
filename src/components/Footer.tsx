@@ -10,7 +10,6 @@ const footerLinks = [
         title: "PRODUCT",
         links: [
             { name: "Creative Studio", href: "/products/creative-studio" },
-            { name: "Snapchat Ads Automation", href: "/products/snapchat-automation" },
             { name: "UGC Video Generator", href: "/products/ugc-generator" },
             { name: "Talking Avatars", href: "/products/talking-avatars" },
             { name: "AI Voiceovers", href: "/products/ai-voiceovers" },
@@ -19,7 +18,7 @@ const footerLinks = [
     {
         title: "SOLUTIONS",
         links: [
-            { name: "For Agencies", href: "/solutions/for-agencies" },
+            { name: "For Agencies", href: "/solutions/agencies" },
             { name: "For Brands", href: "/solutions/for-brands" },
             { name: "For Media Buyers", href: "/solutions/media-buyers" },
             { name: "Creative Testing", href: "/solutions/creative-testing" },
@@ -37,7 +36,7 @@ const footerLinks = [
     {
         title: "COMPANY",
         links: [
-            { name: "About", href: "/company/about" },
+            { name: "About", href: "/about" },
             { name: "Mission", href: "/company/mission" },
             { name: "Careers", href: "/company/careers" },
             { name: "Contact", href: "/company/contact" },
