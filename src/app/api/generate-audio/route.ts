@@ -1,17 +1,38 @@
 import { NextResponse } from "next/server";
-import { getVertexConfigAsync } from "@/lib/config";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
-import { geminiGenerateContent } from "@/lib/vertex"; // Use new Gen AI SDK for enhancement
-import { TextToSpeechClient } from "@google-cloud/text-to-speech";
+import { generateSpeech } from "@/lib/runway";
+
+// Map legacy Google voice IDs / language codes to Runway preset voices
+const VOICE_MAP: Record<string, string> = {
+    "ar-XA-Wavenet-B": "Liam",
+    "ar-XA-Wavenet-A": "Leslie",
+    "en-US-Wavenet-D": "James",
+    "en-US-Wavenet-F": "Emma",
+    "fr-FR-Wavenet-A": "Olivia",
+    "es-ES-Wavenet-B": "Noah",
+};
+
+function resolveVoice(voiceId?: string, languageCode?: string): string {
+    if (voiceId && VOICE_MAP[voiceId]) return VOICE_MAP[voiceId];
+    // Language-based heuristic
+    if (languageCode?.startsWith('ar')) return 'Liam';
+    if (languageCode?.startsWith('fr')) return 'Olivia';
+    if (languageCode?.startsWith('es')) return 'Charlotte';
+    return 'Leslie'; // default
+}
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { text, voiceId, languageCode, speakingRate, pitch, userEmail, useGemini } = body;
+        const { text, voiceId, languageCode, userEmail } = body;
 
         if (!userEmail) {
             return NextResponse.json({ error: "User authentication required" }, { status: 401 });
+        }
+
+        if (!text?.trim()) {
+            return NextResponse.json({ error: "Text is required" }, { status: 400 });
         }
 
         const newBalance = await deductUserCredits(userEmail, COSTS.VOICE);
@@ -19,74 +40,19 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
         }
 
-        let processedText = text;
+        const voice = resolveVoice(voiceId, languageCode);
+        console.log(`[AUDIO-GEN] Generating TTS via Runway. Voice: ${voice}, Text: "${text.substring(0, 60)}..."`);
 
-        // 1. Text Enhancement with Vertex AI (Gemini)
-        if (useGemini) {
-            try {
-                const prompt = `Improve for TTS (Natural flow, ${languageCode}): ${text}`;
-                const result = await geminiGenerateContent(prompt, 'gemini-2.0-flash');
-                if (result) {
-                    processedText = result.trim();
-                }
-            } catch (e) {
-                console.error("Gemini Enhancement Failed:", e);
-                // Fallback to original text
-            }
-        }
-
-        // 2. TTS Generation with Google Cloud (Authenticated via Vertex Credentials)
-        const config = await getVertexConfigAsync();
-
-        // Prepare Auth Options
-        const clientOptions: any = {
-            projectId: config.GOOGLE_PROJECT_ID,
-        };
-
-        // If JSON credentials provided directly in Admin Panel config
-        if (config.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-            try {
-                const credentials = JSON.parse(config.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-                clientOptions.credentials = credentials;
-            } catch (e) {
-                console.error("Invalid Service Account JSON in config");
-            }
-        }
-
-        // Initialize Client
-        const ttsClient = new TextToSpeechClient(clientOptions);
-
-        const ttsLanguageCode = languageCode === 'ar-MA' ? 'ar-XA' : languageCode;
-
-        const request = {
-            input: { text: processedText },
-            voice: { languageCode: ttsLanguageCode || "ar-XA", name: voiceId || "ar-XA-Wavenet-B" },
-            audioConfig: {
-                audioEncoding: "MP3" as const, // Cast to expected enum string
-                speakingRate: speakingRate || 1.0,
-                pitch: pitch || 0.0
-            }
-        };
-
-        const [response] = await ttsClient.synthesizeSpeech(request);
-        const audioContent = response.audioContent;
-
-        if (!audioContent) {
-            throw new Error("No audio content returned");
-        }
-
-        // Convert Buffer to Base64
-        const audioBase64 = Buffer.from(audioContent).toString("base64");
+        const { audioBase64 } = await generateSpeech(text, voice);
 
         return NextResponse.json({
             success: true,
             audioContent: audioBase64,
-            credits: newBalance,
-            enhancedText: useGemini ? processedText : undefined
+            credits: newBalance
         });
 
     } catch (error: any) {
-        console.error("TTS Error:", error);
+        console.error("[AUDIO-GEN] TTS Error:", error);
         return NextResponse.json({ error: error.message || "TTS Failed" }, { status: 500 });
     }
 }

@@ -1,5 +1,25 @@
 import { NextResponse } from 'next/server';
-import { geminiGenerateContent, getImagenModel } from '@/lib/vertex';
+import { generateImage } from '@/lib/runway';
+
+// ── Gemini text generation via REST (requires GEMINI_API_KEY in env) ──────────
+async function geminiGenerateText(prompt: string): Promise<string> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY env variable not set. Add it to .env.local to use blog generation.');
+
+    const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        }
+    );
+    if (!res.ok) throw new Error(`Gemini API error: ${res.status} ${await res.text()}`);
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+}
 
 export async function POST(request: Request) {
     try {
@@ -9,7 +29,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Topic is required" }, { status: 400 });
         }
 
-        // 1. Generate Content with Gemini (via Google Gen AI SDK)
+        // 1. Generate Content with Gemini
         const prompt = `
             You are an expert blog writer. Write a comprehensive, engaging blog post about: "${topic}".
             
@@ -22,11 +42,10 @@ export async function POST(request: Request) {
         `;
 
         console.log(`[BLOG-GEN] Generating content for topic: "${topic}"`);
-        const text = await geminiGenerateContent(prompt, 'gemini-2.0-flash');
+        const text = await geminiGenerateText(prompt);
 
-        // Clean up markdown if present
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        let blogData;
+        let blogData: any;
         try {
             blogData = JSON.parse(jsonStr);
         } catch (e) {
@@ -34,29 +53,15 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Failed to generate valid blog structure" }, { status: 500 });
         }
 
-        // 2. Generate Image with Imagen
-        let coverImage = null;
+        // 2. Generate Cover Image with Runway Gen4
+        let coverImage: string | null = null;
         if (blogData.image_prompt) {
             try {
-                console.log(`[BLOG-GEN] Generating image with prompt: "${blogData.image_prompt}"`);
-                const imagenModel = await getImagenModel("imagen-3.0-generate-001");
-
-                const imageResult = await imagenModel.generateContent({
-                    contents: [{ role: 'user', parts: [{ text: blogData.image_prompt }] }],
-                });
-
-                const imgResponse = imageResult.response;
-
-                // Extract image (Base64)
-                if (imgResponse.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-                    const imgData = imgResponse.candidates[0].content.parts[0].inlineData;
-                    coverImage = `data:${imgData.mimeType};base64,${imgData.data}`;
-                } else if (imgResponse.candidates?.[0]?.content?.parts?.[0]?.fileData?.fileUri) {
-                    coverImage = imgResponse.candidates[0].content.parts[0].fileData.fileUri;
-                }
+                console.log(`[BLOG-GEN] Generating image via Runway for prompt: "${blogData.image_prompt}"`);
+                coverImage = await generateImage(blogData.image_prompt, undefined, '1360:768');
             } catch (imgError) {
-                console.error("Imagen generation failed:", imgError);
-                // We don't fail the whole request, just return without image
+                console.error("Runway image generation failed:", imgError);
+                // Don't fail the whole request — return without image
             }
         }
 

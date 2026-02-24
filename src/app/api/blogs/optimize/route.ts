@@ -1,5 +1,24 @@
 import { NextResponse } from 'next/server';
-import { geminiGenerateContent } from '@/lib/vertex';
+
+// ── Gemini text generation via REST (requires GEMINI_API_KEY in env) ──────────
+async function geminiGenerateText(prompt: string): Promise<string> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY env variable not set. Add it to .env.local to use blog SEO optimization.');
+
+    const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }]
+            })
+        }
+    );
+    if (!res.ok) throw new Error(`Gemini API error: ${res.status} ${await res.text()}`);
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+}
 
 export async function POST(request: Request) {
     try {
@@ -14,7 +33,6 @@ export async function POST(request: Request) {
             1. An engaging, SEO-friendly Title (max 60 chars).
             2. A URL-friendly Slug (kebab-case).
             3. A compelling Excerpt/Meta Description (max 160 chars).
-            4. Detailed SEO analysis/suggestions (optional, keep it brief).
 
             Current Title (if any): "${title || ''}"
             
@@ -25,11 +43,8 @@ export async function POST(request: Request) {
             Do not include markdown formatting (like \`\`\`json) in the response.
         `;
 
-        const text = await geminiGenerateContent(prompt, 'gemini-2.0-flash');
-
-        // Clean up markdown code blocks if Gemini returns them
+        const text = await geminiGenerateText(prompt);
         const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-
         const seoData = JSON.parse(jsonStr);
 
         return NextResponse.json({ success: true, ...seoData });

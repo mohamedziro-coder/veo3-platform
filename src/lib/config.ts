@@ -1,116 +1,90 @@
 import fs from 'fs';
 import path from 'path';
+import { saveSystemConfig, getSystemConfig } from './db';
 
 const CONFIG_PATH = path.join(process.cwd(), 'src', 'data', 'config.json');
 
-interface VertexConfig {
-    GOOGLE_PROJECT_ID?: string;
-    GOOGLE_LOCATION?: string;
-    GOOGLE_APPLICATION_CREDENTIALS_JSON?: string;
-    GCS_BUCKET_NAME?: string;
+// ──────────────────────────────────────────────────────────────────────────────
+// Types
+// ──────────────────────────────────────────────────────────────────────────────
+export interface AppConfig {
+    RUNWAYML_API_SECRET?: string;
     [key: string]: any;
 }
 
-export function getVertexConfig(): VertexConfig {
-    // 1. Try config file first (Dynamic Override)
+// ──────────────────────────────────────────────────────────────────────────────
+// Sync (file/env) — for local dev or edge fallback
+// ──────────────────────────────────────────────────────────────────────────────
+export function getAppConfig(): AppConfig {
     try {
         if (fs.existsSync(CONFIG_PATH)) {
             const data = fs.readFileSync(CONFIG_PATH, 'utf-8');
             const config = JSON.parse(data);
             return {
-                GOOGLE_PROJECT_ID: config.GOOGLE_PROJECT_ID || process.env.GOOGLE_PROJECT_ID,
-                GOOGLE_LOCATION: config.GOOGLE_LOCATION || process.env.GOOGLE_LOCATION || 'us-central1',
-                GOOGLE_APPLICATION_CREDENTIALS_JSON: config.GOOGLE_APPLICATION_CREDENTIALS_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-                GCS_BUCKET_NAME: config.GCS_BUCKET_NAME || process.env.GCS_BUCKET_NAME
+                RUNWAYML_API_SECRET: config.RUNWAYML_API_SECRET || process.env.RUNWAYML_API_SECRET,
             };
         }
     } catch (e) {
-        console.error("Error reading config.json:", e);
+        console.error('Error reading config.json:', e);
     }
-
-    // 2. Fallback to Environment Variables
     return {
-        GOOGLE_PROJECT_ID: process.env.GOOGLE_PROJECT_ID,
-        GOOGLE_LOCATION: process.env.GOOGLE_LOCATION || 'us-central1',
-        GOOGLE_APPLICATION_CREDENTIALS_JSON: process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-        GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME
+        RUNWAYML_API_SECRET: process.env.RUNWAYML_API_SECRET,
     };
 }
 
-import { saveSystemConfig, getSystemConfig } from './db';
-
-export async function getVertexConfigAsync(): Promise<VertexConfig> {
-    // 1. Try DB first
-    const dbConfig = await getSystemConfig('vertex_config');
+// ──────────────────────────────────────────────────────────────────────────────
+// Async (DB first, then file/env)
+// ──────────────────────────────────────────────────────────────────────────────
+export async function getAppConfigAsync(): Promise<AppConfig> {
+    const dbConfig = await getSystemConfig('app_config');
     if (dbConfig) {
         return {
-            GOOGLE_PROJECT_ID: dbConfig.GOOGLE_PROJECT_ID || process.env.GOOGLE_PROJECT_ID,
-            GOOGLE_LOCATION: dbConfig.GOOGLE_LOCATION || process.env.GOOGLE_LOCATION || 'us-central1',
-            GOOGLE_APPLICATION_CREDENTIALS_JSON: dbConfig.GOOGLE_APPLICATION_CREDENTIALS_JSON || process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON,
-            GCS_BUCKET_NAME: dbConfig.GCS_BUCKET_NAME || process.env.GCS_BUCKET_NAME
+            RUNWAYML_API_SECRET: dbConfig.RUNWAYML_API_SECRET || process.env.RUNWAYML_API_SECRET,
         };
     }
-
-    // 2. Fallback to File (Dev) or Env (Prod)
-    // (Reusing synchronous logic wrapper or just duplicating for safety)
-    return getVertexConfig();
+    return getAppConfig();
 }
 
-export async function saveVertexConfigAsync(config: VertexConfig): Promise<{ success: boolean; error?: string }> {
+export async function saveAppConfigAsync(config: AppConfig): Promise<{ success: boolean; error?: string }> {
     try {
-        // Save to DB
-        const saved = await saveSystemConfig('vertex_config', config);
-        if (!saved) throw new Error("Database save failed");
+        const saved = await saveSystemConfig('app_config', config);
+        if (!saved) throw new Error('Database save failed');
 
-        // Also try to save to file for local dev cache (optional, best effort)
-        try {
-            saveVertexConfig(config);
-        } catch (e) {
-            // Ignore file write error in prod
-        }
+        // Best-effort local file cache
+        try { saveAppConfig(config); } catch (_) { }
 
         return { success: true };
     } catch (e: any) {
-        console.error("Error saving vertex config:", e);
+        console.error('Error saving app config:', e);
         return { success: false, error: e.message };
     }
 }
 
-export function saveVertexConfig(config: VertexConfig): { success: boolean; error?: string } {
-    // Legacy File Sync Save
+export function saveAppConfig(config: AppConfig): { success: boolean; error?: string } {
     try {
-        // ... (keep existing implementation for local dev)
-        console.log("Saving config to:", CONFIG_PATH);
-        let currentConfig = {};
-
+        let current = {};
         if (fs.existsSync(CONFIG_PATH)) {
-            try {
-                currentConfig = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
-            } catch (e) { }
+            try { current = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8')); } catch (_) { }
         }
-
-        const newConfig = { ...currentConfig, ...config };
         const dir = path.dirname(CONFIG_PATH);
-
         if (!fs.existsSync(dir)) {
-            try {
-                fs.mkdirSync(dir, { recursive: true });
-            } catch (e) {
-                // Return simple error if we can't create dir (likely Vercel)
-                return { success: false, error: "Cannot create directory (Read-only System)" };
-            }
+            try { fs.mkdirSync(dir, { recursive: true }); }
+            catch (_) { return { success: false, error: 'Cannot create config directory' }; }
         }
-
-        fs.writeFileSync(CONFIG_PATH, JSON.stringify(newConfig, null, 2));
+        fs.writeFileSync(CONFIG_PATH, JSON.stringify({ ...current, ...config }, null, 2));
         return { success: true };
     } catch (e: any) {
-        console.error("Error writing config.json:", e);
-        return { success: false, error: e.message || "File write failed" };
+        return { success: false, error: e.message };
     }
 }
 
-// Deprecated: For backward compatibility during migration
-export function getGeminiApiKey(): string | undefined {
-    const config = getVertexConfig();
-    return "deprecated"; // Or handle if gemini key is strictly needed elsewhere
-}
+// ──────────────────────────────────────────────────────────────────────────────
+// Backward-compatible aliases (so we don't break any code that still imports
+// the old Vertex names before we finish the migration)
+// ──────────────────────────────────────────────────────────────────────────────
+/** @deprecated use getAppConfigAsync */
+export const getVertexConfigAsync = getAppConfigAsync;
+/** @deprecated use getAppConfig */
+export const getVertexConfig = getAppConfig;
+/** @deprecated use saveAppConfigAsync */
+export const saveVertexConfigAsync = saveAppConfigAsync;

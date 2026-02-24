@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVeoModel, vertexAI } from "@/lib/vertex";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
 import { storeOperationResult } from "@/lib/operations";
+import { startVideoGeneration, pollRunwayTask } from "@/lib/runway";
 
 export async function POST(req: NextRequest) {
     try {
-        const { startImage, endImage, prompt, userEmail, gravityIntensity = 0.5, aspectRatio = "9:16" } = await req.json();
+        const { startImage, endImage, prompt, userEmail, aspectRatio = "9:16", duration = 10 } = await req.json();
 
         if (!userEmail) {
             return NextResponse.json({ error: "User authentication required" }, { status: 401 });
@@ -19,17 +19,16 @@ export async function POST(req: NextRequest) {
         }
 
         // Generate unique operation ID
-        const operationId = `veo-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+        const operationId = `runway-${Date.now()}-${Math.random().toString(36).substring(7)}`;
         console.log(`[GENERATE] Created operation ${operationId} for user: ${userEmail}`);
 
-        // Store initial operation status
         storeOperationResult(operationId, {
             status: "processing",
-            message: "Starting video generation..."
+            message: "Starting video generation with Runway..."
         });
 
-        // Spawn async video generation (non-blocking)
-        processVideoGeneration(operationId, startImage, endImage, prompt, gravityIntensity, newBalance, aspectRatio)
+        // Spawn async (non-blocking)
+        processVideoGeneration(operationId, startImage, endImage, prompt, aspectRatio, duration as 5 | 10, newBalance)
             .catch((error) => {
                 console.error(`[GENERATE] Operation ${operationId} failed:`, error);
                 storeOperationResult(operationId, {
@@ -38,197 +37,105 @@ export async function POST(req: NextRequest) {
                 });
             });
 
-        // Return immediately with operation ID
         return NextResponse.json({
             status: "processing",
-            operationId: operationId,
+            operationId,
             message: "Video generation started. Poll /api/generate/status for updates."
         });
 
     } catch (error: any) {
-        console.error("Vertex AI Error:", error);
+        console.error("Runway Error:", error);
         return NextResponse.json({
-            error: error.message || "Vertex AI Generation Failed",
+            error: error.message || "Runway Generation Failed",
             details: error
         }, { status: 500 });
     }
 }
 
-// Background video generation function using REST API
 async function processVideoGeneration(
     operationId: string,
     startImage: string,
-    endImage: string,
+    endImage: string | undefined,
     prompt: string,
-    gravityIntensity: number,
-    credits: number,
-    aspectRatio: string
+    aspectRatio: string,
+    duration: 5 | 10,
+    credits: number
 ) {
     try {
-        console.log(`[PROCESS] Starting background generation for operation: ${operationId}`);
+        console.log(`[PROCESS] Starting Runway generation for operation: ${operationId}`);
 
-        // Import helpers (dynamic import to avoid circular dependencies)
-        const { uploadBase64ToGCS, gcsUriToHttps } = await import('@/lib/gcs-upload');
-        const { startVideoGeneration, pollOperationStatus } = await import('@/lib/veo-lro');
-
-        // Helper to process base64/url
-        const processImage = async (input: string) => {
-            if (input.startsWith("http")) {
-                try {
-                    const res = await fetch(input);
-                    const buf = await res.arrayBuffer();
-                    return Buffer.from(buf).toString("base64");
-                } catch (e) {
-                    console.error("Failed to fetch image:", input);
-                    throw new Error("Failed to fetch image URL");
-                }
-            }
-            return input.split(",")[1] || input;
-        };
-
-        // Step 1: Upload images to GCS (Veo requires GCS URIs)
         storeOperationResult(operationId, {
             status: "processing",
-            message: "Uploading images to Cloud Storage..."
+            message: "Submitting to Runway AI..."
         });
 
-        let startImageGcsUri: string;
-        let endImageGcsUri: string | undefined;
-
-        if (startImage) {
-            const startBase64 = await processImage(startImage);
-            startImageGcsUri = await uploadBase64ToGCS(startBase64, 'start-frame.jpg');
-            console.log(`[PROCESS] Start image uploaded: ${startImageGcsUri}`);
-        } else {
-            throw new Error('Start image is required');
-        }
-
-        if (endImage) {
-            const endBase64 = await processImage(endImage);
-            endImageGcsUri = await uploadBase64ToGCS(endBase64, 'end-frame.jpg');
-            console.log(`[PROCESS] End image uploaded: ${endImageGcsUri}`);
-        }
-
-        // Step 2: Start Veo LRO via REST API
-        storeOperationResult(operationId, {
-            status: "processing",
-            message: "Generating video with Veo 3.1..."
-        });
-
-        // Initialize config to get bucket name
-        const { getVertexConfigAsync } = await import('@/lib/config');
-        const config = await getVertexConfigAsync();
-        let bucketName = config.GCS_BUCKET_NAME || process.env.GCS_BUCKET_NAME;
-
-        if (!bucketName) {
-            throw new Error('GCS_BUCKET_NAME not configured in environment or settings');
-        }
-
-        // Sanitize: Remove gs:// prefix if present and trim whitespace
-        bucketName = bucketName.replace(/^gs:\/\//, '').trim();
-
-        if (!bucketName) {
-            throw new Error('Invalid GCS bucket name (empty after sanitization)');
-        }
-
-        const outputGcsUri = `gs://${bucketName}/veo-outputs/${operationId}/`;
-
-        const { operationName } = await startVideoGeneration({
+        // Start video generation via Runway
+        const { taskId } = await startVideoGeneration({
             prompt: prompt || "Cinematic video shot",
-            startImageGcsUri,
-            endImageGcsUri,
-            outputGcsUri,
-            aspectRatio
+            startImage: startImage || undefined,
+            ratio: aspectRatio,
+            duration,
         });
 
-        console.log(`[PROCESS] Vertex AI operation started: ${operationName}`);
+        console.log(`[PROCESS] Runway task started: ${taskId}`);
 
-        // Step 3: Poll operation status
+        storeOperationResult(operationId, {
+            status: "processing",
+            message: "Runway is generating your video..."
+        });
+
+        // Poll task status
+        const MAX_ATTEMPTS = 120; // 4 minutes (2s intervals)
         let attempts = 0;
-        const MAX_ATTEMPTS = 200; // 10 minutes (3s intervals)
-        let lastMessage = "Generating video...";
-        let lastDebug = "";
 
         while (attempts < MAX_ATTEMPTS) {
-            await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds
+            await new Promise(resolve => setTimeout(resolve, 3000));
 
-            // FALLBACK: Check GCS directly for the output file
-            // This is "L-badil" (the alternative) for broken API polling
-            const { checkGcsOutput } = await import('@/lib/gcs-upload');
-            const { url: gcsVideoUrl, bucketName, fileCount, filesFound } = await checkGcsOutput(operationId);
+            const result = await pollRunwayTask(taskId);
 
-            lastDebug = `Bucket: ${bucketName}, Files: ${fileCount}`;
+            if (result.done) {
+                if (result.status === "FAILED") {
+                    storeOperationResult(operationId, {
+                        status: "failed",
+                        error: result.error || "Runway generation failed"
+                    });
+                    return;
+                }
 
-            if (gcsVideoUrl) {
-                console.log(`[PROCESS] GCS Fallback SUCCESS: Video found at ${gcsVideoUrl}`);
+                const videoUrl = result.videoUrl;
+                if (videoUrl) {
+                    console.log(`[PROCESS] Video ready: ${videoUrl}`);
+                    storeOperationResult(operationId, {
+                        status: "complete",
+                        videoUrl,
+                        credits,
+                        message: "Video generated successfully!"
+                    });
+                    return;
+                }
+
                 storeOperationResult(operationId, {
-                    status: "complete",
-                    videoUrl: gcsVideoUrl,
-                    credits,
-                    message: "Video generated successfully! (via GCS Fallback)"
+                    status: "failed",
+                    error: "No video URL in Runway response"
                 });
                 return;
             }
 
-            // PRIMARY: Try API Polling
-            try {
-                const { done, error, response } = await pollOperationStatus(operationName);
-
-                if (done) {
-                    if (error) {
-                        console.error(`[PROCESS] Vertex AI operation failed:`, error);
-                        storeOperationResult(operationId, {
-                            status: "failed",
-                            error: error.message || "Video generation failed"
-                        });
-                        return;
-                    }
-
-                    // Extract video GCS URI from response
-                    console.log(`[PROCESS] Operation completed! Response:`, JSON.stringify(response));
-                    let videoUrl = null;
-
-                    if (response?.generatedVideos?.[0]?.video?.gcsUri) {
-                        const gcsUri = response.generatedVideos[0].video.gcsUri;
-                        videoUrl = gcsUriToHttps(gcsUri);
-                    } else if (response?.generatedSamples?.[0]?.video?.uri) {
-                        videoUrl = response.generatedSamples[0].video.uri;
-                        if (videoUrl.startsWith('gs://')) videoUrl = gcsUriToHttps(videoUrl);
-                    }
-
-                    if (videoUrl) {
-                        storeOperationResult(operationId, {
-                            status: "complete",
-                            videoUrl,
-                            credits,
-                            message: "Video generated successfully!"
-                        });
-                        return;
-                    }
-                }
-            } catch (pollError: any) {
-                // Silently ignore polling errors and rely on GCS fallback
-                console.warn(`[PROCESS] Polling error (will retry with GCS fallback):`, pollError.message);
-            }
-
-            // Update progress message every 10 attempts (30 seconds)
-            if (attempts % 10 === 0) {
-                const elapsed = Math.floor((attempts * 3) / 60);
-                lastMessage = `Generating... ${elapsed}m ${(attempts * 3) % 60}s. (Debug: ${lastDebug})`;
+            // Update progress every 10 attempts (~30s)
+            if (attempts % 10 === 0 && attempts > 0) {
+                const elapsed = Math.round((attempts * 3) / 60);
                 storeOperationResult(operationId, {
                     status: "processing",
-                    message: lastMessage
+                    message: `Generating... (~${elapsed}m elapsed)`
                 });
             }
 
             attempts++;
         }
 
-        // Timeout
-        console.error(`[PROCESS] Operation ${operationId} timed out after ${MAX_ATTEMPTS * 3}s. Debug: ${lastDebug}`);
         storeOperationResult(operationId, {
             status: "failed",
-            error: `Video generation timed out after 10m. Debug: ${lastDebug}`
+            error: "Video generation timed out after 4 minutes"
         });
 
     } catch (error: any) {

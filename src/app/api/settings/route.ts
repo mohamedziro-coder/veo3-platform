@@ -1,55 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getVertexConfigAsync, saveVertexConfigAsync } from "@/lib/config";
+import { getAppConfigAsync, saveAppConfigAsync } from "@/lib/config";
 
-// GET /api/settings - Retrieve current configuration status
+// GET /api/settings — Return current Runway API key status
 export async function GET(req: NextRequest) {
     try {
-        const config = await getVertexConfigAsync();
-
+        const config = await getAppConfigAsync();
         return NextResponse.json({
-            configured: !!config.GOOGLE_PROJECT_ID,
-            projectId: config.GOOGLE_PROJECT_ID || "",
-            location: config.GOOGLE_LOCATION || "us-central1",
-            bucketName: config.GCS_BUCKET_NAME || "",
-            hasCredentials: !!config.GOOGLE_APPLICATION_CREDENTIALS_JSON
+            configured: !!config.RUNWAYML_API_SECRET,
+            hasApiKey: !!config.RUNWAYML_API_SECRET,
         });
-
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
     }
 }
 
-// POST /api/settings - Update configuration
+// POST /api/settings — Save Runway API key
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { projectId, location, serviceAccountJson, bucketName } = body;
+        const { runwayApiSecret } = body;
 
-        if (!projectId) {
-            return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+        if (!runwayApiSecret) {
+            return NextResponse.json({ error: "Runway API secret is required" }, { status: 400 });
         }
 
-        const newConfig: any = {
-            GOOGLE_PROJECT_ID: projectId,
-            GOOGLE_LOCATION: location || "us-central1",
-            GCS_BUCKET_NAME: bucketName || ""
-        };
-
-        if (serviceAccountJson) {
-            newConfig.GOOGLE_APPLICATION_CREDENTIALS_JSON = serviceAccountJson;
-        }
-
-        const result = await saveVertexConfigAsync(newConfig);
+        const result = await saveAppConfigAsync({ RUNWAYML_API_SECRET: runwayApiSecret });
 
         if (result.success) {
-            return NextResponse.json({ success: true, message: "Vertex AI Configuration saved successfully" });
+            return NextResponse.json({ success: true, message: "Runway API key saved successfully" });
         } else {
-            return NextResponse.json({ error: `Failed to save configuration: ${result.error}` }, { status: 500 });
+            return NextResponse.json({ error: `Failed to save: ${result.error}` }, { status: 500 });
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Settings save error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
-
