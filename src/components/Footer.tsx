@@ -29,14 +29,14 @@ const footerLinks = [
         links: [
             { name: "Getting Started", href: "/resources/getting-started" },
             { name: "Help Center", href: "/resources/help-center" },
-            { name: "Marketing Glossary", href: "/resources/glossary" },
+            { name: "Marketing Glossary", href: "/resources/marketing-glossary" },
             { name: "Affiliate Program", href: "/resources/affiliate" },
         ],
     },
     {
         title: "COMPANY",
         links: [
-            { name: "About", href: "/about" },
+            { name: "About", href: "/company/about" },
             { name: "Mission", href: "/company/mission" },
             { name: "Careers", href: "/company/careers" },
             { name: "Contact", href: "/company/contact" },
@@ -45,10 +45,10 @@ const footerLinks = [
 ];
 
 const socialLinks = [
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-    { icon: Github, href: "#", label: "GitHub" },
+    { icon: Twitter, href: "https://x.com", label: "Twitter" },
+    { icon: Linkedin, href: "https://www.linkedin.com", label: "LinkedIn" },
+    { icon: Instagram, href: "https://www.instagram.com", label: "Instagram" },
+    { icon: Github, href: "https://github.com", label: "GitHub" },
 ];
 
 export default function Footer() {
@@ -61,7 +61,7 @@ export default function Footer() {
             <div className="relative z-10 mx-auto max-w-[1400px] px-6">
                 <div className="mb-16 grid grid-cols-2 gap-10 md:grid-cols-4 lg:grid-cols-5 md:gap-14">
                     <div className="col-span-2 space-y-6 lg:col-span-1">
-                        <Link href="/" className="flex items-center gap-3 text-3xl font-black tracking-tighter text-foreground">
+                        <Link href="/" prefetch className="flex items-center gap-3 text-3xl font-black tracking-tighter text-foreground">
                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-secondary text-white shadow-xl shadow-primary/25">
                                 <Sparkles className="h-7 w-7 fill-white text-white" />
                             </div>
@@ -78,6 +78,7 @@ export default function Footer() {
                                     <li key={link.name}>
                                         <Link
                                             href={link.href}
+                                            prefetch
                                             className="group flex items-center text-sm font-semibold text-muted-foreground transition-all duration-300 hover:text-primary md:text-base"
                                         >
                                             <motion.span className="inline-block transition-transform duration-300 group-hover:translate-x-1.5">
@@ -99,6 +100,9 @@ export default function Footer() {
                             <Link
                                 key={social.label}
                                 href={social.href}
+                                prefetch={false}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="rounded-xl p-2.5 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                                 aria-label={social.label}
                             >
@@ -108,10 +112,10 @@ export default function Footer() {
                     </div>
 
                     <div className="flex items-center gap-5 text-sm font-semibold text-muted-foreground">
-                        <Link href="/privacy" className="transition-colors hover:text-foreground">
+                        <Link href="/privacy" prefetch className="transition-colors hover:text-foreground">
                             Privacy Policy
                         </Link>
-                        <Link href="/terms" className="transition-colors hover:text-foreground">
+                        <Link href="/terms" prefetch className="transition-colors hover:text-foreground">
                             Terms of Service
                         </Link>
                     </div>

@@ -43,7 +43,7 @@ const features = [
 
 export default function Features({ itemVariants, staggerContainer }: FeaturesProps) {
     return (
-        <section className="py-48 px-6 bg-background">
+        <section id="features" className="scroll-mt-28 py-48 px-6 bg-background">
             <motion.div
                 initial="hidden"
                 whileInView="visible"

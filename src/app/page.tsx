@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { Sparkles, Play, ArrowRight } from "lucide-react";
+import { useEffect } from "react";
 import Counter from "@/components/Counter";
 
 
@@ -112,6 +113,41 @@ export default function HomePage() {
     { id: 5, title: "Travel Blog", video: "/videos/demo5.mp4", thumbnail: "https://images.unsplash.com/photo-1502444330042-d1a1ddf9bb5b?w=400&fit=crop" },
     { id: 6, title: "Style Guide", video: "/videos/demo6.mp4", thumbnail: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&fit=crop" }
   ];
+
+  useEffect(() => {
+    const scrollToHash = () => {
+      const id = window.location.hash.replace("#", "");
+      if (!id) return;
+
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let tries = 0;
+
+      const run = () => {
+        const target = document.getElementById(id);
+        if (target) {
+          target.scrollIntoView({
+            block: "start",
+            behavior: prefersReducedMotion ? "auto" : "smooth",
+          });
+          return;
+        }
+
+        tries += 1;
+        if (tries < 30) {
+          window.setTimeout(run, 100);
+        }
+      };
+
+      run();
+    };
+
+    scrollToHash();
+    window.addEventListener("hashchange", scrollToHash);
+
+    return () => {
+      window.removeEventListener("hashchange", scrollToHash);
+    };
+  }, []);
 
   return (
     <main className="min-h-screen text-foreground font-sans overflow-x-hidden selection:bg-primary/20 selection:text-primary">

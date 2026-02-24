@@ -15,7 +15,7 @@ const steps = [
 
 export default function HowItWorks({ itemVariants, staggerContainer }: HowItWorksProps) {
     return (
-        <section className="py-48 bg-[#FAFAFB] dark:bg-[#09090B] border-y border-card-border overflow-hidden">
+        <section id="how-it-works" className="scroll-mt-28 py-48 bg-[#FAFAFB] dark:bg-[#09090B] border-y border-card-border overflow-hidden">
             <motion.div
                 initial="hidden"
                 whileInView="visible"
