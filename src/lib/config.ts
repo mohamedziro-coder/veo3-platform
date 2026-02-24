@@ -3,6 +3,7 @@ import path from 'path';
 import { saveSystemConfig, getSystemConfig } from './db';
 
 const CONFIG_PATH = path.join(process.cwd(), 'src', 'data', 'config.json');
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Types
@@ -13,9 +14,35 @@ export interface AppConfig {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Sync (file/env) — for local dev or edge fallback
+// Runtime validation — throws on startup if critical env vars are missing
+// ──────────────────────────────────────────────────────────────────────────────
+export function validateEnv(): void {
+    const required = [
+        'NEXT_PUBLIC_SUPABASE_URL',
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+        'RUNWAYML_API_SECRET',
+    ];
+    const missing = required.filter((key) => !process.env[key]);
+    if (missing.length > 0) {
+        throw new Error(
+            `[Security] Missing required environment variables: ${missing.join(', ')}\n` +
+            `Set them in your Vercel dashboard or .env.local (never commit secrets to disk).`
+        );
+    }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Sync — env only in production, file fallback in development
 // ──────────────────────────────────────────────────────────────────────────────
 export function getAppConfig(): AppConfig {
+    // 🔒 In production: ONLY use environment variables — never disk files
+    if (IS_PRODUCTION) {
+        return {
+            RUNWAYML_API_SECRET: process.env.RUNWAYML_API_SECRET,
+        };
+    }
+
+    // Development: allow local file override (never committed — add to .gitignore)
     try {
         if (fs.existsSync(CONFIG_PATH)) {
             const data = fs.readFileSync(CONFIG_PATH, 'utf-8');
@@ -25,7 +52,7 @@ export function getAppConfig(): AppConfig {
             };
         }
     } catch (e) {
-        console.error('Error reading config.json:', e);
+        console.error('[Config] Error reading config.json (dev only):', e);
     }
     return {
         RUNWAYML_API_SECRET: process.env.RUNWAYML_API_SECRET,
@@ -33,7 +60,7 @@ export function getAppConfig(): AppConfig {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Async (DB first, then file/env)
+// Async — DB first, then env (production-safe)
 // ──────────────────────────────────────────────────────────────────────────────
 export async function getAppConfigAsync(): Promise<AppConfig> {
     const dbConfig = await getSystemConfig('app_config');
@@ -50,17 +77,25 @@ export async function saveAppConfigAsync(config: AppConfig): Promise<{ success: 
         const saved = await saveSystemConfig('app_config', config);
         if (!saved) throw new Error('Database save failed');
 
-        // Best-effort local file cache
-        try { saveAppConfig(config); } catch (_) { }
+        // Best-effort local file cache (dev only)
+        if (!IS_PRODUCTION) {
+            try { saveAppConfig(config); } catch (_) { }
+        }
 
         return { success: true };
     } catch (e: any) {
-        console.error('Error saving app config:', e);
+        console.error('[Config] Error saving app config:', e);
         return { success: false, error: e.message };
     }
 }
 
 export function saveAppConfig(config: AppConfig): { success: boolean; error?: string } {
+    // 🔒 Blocked in production — use Vercel env vars instead
+    if (IS_PRODUCTION) {
+        console.warn('[Security] saveAppConfig is disabled in production. Use environment variables.');
+        return { success: false, error: 'File-based config is disabled in production.' };
+    }
+
     try {
         let current = {};
         if (fs.existsSync(CONFIG_PATH)) {
@@ -79,8 +114,7 @@ export function saveAppConfig(config: AppConfig): { success: boolean; error?: st
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
-// Backward-compatible aliases (so we don't break any code that still imports
-// the old Vertex names before we finish the migration)
+// Backward-compatible aliases
 // ──────────────────────────────────────────────────────────────────────────────
 /** @deprecated use getAppConfigAsync */
 export const getVertexConfigAsync = getAppConfigAsync;
@@ -88,3 +122,4 @@ export const getVertexConfigAsync = getAppConfigAsync;
 export const getVertexConfig = getAppConfig;
 /** @deprecated use saveAppConfigAsync */
 export const saveVertexConfigAsync = saveAppConfigAsync;
+

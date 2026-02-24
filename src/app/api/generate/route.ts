@@ -1,16 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
 import { storeOperationResult } from "@/lib/operations";
 import { startVideoGeneration, pollRunwayTask } from "@/lib/runway";
 
+// ── Rate Limiting ────────────────────────────────────────────────────────────
+// Simple sliding-window: max 5 requests per user per 60 seconds
+const rateMap = new Map<string, number[]>();
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 5;
+
+function isRateLimited(key: string): boolean {
+    const now = Date.now();
+    const timestamps = (rateMap.get(key) ?? []).filter(
+        (t) => now - t < RATE_LIMIT_WINDOW_MS
+    );
+    if (timestamps.length >= RATE_LIMIT_MAX) return true;
+    timestamps.push(now);
+    rateMap.set(key, timestamps);
+    return false;
+}
+
 export async function POST(req: NextRequest) {
     try {
-        const { startImage, endImage, prompt, userEmail, aspectRatio = "9:16", duration = 10 } = await req.json();
+        // ── Auth: verify session server-side ──────────────────────────────────
+        const supabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    getAll: () => req.cookies.getAll(),
+                    setAll: () => { },
+                },
+            }
+        );
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
-        if (!userEmail) {
-            return NextResponse.json({ error: "User authentication required" }, { status: 401 });
+        if (!user?.email) {
+            return NextResponse.json(
+                { error: "Authentication required" },
+                { status: 401 }
+            );
         }
+        const userEmail = user.email;
+
+        // ── Rate limiting (per user) ──────────────────────────────────────────
+        if (isRateLimited(userEmail)) {
+            return NextResponse.json(
+                { error: "Too many requests. Please wait before generating again." },
+                { status: 429 }
+            );
+        }
+
+        const { startImage, endImage, prompt, aspectRatio = "9:16", duration = 10 } =
+            await req.json();
 
         // Deduct Credits
         const newBalance = await deductUserCredits(userEmail, COSTS.VIDEO);
@@ -18,39 +64,45 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Insufficient credits" }, { status: 402 });
         }
 
-        // Generate unique operation ID
         const operationId = `runway-${Date.now()}-${Math.random().toString(36).substring(7)}`;
         console.log(`[GENERATE] Created operation ${operationId} for user: ${userEmail}`);
 
         storeOperationResult(operationId, {
             status: "processing",
-            message: "Starting video generation with Runway..."
+            message: "Starting video generation with Runway...",
         });
 
-        // Spawn async (non-blocking)
-        processVideoGeneration(operationId, startImage, endImage, prompt, aspectRatio, duration as 5 | 10, newBalance)
-            .catch((error) => {
-                console.error(`[GENERATE] Operation ${operationId} failed:`, error);
-                storeOperationResult(operationId, {
-                    status: "failed",
-                    error: error.message || "Video generation failed"
-                });
+        processVideoGeneration(
+            operationId,
+            startImage,
+            endImage,
+            prompt,
+            aspectRatio,
+            duration as 5 | 10,
+            newBalance
+        ).catch((error) => {
+            console.error(`[GENERATE] Operation ${operationId} failed:`, error);
+            storeOperationResult(operationId, {
+                status: "failed",
+                error: error.message || "Video generation failed",
             });
+        });
 
         return NextResponse.json({
             status: "processing",
             operationId,
-            message: "Video generation started. Poll /api/generate/status for updates."
+            message: "Video generation started. Poll /api/generate/status for updates.",
         });
-
     } catch (error: any) {
+        // ⚠️ Never expose internal error details to the client
         console.error("Runway Error:", error);
-        return NextResponse.json({
-            error: error.message || "Runway Generation Failed",
-            details: error
-        }, { status: 500 });
+        return NextResponse.json(
+            { error: "Video generation failed. Please try again." },
+            { status: 500 }
+        );
     }
 }
+
 
 async function processVideoGeneration(
     operationId: string,
