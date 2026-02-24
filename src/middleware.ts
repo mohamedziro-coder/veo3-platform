@@ -9,12 +9,18 @@ const PROTECTED_API_ROUTES = [
 ];
 
 export async function middleware(request: NextRequest) {
-    let supabaseResponse = NextResponse.next({ request });
+    try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
+        // If Supabase is not configured, skip auth enforcement and pass through
+        if (!supabaseUrl || !supabaseKey) {
+            return NextResponse.next({ request });
+        }
+
+        let supabaseResponse = NextResponse.next({ request });
+
+        const supabase = createServerClient(supabaseUrl, supabaseKey, {
             cookies: {
                 getAll() {
                     return request.cookies.getAll();
@@ -29,36 +35,38 @@ export async function middleware(request: NextRequest) {
                     );
                 },
             },
-        }
-    );
+        });
 
-    // Refresh session (required for Supabase SSR)
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+        // Refresh session (required for Supabase SSR)
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
 
-    const { pathname } = request.nextUrl;
+        const { pathname } = request.nextUrl;
 
-    // Block unauthenticated access to protected API routes
-    const isProtected = PROTECTED_API_ROUTES.some((route) =>
-        pathname.startsWith(route)
-    );
-
-    if (isProtected && !user) {
-        return NextResponse.json(
-            { error: "Authentication required" },
-            { status: 401 }
+        // Block unauthenticated access to protected API routes
+        const isProtected = PROTECTED_API_ROUTES.some((route) =>
+            pathname.startsWith(route)
         );
-    }
 
-    return supabaseResponse;
+        if (isProtected && !user) {
+            return NextResponse.json(
+                { error: "Authentication required" },
+                { status: 401 }
+            );
+        }
+
+        return supabaseResponse;
+    } catch (err) {
+        // Never let middleware crash — fail open and let route handlers deal with auth
+        console.error("[Middleware] Error:", err);
+        return NextResponse.next({ request });
+    }
 }
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except static files and Next.js internals.
-         */
         "/((?!_next/static|_next/image|favicon.ico|public/).*)",
     ],
 };
+
