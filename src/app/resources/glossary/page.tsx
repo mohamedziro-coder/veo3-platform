@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Marketing Glossary - Virezo Resources",
     description: "Definitions of key terms in AI video production and digital marketing.",
+    alternates: {
+        canonical: "/resources/glossary",
+    },
 };
 
 const terms = [

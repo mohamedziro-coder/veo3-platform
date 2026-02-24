@@ -3,6 +3,8 @@ import { constructMetadata } from "@/lib/seo";
 export const metadata = constructMetadata({
     title: "Login - Virezo 3",
     description: "Sign in to your Virezo account to start generating AI videos, voices, and avatars.",
+    canonical: "/login",
+    noIndex: true,
 });
 
 export default function LoginLayout({

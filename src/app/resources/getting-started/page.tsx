@@ -6,6 +6,9 @@ import { PlayCircle, FileText, Zap } from "lucide-react";
 export const metadata: Metadata = {
     title: "Getting Started with Virezo - Resources",
     description: "Learn how to create your first AI video in under 5 minutes.",
+    alternates: {
+        canonical: "/resources/getting-started",
+    },
 };
 
 export default function GettingStartedPage() {

@@ -5,6 +5,9 @@ import Image from "next/image";
 export const metadata: Metadata = {
     title: "Creative Studio - Virezo Products",
     description: "The all-in-one AI video editor for modern creators.",
+    alternates: {
+        canonical: "/products/creative-studio",
+    },
 };
 
 export default function CreativeStudioPage() {

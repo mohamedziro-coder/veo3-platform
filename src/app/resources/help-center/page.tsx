@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Help Center - Virezo Support",
     description: "Find answers to common questions about billing, features, and troubleshooting.",
+    alternates: {
+        canonical: "/resources/help-center",
+    },
 };
 
 export default function HelpCenterPage() {

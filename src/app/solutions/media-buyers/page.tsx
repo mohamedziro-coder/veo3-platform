@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Media Buyer Tools - Virezo Solutions",
     description: "Lower your CPA with high-converting AI video creatives.",
+    alternates: {
+        canonical: "/solutions/media-buyers",
+    },
 };
 
 export default function MediaBuyersPage() {

@@ -1,41 +1,66 @@
-import { MetadataRoute } from 'next';
-import { getBlogs } from '@/lib/db'; // Assuming this exists or I'll need to mock it/check it
+import type { MetadataRoute } from "next";
+import { getBlogs } from "@/lib/db";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://virezo.pro";
+
+export const revalidate = 3600;
+
+type ChangeFreq = "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://virezo.com'; // Replace with actual domain
+    const now = new Date();
 
-    // Static routes
-    const routes = [
-        '',
-        '/login',
-        '/signup',
-        '/pricing',
-        '/video',
-        '/voice',
-        '/actor',
-        '/blogs',
-    ].map((route) => ({
-        url: `${baseUrl}${route}`,
-        lastModified: new Date().toISOString(),
-        changeFrequency: 'daily' as const,
-        priority: route === '' ? 1 : 0.8,
+    const staticRoutes: Array<{
+        path: string;
+        priority: number;
+        changeFrequency: ChangeFreq;
+    }> = [
+            { path: "/", priority: 1.0, changeFrequency: "daily" },
+            { path: "/pricing", priority: 0.9, changeFrequency: "weekly" },
+            { path: "/blogs", priority: 0.9, changeFrequency: "daily" },
+            { path: "/products/creative-studio", priority: 0.8, changeFrequency: "weekly" },
+            { path: "/products/ugc-generator", priority: 0.8, changeFrequency: "weekly" },
+            { path: "/products/talking-avatars", priority: 0.8, changeFrequency: "weekly" },
+            { path: "/products/ai-voiceovers", priority: 0.8, changeFrequency: "weekly" },
+            { path: "/solutions/for-agencies", priority: 0.8, changeFrequency: "weekly" },
+            { path: "/solutions/for-brands", priority: 0.8, changeFrequency: "weekly" },
+            { path: "/solutions/media-buyers", priority: 0.8, changeFrequency: "weekly" },
+            { path: "/solutions/creative-testing", priority: 0.8, changeFrequency: "weekly" },
+            { path: "/company/about", priority: 0.7, changeFrequency: "monthly" },
+            { path: "/company/mission", priority: 0.7, changeFrequency: "monthly" },
+            { path: "/company/careers", priority: 0.6, changeFrequency: "monthly" },
+            { path: "/company/contact", priority: 0.7, changeFrequency: "monthly" },
+            { path: "/resources/getting-started", priority: 0.7, changeFrequency: "weekly" },
+            { path: "/resources/help-center", priority: 0.7, changeFrequency: "weekly" },
+            { path: "/resources/glossary", priority: 0.7, changeFrequency: "weekly" },
+            { path: "/resources/affiliate", priority: 0.6, changeFrequency: "monthly" },
+            { path: "/privacy", priority: 0.3, changeFrequency: "yearly" },
+            { path: "/terms", priority: 0.3, changeFrequency: "yearly" },
+        ];
+
+    const staticEntries: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
+        url: new URL(route.path, siteUrl).toString(),
+        lastModified: now,
+        changeFrequency: route.changeFrequency,
+        priority: route.priority,
     }));
 
-    // Dynamic blog routes
-    let blogRoutes: MetadataRoute.Sitemap = [];
+    let blogEntries: MetadataRoute.Sitemap = [];
     try {
-        // Attempt to fetch blogs if the db function exists and works in this context
-        // If not, this might fail at build time, so I'll wrap in try/catch or just leave it empty if I can't verify db consistency
-        // based on previous file exploration, getBlogs is imported in blogs/page.tsx from @/lib/db
-        // However, since this is a server file, it should work if getBlogs is server-compatible.
-        // For now, I'll keep it simple and maybe comment it out if it causes issues, but ideally it should work.
-        // Actually, let's just use static for now to be safe, or mock it if I can't be sure.
-        // But the user wants "comprehensive", so I should try.
-        // I'll skip fetching for now to avoid build errors if db isn't set up perfectly in this environment.
-        // Use a placeholder or check if I can see lib/db.ts
+        if (process.env.POSTGRES_URL) {
+            const blogs = await getBlogs(true);
+            blogEntries = blogs
+                .filter((blog) => Boolean(blog.slug))
+                .map((blog) => ({
+                    url: new URL(`/blogs/${blog.slug}`, siteUrl).toString(),
+                    lastModified: blog.updated_at ? new Date(blog.updated_at) : now,
+                    changeFrequency: "weekly" as const,
+                    priority: 0.7,
+                }));
+        }
     } catch (error) {
-        console.error('Failed to fetch blogs for sitemap', error);
+        console.error("Failed to fetch blogs for sitemap", error);
     }
 
-    return [...routes, ...blogRoutes];
+    return [...staticEntries, ...blogEntries];
 }

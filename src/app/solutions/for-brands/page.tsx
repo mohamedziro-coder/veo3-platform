@@ -5,6 +5,9 @@ import Image from "next/image";
 export const metadata: Metadata = {
     title: "AI Video for Brands - Virezo Solutions",
     description: "Consistent brand messaging at scale with AI avatars and voice cloning.",
+    alternates: {
+        canonical: "/solutions/for-brands",
+    },
 };
 
 export default function BrandsPage() {

@@ -42,6 +42,7 @@ export default function HomePage() {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    "@id": "https://virezo.pro/#faq",
     "mainEntity": faqs.map(faq => ({
       "@type": "Question",
       "name": faq.question,
@@ -50,6 +51,37 @@ export default function HomePage() {
         "text": faq.answer
       }
     }))
+  };
+
+  const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "@id": "https://virezo.pro/#howto-ugc-ad",
+    "name": "How to create a UGC ad with Virezo.pro",
+    "description": "Generate a UGC-style AI video ad in minutes with Virezo.pro.",
+    "totalTime": "PT10M",
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Paste product URL or script",
+        "text": "Start by adding your product URL or a short script for the ad."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Select avatar and voice",
+        "text": "Choose a realistic talking avatar and voice style that matches your campaign."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Generate multiple ad variations",
+        "text": "Create several AI video variations to test hooks and messaging quickly."
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Export and launch campaigns",
+        "text": "Export ad-ready creatives and launch on your paid channels."
+      }
+    ]
   };
 
   const itemVariants: Variants = {
@@ -87,6 +119,10 @@ export default function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
       />
 
       {/* 1. HERO SECTION (Scaled Up) */}

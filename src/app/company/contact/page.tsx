@@ -5,6 +5,9 @@ import { Mail, MapPin } from "lucide-react";
 export const metadata: Metadata = {
     title: "Contact Us - Virezo",
     description: "Get in touch with the Virezo team for support, sales, or partnerships.",
+    alternates: {
+        canonical: "/company/contact",
+    },
 };
 
 export default function ContactPage() {

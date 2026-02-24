@@ -1,45 +1,22 @@
-import Script from 'next/script';
+type JsonLdValue =
+    | string
+    | number
+    | boolean
+    | null
+    | JsonLdValue[]
+    | { [key: string]: JsonLdValue };
 
-export default function JsonLd() {
-    const organizationSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: 'Virezo 3',
-        url: 'https://virezo.com',
-        logo: 'https://virezo.com/logo.png',
-        sameAs: [
-            'https://twitter.com/virezo_ai',
-            'https://github.com/virezo-ai',
-        ],
-    };
+interface JsonLdProps {
+    id: string;
+    data: JsonLdValue;
+}
 
-    const softwareSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'Virezo 3 Video Generator',
-        applicationCategory: 'MultimediaApplication',
-        operatingSystem: 'Web',
-        offers: {
-            '@type': 'Offer',
-            price: '0',
-            priceCurrency: 'USD',
-        },
-    };
-
+export default function JsonLd({ id, data }: JsonLdProps) {
     return (
-        <>
-            <Script
-                id="json-ld-org"
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-                strategy="afterInteractive"
-            />
-            <Script
-                id="json-ld-app"
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
-                strategy="afterInteractive"
-            />
-        </>
+        <script
+            id={id}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+        />
     );
 }

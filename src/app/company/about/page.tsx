@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "About Us - Virezo",
     description: "Learn about Virezo's mission to democratize video creation with AI.",
+    alternates: {
+        canonical: "/company/about",
+    },
 };
 
 export default function AboutPage() {

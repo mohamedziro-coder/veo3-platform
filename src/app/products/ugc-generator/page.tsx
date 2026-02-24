@@ -5,6 +5,9 @@ import Image from "next/image";
 export const metadata: Metadata = {
     title: "UGC Video Generator - Virezo Products",
     description: "Generate authentic User Generated Content videos with AI avatars.",
+    alternates: {
+        canonical: "/products/ugc-generator",
+    },
 };
 
 export default function UGCPage() {

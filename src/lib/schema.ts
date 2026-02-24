@@ -2,13 +2,12 @@ export const generateSchema = {
     organization: () => ({
         "@context": "https://schema.org",
         "@type": "Organization",
-        "name": "Virezo",
-        "url": "https://virezo.com",
-        "logo": "https://virezo.com/logo.png",
+        "name": "Virezo.pro",
+        "url": "https://virezo.pro",
+        "logo": "https://virezo.pro/logo.png",
+        "disambiguatingDescription": "Virezo.pro is an AI video generation software platform and is not affiliated with Verizon or telecom services.",
         "sameAs": [
-            "https://twitter.com/virezo",
-            "https://linkedin.com/company/virezo",
-            "https://instagram.com/virezo"
+            "https://virezo.pro"
         ],
         "contactPoint": {
             "@type": "ContactPoint",
@@ -27,10 +26,13 @@ export const generateSchema = {
         "operatingSystem": "Web",
         "image": image,
         "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-        }
+            "@type": "AggregateOffer",
+            "priceCurrency": "USD",
+            "lowPrice": "0",
+            "highPrice": "5",
+            "description": "Pricing starts free and is typically under $5 per generated video depending on plan and usage."
+        },
+        "disambiguatingDescription": "AI Video Generation software for B2B teams, not a telecom service."
     }),
 
     faq: (faqs: { question: string; answer: string }[]) => ({
@@ -66,7 +68,7 @@ export const generateSchema = {
         "description": description,
         "provider": {
             "@type": "Organization",
-            "name": "Virezo"
+            "name": "Virezo.pro"
         },
         "areaServed": "Global"
     })

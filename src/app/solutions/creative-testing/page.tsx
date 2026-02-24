@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Creative Testing - Virezo Solutions",
     description: "Data-driven creative testing methodology powered by AI.",
+    alternates: {
+        canonical: "/solutions/creative-testing",
+    },
 };
 
 export default function CreativeTestingPage() {

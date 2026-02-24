@@ -4,6 +4,9 @@ import { ArrowRight } from "lucide-react";
 export const metadata: Metadata = {
     title: "Careers - Virezo",
     description: "Join the team building the future of AI video generation.",
+    alternates: {
+        canonical: "/company/careers",
+    },
 };
 
 export default function CareersPage() {

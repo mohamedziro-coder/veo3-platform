@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Affiliate Program - Earn with Virezo",
     description: "Join the Virezo affiliate program and earn 30% recurring commission.",
+    alternates: {
+        canonical: "/resources/affiliate",
+    },
 };
 
 export default function AffiliatePage() {

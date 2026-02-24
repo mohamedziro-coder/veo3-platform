@@ -3,6 +3,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "Terms of Service - Virezo",
     description: "The rules and regulations for using Virezo's website and services.",
+    alternates: {
+        canonical: "/terms",
+    },
 };
 
 export default function TermsPage() {

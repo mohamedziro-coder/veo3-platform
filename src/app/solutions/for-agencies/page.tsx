@@ -4,6 +4,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
     title: "AI Video for Agencies - Virezo Solutions",
     description: "Scale your creative production 10x with Virezo's AI tools built for agencies.",
+    alternates: {
+        canonical: "/solutions/for-agencies",
+    },
 };
 
 export default function AgenciesPage() {
