@@ -14,7 +14,7 @@ export default function CreativeStudioPage() {
     const schema = generateSchema.product(
         "Virezo Creative Studio",
         "A powerful AI-driven video editor in the browser.",
-        "https://virezo.com/shots/editor-ui.png"
+        "https://virezo.pro/shots/editor-ui.png"
     );
 
     return (
@@ -35,7 +35,7 @@ export default function CreativeStudioPage() {
 
                 <div className="bg-card-bg border border-card-border rounded-3xl p-4 md:p-8 mb-20">
                     <Image
-                        src="https://placehold.co/1200x800/1a1a1a/666666?text=Editor+Preview"
+                        src="/shots/editor-ui.png"
                         alt="Editor UI Preview"
                         width={1200}
                         height={800}
