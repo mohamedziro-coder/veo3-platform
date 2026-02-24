@@ -157,8 +157,14 @@ export async function verifyUser(email: string, password: string): Promise<Verif
     try {
         const sql = getDb();
         const emailLower = email.trim().toLowerCase();
+
+        // Auto-migrate: ensure is_verified column exists
+        try {
+            await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE`;
+        } catch (_) { /* column already exists or unsupported — ignore */ }
+
         const result = await sql`
-            SELECT id, email, name, role, credits, password_hash, COALESCE(is_verified, FALSE) AS is_verified
+            SELECT id, email, name, role, credits, password_hash, is_verified
             FROM users 
             WHERE LOWER(email) = ${emailLower}
         `;
@@ -167,7 +173,7 @@ export async function verifyUser(email: string, password: string): Promise<Verif
             return { ok: false, reason: 'invalid_credentials' };
         }
 
-        const user = result[0] as User & { password_hash: string; is_verified?: boolean };
+        const user = result[0] as User & { password_hash: string; is_verified?: boolean | null };
 
         // Verify password
         const isValid = await bcrypt.compare(password, user.password_hash);
@@ -175,12 +181,15 @@ export async function verifyUser(email: string, password: string): Promise<Verif
             return { ok: false, reason: 'invalid_credentials' };
         }
 
-        // Block login until email verification is completed
-        if (!user.is_verified) {
+        // Admin email always bypasses email verification
+        const isAdmin = emailLower === getPrimaryAdminEmail();
+
+        // Block only if explicitly FALSE (not null — null means old user before column was added)
+        if (!isAdmin && user.is_verified === false) {
             return { ok: false, reason: 'unverified' };
         }
 
-        // Return user without password hash
+        // Return user without sensitive fields
         const { password_hash, is_verified, ...userWithoutPassword } = user;
         return {
             ok: true,
@@ -194,6 +203,7 @@ export async function verifyUser(email: string, password: string): Promise<Verif
         return { ok: false, reason: 'invalid_credentials' };
     }
 }
+
 
 // Get all users (for admin)
 export async function getAllUsers(): Promise<User[]> {
