@@ -58,17 +58,19 @@ export default function AdminPage() {
                     });
                 }
 
-                // Fetch Settings to populate form
+                // Fetch Settings to show Runway config status
                 const settingsRes = await fetch('/api/settings');
                 const settings = await settingsRes.json();
                 if (settings && !settings.error) {
-                    const projectIdInput = document.getElementById('projectIdInput') as HTMLInputElement;
-                    const locationInput = document.getElementById('locationInput') as HTMLInputElement;
-                    const bucketNameInput = document.getElementById('bucketNameInput') as HTMLInputElement; // NEW
-
-                    if (projectIdInput && settings.projectId) projectIdInput.value = settings.projectId;
-                    if (locationInput && settings.location) locationInput.value = settings.location;
-                    if (bucketNameInput && settings.bucketName) bucketNameInput.value = settings.bucketName;
+                    const runwayStatus = document.getElementById('runwayKeyStatus');
+                    if (runwayStatus) {
+                        runwayStatus.textContent = settings.hasApiKey
+                            ? '✅ API key is configured'
+                            : '⚠️ No API key set';
+                        runwayStatus.className = settings.hasApiKey
+                            ? 'text-xs font-medium text-green-600'
+                            : 'text-xs font-medium text-amber-600';
+                    }
                 }
 
                 setIsLoading(false);
@@ -342,91 +344,58 @@ export default function AdminPage() {
 
                     <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 md:p-6">
                         <div className="flex flex-col gap-4">
-                            <label className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider flex items-center gap-2">
-                                <Key className="w-4 h-4 text-purple-600" />
-                                Vertex AI Configuration
-                            </label>
+                            <div className="flex items-center justify-between">
+                                <label className="text-xs md:text-sm text-gray-500 font-bold uppercase tracking-wider flex items-center gap-2">
+                                    <Key className="w-4 h-4 text-purple-600" />
+                                    Runway ML API Key
+                                </label>
+                                <span id="runwayKeyStatus" className="text-xs font-medium text-gray-400">Loading...</span>
+                            </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">Google Cloud Project ID</label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. my-genai-project-123"
-                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm"
-                                        id="projectIdInput"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">Location (Region)</label>
-                                    <input
-                                        type="text"
-                                        placeholder="us-central1"
-                                        defaultValue="us-central1"
-                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm"
-                                        id="locationInput"
-                                    />
-                                </div>
-
-                                <div className="md:col-span-2">
-                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">
-                                        GCS Bucket Name (Required for Veo)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. veo3-videos-prod"
-                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm"
-                                        id="bucketNameInput"
-                                    />
-                                    <p className="text-[10px] text-gray-500 mt-1">
-                                        Create a bucket: <code>gsutil mb -p PROJECT_ID gs://YOUR_BUCKET_NAME</code>
-                                    </p>
-                                </div>
-
-                                <div className="md:col-span-2">
-                                    <label className="text-xs font-semibold text-gray-700 mb-1 block">Service Account JSON (Optional if using ADC)</label>
-                                    <textarea
-                                        placeholder='Paste contents of service-account.json here...'
-                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm min-h-[100px] font-mono text-xs"
-                                        id="jsonInput"
-                                    />
-                                </div>
+                            <div>
+                                <label className="text-xs font-semibold text-gray-700 mb-1 block">API Secret Key</label>
+                                <input
+                                    type="password"
+                                    placeholder="Paste your Runway API key here..."
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 focus:outline-none transition-all text-sm font-mono"
+                                    id="runwayApiKeyInput"
+                                />
+                                <p className="text-[10px] text-gray-500 mt-1">
+                                    Get your key from{' '}
+                                    <a href="https://app.runwayml.com/settings" target="_blank" rel="noopener noreferrer" className="text-purple-600 underline hover:text-purple-800">app.runwayml.com/settings</a>
+                                </p>
                             </div>
 
                             <button
                                 onClick={async () => {
-                                    const projectId = (document.getElementById('projectIdInput') as HTMLInputElement).value;
-                                    const location = (document.getElementById('locationInput') as HTMLInputElement).value;
-                                    const bucketName = (document.getElementById('bucketNameInput') as HTMLInputElement).value;
-                                    const serviceAccountJson = (document.getElementById('jsonInput') as HTMLTextAreaElement).value;
-
-                                    if (!projectId) return alert("⚠️ Project ID is required");
-                                    if (!bucketName) return alert("⚠️ GCS Bucket Name is required for Veo");
-
+                                    const runwayApiSecret = (document.getElementById('runwayApiKeyInput') as HTMLInputElement).value.trim();
+                                    if (!runwayApiSecret) return alert('⚠️ Please enter your Runway API key');
                                     try {
                                         const res = await fetch('/api/settings', {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ projectId, location, bucketName, serviceAccountJson })
+                                            body: JSON.stringify({ runwayApiSecret })
                                         });
                                         if (res.ok) {
-                                            alert("✅ Vertex AI Configuration Saved!");
+                                            alert('✅ Runway API Key Saved!');
+                                            const status = document.getElementById('runwayKeyStatus');
+                                            if (status) { status.textContent = '✅ API key is configured'; status.className = 'text-xs font-medium text-green-600'; }
+                                            (document.getElementById('runwayApiKeyInput') as HTMLInputElement).value = '';
                                         } else {
                                             const errData = await res.json();
-                                            alert(`❌ Failed to save config: ${errData.error || "Unknown error"}`);
+                                            alert(`❌ Failed: ${errData.error || 'Unknown error'}`);
                                         }
                                     } catch (e) {
-                                        alert("❌ Error saving config.");
+                                        alert('❌ Error saving key.');
                                     }
                                 }}
                                 className="bg-primary hover:bg-primary/90 text-white font-bold px-4 md:px-6 py-3 md:py-3.5 rounded-xl transition-all active:scale-95 shadow-md hover:shadow-lg min-h-[44px] flex items-center justify-center text-sm md:text-base mt-2"
                             >
-                                Save Configuration
+                                Save API Key
                             </button>
 
-                            <p className="text-xs md:text-sm text-gray-500 bg-blue-50 border border-blue-100 rounded-lg p-3">
-                                💡 This configuration enables Veo 3.1, Imagen 3, and Gemini 1.5 Pro via Vertex AI.
+                            <p className="text-xs md:text-sm text-gray-500 bg-purple-50 border border-purple-100 rounded-lg p-3">
+                                🚀 This key powers video generation, image generation, and voice synthesis via Runway ML.
                             </p>
                         </div>
                     </div>
