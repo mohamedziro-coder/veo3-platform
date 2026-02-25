@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { deductUserCredits } from "@/lib/db";
 import { COSTS } from "@/lib/costs";
 import { generateSpeech } from "@/lib/runway";
-import { storeOperationResult } from "@/lib/operations";
+
+// Allow up to 60 seconds on Vercel Pro (10s on Hobby — upgrade if TTS times out)
+export const maxDuration = 60;
 
 // Valid Runway TTS preset names
 const RUNWAY_PRESETS = new Set([
@@ -42,6 +44,11 @@ function resolveVoice(voiceId?: string, languageCode?: string): string {
     return 'Leslie';
 }
 
+/**
+ * POST /api/generate-audio
+ * Synchronous — waits for TTS to complete (up to maxDuration seconds).
+ * Returns { audioContent: base64, credits: number } directly.
+ */
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -61,55 +68,24 @@ export async function POST(req: Request) {
         }
 
         const voice = resolveVoice(voiceId, languageCode);
+        console.log(`[AUDIO-GEN] Generating TTS: voice=${voice}, user=${userEmail}`);
 
-        // ── Create operation and fire async background process ────────────────
-        const operationId = `tts-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-        console.log(`[AUDIO-GEN] Created operation ${operationId}, voice: ${voice}`);
+        // ── Call Runway synchronously ─────────────────────────────────────────
+        const { audioBase64 } = await generateSpeech(text, voice);
 
-        storeOperationResult(operationId, {
-            status: "processing",
-            message: "Starting TTS generation with Runway...",
-        });
+        console.log(`[AUDIO-GEN] TTS complete, credits remaining: ${newBalance}`);
 
-        // Fire-and-forget
-        processTtsGeneration(operationId, text, voice, newBalance).catch((err) => {
-            console.error(`[AUDIO-GEN] Background error for ${operationId}:`, err);
-            storeOperationResult(operationId, { status: "failed", error: err.message || "TTS failed" });
-        });
-
-        // ── Return immediately (no timeout risk) ─────────────────────────────
         return NextResponse.json({
-            status: "processing",
-            operationId,
-            message: "Audio generation started. Poll /api/media/status for updates.",
+            success: true,
+            audioContent: audioBase64,
+            credits: newBalance,
         });
 
     } catch (error: any) {
         console.error("[AUDIO-GEN] TTS Error:", error);
-        return NextResponse.json({ error: error.message || "TTS Failed" }, { status: 500 });
-    }
-}
-
-async function processTtsGeneration(
-    operationId: string,
-    text: string,
-    voice: string,
-    credits: number
-) {
-    try {
-        storeOperationResult(operationId, { status: "processing", message: "Runway is synthesizing your voice..." });
-
-        const { audioBase64 } = await generateSpeech(text, voice);
-
-        console.log(`[AUDIO-GEN] TTS complete for operation ${operationId}`);
-        storeOperationResult(operationId, {
-            status: "complete",
-            audioContent: audioBase64,
-            credits,
-            message: "Audio generated successfully!",
-        });
-    } catch (error: any) {
-        console.error(`[AUDIO-GEN] processTtsGeneration error:`, error);
-        storeOperationResult(operationId, { status: "failed", error: error.message || "TTS generation failed" });
+        return NextResponse.json(
+            { error: error.message || "Voice generation failed" },
+            { status: 500 }
+        );
     }
 }

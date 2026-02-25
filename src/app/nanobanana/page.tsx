@@ -279,20 +279,11 @@ export default function NanobananaPage() {
                     className="w-full max-w-2xl mt-8"
                 >
                     <div className="relative rounded-3xl overflow-hidden border border-gray-200 shadow-xl bg-white">
-                        <div className="relative w-full h-auto aspect-square md:aspect-video">
-                            {/* Fallback for external URLs that might not be in config, though we added unsplash/google */}
-                            {/* Using unoptimized for arbitrary generation URLs if they come from unknown sources, 
-                                but best effort to use Image if possible. 
-                                Since generated URLs are dynamic, we might need unoptimized=true if domain isn't in config.
-                                But we added generativelanguage.googleapis.com
-                            */}
-                            <Image
+                        <div className="relative w-full">
+                            <img
                                 src={imageUrl}
                                 alt="Generated"
-                                fill
-                                className="object-contain"
-                                sizes="(max-width: 768px) 100vw, 800px"
-                                unoptimized={!imageUrl.startsWith('https://images.unsplash.com') && !imageUrl.startsWith('https://generativelanguage.googleapis.com')}
+                                className="w-full h-auto rounded-t-3xl block"
                             />
                         </div>
                         <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent flex justify-between items-end z-10">

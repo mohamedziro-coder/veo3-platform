@@ -119,8 +119,8 @@ export default function VoicePage() {
             const voicePreset = resolveVoice(selectedLang, selectedGender);
             const userEmail = JSON.parse(localStorage.getItem("current_user") || "{}").email;
 
-            // ── Step 1: Start generation (returns immediately) ──────────────
-            const startRes = await fetch("/api/generate-audio", {
+            // Single synchronous call — server awaits Runway TTS and returns audio
+            const res = await fetch("/api/generate-audio", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -131,77 +131,48 @@ export default function VoicePage() {
                 }),
             });
 
-            const startData = await startRes.json();
+            const data = await res.json();
 
-            if (!startRes.ok || !startData.operationId) {
-                setError(startData.error || `Server error: ${startRes.status}`);
+            if (!res.ok || !data.audioContent) {
+                setError(data.error || `Server error: ${res.status}`);
                 return;
             }
 
-            const { operationId } = startData;
+            // Build blob URL from base64
+            const audioBlob = await fetch(
+                `data:audio/mp3;base64,${data.audioContent}`
+            ).then((r) => r.blob());
+            const url = URL.createObjectURL(audioBlob);
+            setAudioUrl(url);
 
-            // ── Step 2: Poll for result ─────────────────────────────────────
-            const MAX_POLLS = 60; // 60 × 3s = 3 minutes max
-            for (let i = 0; i < MAX_POLLS; i++) {
-                await new Promise((r) => setTimeout(r, 3000));
-
-                const pollRes = await fetch(
-                    `/api/media/status?operationId=${operationId}&userEmail=${encodeURIComponent(userEmail)}`
-                );
-                const pollData = await pollRes.json();
-
-                if (pollData.status === "complete") {
-                    if (!pollData.audioContent) {
-                        setError("No audio returned from server.");
-                        return;
-                    }
-
-                    // Build blob URL from base64
-                    const audioBlob = await fetch(
-                        `data:audio/mp3;base64,${pollData.audioContent}`
-                    ).then((r) => r.blob());
-                    const url = URL.createObjectURL(audioBlob);
-                    setAudioUrl(url);
-
-                    // Sync credits
-                    if (pollData.credits !== undefined) {
-                        const user = JSON.parse(localStorage.getItem("current_user") || "{}");
-                        user.credits = pollData.credits;
-                        localStorage.setItem("current_user", JSON.stringify(user));
-                        window.dispatchEvent(new Event("storage"));
-                        window.dispatchEvent(new Event("credits-updated"));
-                    } else {
-                        deductCredits(COSTS.VOICE);
-                    }
-
-                    // Log activity
-                    const user = JSON.parse(localStorage.getItem("current_user") || "{}");
-                    try {
-                        await fetch("/api/activity", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                userEmail: user.email,
-                                userName: user.name,
-                                tool: "Voice",
-                                details: `Generated voice: "${text.substring(0, 50)}${text.length > 50 ? "..." : ""}"`,
-                            }),
-                        });
-                    } catch (activityError) {
-                        console.error("Failed to log activity:", activityError);
-                    }
-                    return;
-                }
-
-                if (pollData.status === "failed") {
-                    setError(pollData.error || "Audio generation failed.");
-                    return;
-                }
-
-                // Still processing — continue loop
+            // Sync credits
+            if (data.credits !== undefined) {
+                const user = JSON.parse(localStorage.getItem("current_user") || "{}");
+                user.credits = data.credits;
+                localStorage.setItem("current_user", JSON.stringify(user));
+                window.dispatchEvent(new Event("storage"));
+                window.dispatchEvent(new Event("credits-updated"));
+            } else {
+                deductCredits(COSTS.VOICE);
             }
 
-            setError("Audio generation timed out. Please try again.");
+            // Log activity
+            const user = JSON.parse(localStorage.getItem("current_user") || "{}");
+            try {
+                await fetch("/api/activity", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        userEmail: user.email,
+                        userName: user.name,
+                        tool: "Voice",
+                        details: `Generated voice: "${text.substring(0, 50)}${text.length > 50 ? "..." : ""}"`,
+                    }),
+                });
+            } catch (activityError) {
+                console.error("Failed to log activity:", activityError);
+            }
+
         } catch (err: any) {
             console.error("Voice generation error:", err);
             setError(err.message || "Network connection error.");
