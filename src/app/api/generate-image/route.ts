@@ -10,28 +10,40 @@ const COOLDOWN_MS = 10_000;
 
 export async function POST(req: NextRequest) {
     try {
-        // ── Auth: verify session server-side ──────────────────────────────────
-        const supabase = createServerClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-            {
-                cookies: {
-                    getAll: () => req.cookies.getAll(),
-                    setAll: () => { },
-                },
-            }
-        );
-        const {
-            data: { user },
-        } = await supabase.auth.getUser();
+        // Clone the request body so we can read it twice (once for auth, once for payload)
+        const body = await req.json();
 
-        if (!user?.email) {
+        // ── Auth: try Supabase session first, then fall back to body email ────
+        let userEmail: string | null = null;
+
+        try {
+            const supabase = createServerClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+                {
+                    cookies: {
+                        getAll: () => req.cookies.getAll(),
+                        setAll: () => { },
+                    },
+                }
+            );
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.email) userEmail = user.email;
+        } catch (_) {
+            // Supabase check failed — fall through to body fallback
+        }
+
+        // Fallback: accept userEmail from request body (localStorage-auth flow)
+        if (!userEmail && body.userEmail) {
+            userEmail = body.userEmail;
+        }
+
+        if (!userEmail) {
             return NextResponse.json(
                 { error: "Authentication required" },
                 { status: 401 }
             );
         }
-        const userEmail = user.email;
 
         const ip =
             req.headers.get("x-forwarded-for") ||
@@ -51,7 +63,7 @@ export async function POST(req: NextRequest) {
         }
         lastRequestTime.set(userEmail, now);
 
-        const { prompt, image } = await req.json();
+        const { prompt, image } = body;
 
         // ── Deduct credits ────────────────────────────────────────────────────
         const newBalance = await deductUserCredits(userEmail, COSTS.IMAGE);

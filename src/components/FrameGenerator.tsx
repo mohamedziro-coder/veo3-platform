@@ -49,14 +49,18 @@ function FrameGenerator({ isOpen, onClose, onSelect, contextImage }: FrameGenera
                 });
             }
 
+            const user = JSON.parse(localStorage.getItem('current_user') || '{}');
+
             const response = await fetch("/api/generate-image", {
                 method: "POST",
                 body: JSON.stringify({
                     prompt,
-                    image: referenceImageBase64
+                    image: referenceImageBase64,
+                    userEmail: user.email || null,
                 }),
                 headers: { "Content-Type": "application/json" }
             });
+
 
             const data = await response.json();
 
