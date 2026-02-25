@@ -87,9 +87,10 @@ export async function POST(req: NextRequest) {
         });
     } catch (error: any) {
         console.error("[IMAGE-GEN] Error:", error);
-        // ⚠️ Never expose internal error details to client
+        // Surface real Runway errors (moderation, timeout, etc.) to the client for better UX
+        const message = error?.message || "Image generation failed. Please try again.";
         return NextResponse.json(
-            { error: "Image generation failed. Please try again." },
+            { error: message },
             { status: 500 }
         );
     }

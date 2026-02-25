@@ -7,7 +7,7 @@ const ContentSecurityPolicy = `
   script-src 'self' 'unsafe-eval' 'unsafe-inline' https://va.vercel-scripts.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
-  img-src 'self' data: blob: https://images.unsplash.com https://lh3.googleusercontent.com https://*.supabase.co ${supabaseUrl};
+  img-src 'self' data: blob: https://images.unsplash.com https://lh3.googleusercontent.com https://*.supabase.co https://*.runwayml.com https://assets.runway.team ${supabaseUrl};
   media-src 'self' blob: https://*.runwayml.com https://*.supabase.co;
   connect-src 'self' ${supabaseUrl} https://*.supabase.co https://api.runwayml.com https://generativelanguage.googleapis.com https://va.vercel-scripts.com;
   frame-ancestors 'none';
@@ -74,6 +74,19 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "*.supabase.co",
+      },
+      // Runway CDN — image generation results
+      {
+        protocol: "https",
+        hostname: "*.runwayml.com",
+      },
+      {
+        protocol: "https",
+        hostname: "assets.runway.team",
+      },
+      {
+        protocol: "https",
+        hostname: "runway.com",
       },
     ],
   },
