@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import dynamic from 'next/dynamic';
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
 import ProgressDisplay from "@/components/ProgressDisplay";
+import MaintenanceBanner from "@/components/MaintenanceBanner";
 
 const FrameGenerator = dynamic(() => import('@/components/FrameGenerator'), {
     loading: () => null,
@@ -22,6 +23,7 @@ export default function VideoPage() {
     const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
     const [targetSlot, setTargetSlot] = useState<'start' | 'end' | null>(null);
     const [isPageLoading, setIsPageLoading] = useState(true);
+    const [isMaintenance, setIsMaintenance] = useState(false);
     const [startImage, setStartImage] = useState<File | null>(null);
     const [endImage, setEndImage] = useState<File | null>(null);
     const [startImageUrl, setStartImageUrl] = useState<string | null>(null);
@@ -44,7 +46,11 @@ export default function VideoPage() {
         if (!user) {
             router.push('/login');
         } else {
-            setIsPageLoading(false);
+            fetch('/api/admin/tool-status')
+                .then(r => r.json())
+                .then(d => { if (d.tools?.video === false) setIsMaintenance(true); })
+                .catch(() => { })
+                .finally(() => setIsPageLoading(false));
         }
     }, [router]);
 
@@ -56,6 +62,8 @@ export default function VideoPage() {
             </div>
         );
     }
+
+    if (isMaintenance) return <MaintenanceBanner toolName="Video Generation" />;
 
     const containerVariants = {
         hidden: { opacity: 0 },

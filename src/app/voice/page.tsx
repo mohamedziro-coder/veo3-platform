@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, Volume2, AlertCircle } from "lucide-react";
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
+import MaintenanceBanner from "@/components/MaintenanceBanner";
 
 const LANGUAGES = [
     { code: "en", label: "English 🇬🇧" },
@@ -48,6 +49,7 @@ export default function VoicePage() {
     const router = useRouter();
 
     const [isPageLoading, setIsPageLoading] = useState(true);
+    const [isMaintenance, setIsMaintenance] = useState(false);
     const [text, setText] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -65,7 +67,12 @@ export default function VoicePage() {
         if (!user) {
             router.push("/login");
         } else {
-            setIsPageLoading(false);
+            // Check maintenance status
+            fetch('/api/admin/tool-status')
+                .then(r => r.json())
+                .then(d => { if (d.tools?.voice === false) setIsMaintenance(true); })
+                .catch(() => { })
+                .finally(() => setIsPageLoading(false));
         }
     }, [router]);
 
@@ -82,6 +89,8 @@ export default function VoicePage() {
             </div>
         );
     }
+
+    if (isMaintenance) return <MaintenanceBanner toolName="Voice Synthesis" />;
 
     const containerVariants = {
         hidden: { opacity: 0 },

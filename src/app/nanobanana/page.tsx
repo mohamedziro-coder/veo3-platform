@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, Download, Wand2, Lightbulb, CheckCircle2 } from "lucide-react";
 import { COSTS, deductCredits, getUserCredits } from "@/lib/credits";
+import MaintenanceBanner from "@/components/MaintenanceBanner";
 const GENERATION_COST = 0; // Free for now or updated later
 
 export default function NanobananaPage() {
@@ -13,6 +14,7 @@ export default function NanobananaPage() {
 
     // All hooks must be declared BEFORE any conditional return
     const [isLoading, setIsLoading] = useState(true);
+    const [isMaintenance, setIsMaintenance] = useState(false);
     const [prompt, setPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -47,12 +49,23 @@ export default function NanobananaPage() {
         if (!user) {
             router.push('/login');
         } else {
-            setIsLoading(false);
+            fetch('/api/admin/tool-status')
+                .then(r => r.json())
+                .then(d => { if (d.tools?.image === false) setIsMaintenance(true); })
+                .catch(() => { })
+                .finally(() => setIsLoading(false));
         }
     }, [router]);
 
-    // Show loading while checking auth (AFTER all hooks)
-    // ... (keep existing loading check) ...
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
+    if (isMaintenance) return <MaintenanceBanner toolName="Image Generation" />;
 
     const handleGenerate = async () => {
         if (!prompt) return;

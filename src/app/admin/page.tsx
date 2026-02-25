@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Users, Trash2, ArrowLeft, ShieldAlert, Zap, BarChart3, Clock, Settings, Key, Gift, Plus, Minus, FileText } from "lucide-react";
+import { Users, Trash2, ArrowLeft, ShieldAlert, Zap, BarChart3, Clock, Settings, Key, Gift, Plus, Minus, FileText, Power, Wrench } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminPage() {
@@ -13,6 +13,8 @@ export default function AdminPage() {
     const [stats, setStats] = useState({ totalGenerations: 0, mostUsed: "-" });
     const [creditAmount, setCreditAmount] = useState(50);
     const [creditMessage, setCreditMessage] = useState("");
+    const [toolStatuses, setToolStatuses] = useState<Record<string, boolean>>({ video: true, image: true, voice: true });
+    const [togglingTool, setTogglingTool] = useState<string | null>(null);
 
     useEffect(() => {
         const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
@@ -73,6 +75,11 @@ export default function AdminPage() {
                     }
                 }
 
+                // Fetch tool statuses
+                const toolRes = await fetch('/api/admin/tool-status');
+                const toolData = await toolRes.json();
+                if (toolData.success) setToolStatuses(toolData.tools);
+
                 setIsLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -115,6 +122,30 @@ export default function AdminPage() {
     };
 
     if (isLoading) return null;
+
+    const TOOLS = [
+        { id: 'video', label: 'Video Generation', emoji: '🎬', color: 'purple' },
+        { id: 'image', label: 'Image Generation', emoji: '🖼️', color: 'yellow' },
+        { id: 'voice', label: 'Voice Synthesis', emoji: '🎤', color: 'blue' },
+    ];
+
+    const toggleTool = async (toolId: string, newValue: boolean) => {
+        setTogglingTool(toolId);
+        try {
+            const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+            const res = await fetch('/api/admin/tool-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ toolId, enabled: newValue, adminEmail: currentUser.email }),
+            });
+            const data = await res.json();
+            if (data.success) setToolStatuses(data.tools);
+        } catch (e) {
+            console.error('Failed to toggle tool', e);
+        } finally {
+            setTogglingTool(null);
+        }
+    };
 
     return (
         <main className="min-h-screen bg-gray-50 text-gray-900 pt-24 px-6 relative overflow-hidden">
@@ -332,6 +363,55 @@ export default function AdminPage() {
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+
+                {/* Tool Controls */}
+                <div className="bg-white border border-gray-200 rounded-3xl p-6 md:p-8 mb-8 shadow-sm">
+                    <h2 className="text-xl md:text-2xl font-bold mb-2 flex items-center gap-3">
+                        <Power className="w-5 h-5 md:w-6 md:h-6 text-red-500" />
+                        Tool Controls
+                    </h2>
+                    <p className="text-sm text-gray-500 mb-6">Turn a tool OFF to show a maintenance page to users with a WhatsApp support link.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {TOOLS.map((tool) => {
+                            const isOn = toolStatuses[tool.id] !== false;
+                            const isToggling = togglingTool === tool.id;
+                            return (
+                                <div
+                                    key={tool.id}
+                                    className={`rounded-2xl border-2 p-5 flex flex-col gap-4 transition-all ${isOn ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+                                        }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{tool.emoji}</span>
+                                        <div>
+                                            <p className="font-bold text-gray-900 text-sm">{tool.label}</p>
+                                            <span className={`text-xs font-bold uppercase tracking-wider ${isOn ? 'text-green-600' : 'text-red-500'
+                                                }`}>
+                                                {isOn ? '● Online' : '● Maintenance'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => toggleTool(tool.id, !isOn)}
+                                        disabled={isToggling}
+                                        className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 ${isOn
+                                            ? 'bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-200'
+                                            : 'bg-green-500 hover:bg-green-600 text-white shadow-md shadow-green-200'
+                                            }`}
+                                    >
+                                        {isToggling ? (
+                                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        ) : isOn ? (
+                                            <><Wrench className="w-4 h-4" /> Set to Maintenance</>
+                                        ) : (
+                                            <><Power className="w-4 h-4" /> Bring Back Online</>
+                                        )}
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
