@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Wrench, MessageCircle } from "lucide-react";
 
-const WHATSAPP_NUMBER = "212600000000"; // ← Update with real WhatsApp number
+const WHATSAPP_NUMBER = "212718502063";
 
 interface MaintenanceBannerProps {
     toolName: string;

@@ -14,7 +14,7 @@ const toolStatus: Record<ToolId, boolean> = {
     voice: true,
 };
 
-export const WHATSAPP_NUMBER = "212600000000"; // ← Change to real number
+export const WHATSAPP_NUMBER = "212718502063";
 
 /** GET /api/admin/tool-status  — returns all tool statuses */
 export async function GET() {
