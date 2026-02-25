@@ -57,14 +57,12 @@ export default function NanobananaPage() {
     const handleGenerate = async () => {
         if (!prompt) return;
 
-        // Get user for authentication
         const user = JSON.parse(localStorage.getItem('current_user') || '{}');
         if (!user.email) {
             setError("Authentication required. Please login.");
             return;
         }
 
-        // Re-check credits at moment of generation to be safe
         const freshCredits = getUserCredits();
         if (freshCredits < COSTS.IMAGE) {
             setError(`Insufficient credits (${freshCredits} available, ${COSTS.IMAGE} required)`);
@@ -76,50 +74,71 @@ export default function NanobananaPage() {
         setImageUrl(null);
 
         try {
-            const response = await fetch("/api/generate-image", {
+            // ── Step 1: Start generation (returns operationId immediately) ──
+            const startRes = await fetch("/api/generate-image", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    prompt: prompt,
-                    userEmail: user.email // Send email for credit deduction
-                })
+                body: JSON.stringify({ prompt, userEmail: user.email }),
             });
 
-            const data = await response.json();
+            const startData = await startRes.json();
 
-            if (data.success && data.raw?.url) {
-                setImageUrl(data.raw.url);
-
-                // Update credits from server response (DATABASE is source of truth)
-                if (data.credits !== undefined) {
-                    user.credits = data.credits;
-                    localStorage.setItem('current_user', JSON.stringify(user));
-                    window.dispatchEvent(new Event('storage'));
-                    window.dispatchEvent(new Event('credits-updated'));
-                } else {
-                    // Fallback to client-side deduction (shouldn't happen now)
-                    deductCredits(COSTS.IMAGE);
-                }
-
-                // Log Activity to Database
-                try {
-                    await fetch('/api/activity', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userEmail: user.email,
-                            userName: user.name,
-                            tool: 'Image',
-                            details: `Generated image: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
-                            resultUrl: data.raw.url // Save image URL
-                        })
-                    });
-                } catch (activityError) {
-                    console.error('Failed to log activity:', activityError);
-                }
-            } else {
-                setError(data.error || "Image generation failed. Please try again.");
+            if (!startRes.ok || !startData.operationId) {
+                setError(startData.error || "Image generation failed. Please try again.");
+                return;
             }
+
+            const { operationId } = startData;
+
+            // ── Step 2: Poll for result ──────────────────────────────────────
+            const MAX_POLLS = 60; // 60 × 3s = 3 minutes
+            for (let i = 0; i < MAX_POLLS; i++) {
+                await new Promise((r) => setTimeout(r, 3000));
+
+                const pollRes = await fetch(
+                    `/api/media/status?operationId=${operationId}&userEmail=${encodeURIComponent(user.email)}`
+                );
+                const pollData = await pollRes.json();
+
+                if (pollData.status === "complete" && pollData.imageUrl) {
+                    setImageUrl(pollData.imageUrl);
+
+                    // Sync credits
+                    if (pollData.credits !== undefined) {
+                        user.credits = pollData.credits;
+                        localStorage.setItem('current_user', JSON.stringify(user));
+                        window.dispatchEvent(new Event('storage'));
+                        window.dispatchEvent(new Event('credits-updated'));
+                    } else {
+                        deductCredits(COSTS.IMAGE);
+                    }
+
+                    // Log activity
+                    try {
+                        await fetch('/api/activity', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                userEmail: user.email,
+                                userName: user.name,
+                                tool: 'Image',
+                                details: `Generated image: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`,
+                                resultUrl: pollData.imageUrl,
+                            }),
+                        });
+                    } catch (activityError) {
+                        console.error('Failed to log activity:', activityError);
+                    }
+                    return;
+                }
+
+                if (pollData.status === "failed") {
+                    setError(pollData.error || "Image generation failed. Please try again.");
+                    return;
+                }
+            }
+
+            setError("Image generation timed out. Please try again.");
         } catch (err) {
             console.error("Image generation error:", err);
             setError("Network error. Please check your connection.");
@@ -127,6 +146,7 @@ export default function NanobananaPage() {
             setIsGenerating(false);
         }
     };
+
 
     if (isLoading) {
         return (

@@ -51,7 +51,8 @@ function FrameGenerator({ isOpen, onClose, onSelect, contextImage }: FrameGenera
 
             const user = JSON.parse(localStorage.getItem('current_user') || '{}');
 
-            const response = await fetch("/api/generate-image", {
+            // Step 1: Start generation (returns immediately)
+            const startRes = await fetch("/api/generate-image", {
                 method: "POST",
                 body: JSON.stringify({
                     prompt,
@@ -61,20 +62,39 @@ function FrameGenerator({ isOpen, onClose, onSelect, contextImage }: FrameGenera
                 headers: { "Content-Type": "application/json" }
             });
 
+            const startData = await startRes.json();
 
-            const data = await response.json();
-
-            if (data.success && data.raw?.url) {
-                setGeneratedImage(data.raw.url);
-            } else {
-                alert("Generation failed: " + (data.error || "Unknown error"));
+            if (!startRes.ok || !startData.operationId) {
+                alert("Generation failed: " + (startData.error || "Unknown error"));
+                return;
             }
+
+            // Step 2: Poll for result every 3s
+            const MAX_POLLS = 60;
+            for (let i = 0; i < MAX_POLLS; i++) {
+                await new Promise((r) => setTimeout(r, 3000));
+                const pollRes = await fetch(
+                    `/api/media/status?operationId=${startData.operationId}&userEmail=${encodeURIComponent(user.email || "")}`
+                );
+                const pollData = await pollRes.json();
+
+                if (pollData.status === "complete" && pollData.imageUrl) {
+                    setGeneratedImage(pollData.imageUrl);
+                    return;
+                }
+                if (pollData.status === "failed") {
+                    alert("Generation failed: " + (pollData.error || "Unknown error"));
+                    return;
+                }
+            }
+            alert("Image generation timed out. Please try again.");
         } catch (e) {
             alert("Failed to connect to Generator API");
         } finally {
             setIsGenerating(false);
         }
     };
+
 
     // Reset state when closing
     const handleClose = () => {

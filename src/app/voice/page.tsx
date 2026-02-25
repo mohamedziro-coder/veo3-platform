@@ -108,57 +108,91 @@ export default function VoicePage() {
 
         try {
             const voicePreset = resolveVoice(selectedLang, selectedGender);
-            const response = await fetch("/api/generate-audio", {
+            const userEmail = JSON.parse(localStorage.getItem("current_user") || "{}").email;
+
+            // ── Step 1: Start generation (returns immediately) ──────────────
+            const startRes = await fetch("/api/generate-audio", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     text,
                     voiceId: voicePreset,
                     languageCode: selectedLang,
-                    userEmail: JSON.parse(localStorage.getItem("current_user") || "{}").email,
+                    userEmail,
                 }),
             });
 
-            const data = await response.json();
+            const startData = await startRes.json();
 
-            if (!response.ok) {
-                setError(data.error || `Server error: ${response.status}`);
+            if (!startRes.ok || !startData.operationId) {
+                setError(startData.error || `Server error: ${startRes.status}`);
                 return;
             }
 
-            if (data.success && data.audioContent) {
-                const audioBlob = await fetch(`data:audio/mp3;base64,${data.audioContent}`).then((r) => r.blob());
-                const url = URL.createObjectURL(audioBlob);
-                setAudioUrl(url);
+            const { operationId } = startData;
 
-                if (data.credits !== undefined) {
+            // ── Step 2: Poll for result ─────────────────────────────────────
+            const MAX_POLLS = 60; // 60 × 3s = 3 minutes max
+            for (let i = 0; i < MAX_POLLS; i++) {
+                await new Promise((r) => setTimeout(r, 3000));
+
+                const pollRes = await fetch(
+                    `/api/media/status?operationId=${operationId}&userEmail=${encodeURIComponent(userEmail)}`
+                );
+                const pollData = await pollRes.json();
+
+                if (pollData.status === "complete") {
+                    if (!pollData.audioContent) {
+                        setError("No audio returned from server.");
+                        return;
+                    }
+
+                    // Build blob URL from base64
+                    const audioBlob = await fetch(
+                        `data:audio/mp3;base64,${pollData.audioContent}`
+                    ).then((r) => r.blob());
+                    const url = URL.createObjectURL(audioBlob);
+                    setAudioUrl(url);
+
+                    // Sync credits
+                    if (pollData.credits !== undefined) {
+                        const user = JSON.parse(localStorage.getItem("current_user") || "{}");
+                        user.credits = pollData.credits;
+                        localStorage.setItem("current_user", JSON.stringify(user));
+                        window.dispatchEvent(new Event("storage"));
+                        window.dispatchEvent(new Event("credits-updated"));
+                    } else {
+                        deductCredits(COSTS.VOICE);
+                    }
+
+                    // Log activity
                     const user = JSON.parse(localStorage.getItem("current_user") || "{}");
-                    user.credits = data.credits;
-                    localStorage.setItem("current_user", JSON.stringify(user));
-                    window.dispatchEvent(new Event("storage"));
-                    window.dispatchEvent(new Event("credits-updated"));
-                } else {
-                    deductCredits(COSTS.VOICE);
+                    try {
+                        await fetch("/api/activity", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                userEmail: user.email,
+                                userName: user.name,
+                                tool: "Voice",
+                                details: `Generated voice: "${text.substring(0, 50)}${text.length > 50 ? "..." : ""}"`,
+                            }),
+                        });
+                    } catch (activityError) {
+                        console.error("Failed to log activity:", activityError);
+                    }
+                    return;
                 }
 
-                const user = JSON.parse(localStorage.getItem("current_user") || "{}");
-                try {
-                    await fetch("/api/activity", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            userEmail: user.email,
-                            userName: user.name,
-                            tool: "Voice",
-                            details: `Generated voice: "${text.substring(0, 50)}${text.length > 50 ? "..." : ""}"`,
-                        }),
-                    });
-                } catch (activityError) {
-                    console.error("Failed to log activity:", activityError);
+                if (pollData.status === "failed") {
+                    setError(pollData.error || "Audio generation failed.");
+                    return;
                 }
-            } else {
-                setError(data.error || "Failed to generate audio.");
+
+                // Still processing — continue loop
             }
+
+            setError("Audio generation timed out. Please try again.");
         } catch (err: any) {
             console.error("Voice generation error:", err);
             setError(err.message || "Network connection error.");
@@ -166,6 +200,7 @@ export default function VoicePage() {
             setIsLoading(false);
         }
     };
+
 
     const togglePlayback = () => {
         if (!audioRef.current || !audioUrl) return;
@@ -253,8 +288,8 @@ export default function VoicePage() {
                                 <button
                                     onClick={() => setSelectedGender("man")}
                                     className={`flex-1 text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${selectedGender === "man"
-                                            ? "bg-primary text-white"
-                                            : "bg-white text-gray-500 hover:bg-gray-50"
+                                        ? "bg-primary text-white"
+                                        : "bg-white text-gray-500 hover:bg-gray-50"
                                         }`}
                                 >
                                     👨 Man
@@ -262,8 +297,8 @@ export default function VoicePage() {
                                 <button
                                     onClick={() => setSelectedGender("woman")}
                                     className={`flex-1 text-sm font-semibold transition-all flex items-center justify-center gap-1.5 border-l border-gray-200 ${selectedGender === "woman"
-                                            ? "bg-primary text-white"
-                                            : "bg-white text-gray-500 hover:bg-gray-50"
+                                        ? "bg-primary text-white"
+                                        : "bg-white text-gray-500 hover:bg-gray-50"
                                         }`}
                                 >
                                     👩 Woman
